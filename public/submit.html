@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JA Insight Hub · 录入 / Submit</title>
+<style>
+  :root{--navy:#0F2A4A;--accent:#1E6FB8;--green:#16a34a;--red:#dc2626;--border:#E2E8F0;--muted:#64748B;--bg:#F8FAFC}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:#1e293b;font-size:14px}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+  h1{font-size:20px;color:var(--navy);margin:0 0 4px}
+  .sub{color:var(--muted);font-size:12px;margin-bottom:20px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px}
+  .card h2{font-size:13px;color:var(--accent);margin:0 0 12px;text-transform:uppercase;letter-spacing:.04em}
+  label{display:block;font-size:12px;font-weight:600;color:#334155;margin:0 0 4px}
+  .hint{font-weight:400;color:var(--muted);font-size:11px}
+  input,textarea,select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;background:#fff}
+  textarea{min-height:64px;resize:vertical;line-height:1.5}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+  .field{margin-bottom:12px}
+  .langtabs{display:flex;gap:6px;margin-bottom:12px}
+  .langtabs button{padding:6px 14px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;font-size:12px}
+  .langtabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .en-block,.zh-block{display:block}
+  body.show-en .zh-block{display:none}
+  body.show-zh .en-block{display:none}
+  .submit{display:flex;gap:12px;align-items:center}
+  button.go{background:var(--accent);color:#fff;border:none;padding:11px 26px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+  button.go:disabled{opacity:.5;cursor:default}
+  #msg{font-size:13px}
+  #msg.ok{color:var(--green)}
+  #msg.err{color:var(--red)}
+  code{background:#F1F5F9;padding:1px 5px;border-radius:4px;font-size:12px}
+  /* Markdown live preview */
+  .md-prev{margin-top:6px;padding:10px 12px;border:1px dashed var(--border);border-radius:6px;background:#FBFDFF;font-size:13px;line-height:1.6;color:#1e293b;overflow-wrap:anywhere}
+  .md-prev .md-empty{color:var(--muted);font-style:italic}
+  .md-prev h1,.md-prev h2,.md-prev h3,.md-prev h4{margin:.4em 0 .3em;color:var(--navy);line-height:1.3}
+  .md-prev h1{font-size:17px}.md-prev h2{font-size:15px}.md-prev h3{font-size:14px}.md-prev h4{font-size:13px}
+  .md-prev p{margin:.4em 0}
+  .md-prev ul,.md-prev ol{margin:.4em 0;padding-left:1.4em}
+  .md-prev li{margin:.15em 0}
+  .md-prev blockquote{margin:.4em 0;padding:.2em .8em;border-left:3px solid var(--accent);background:#F1F5F9;color:#475569}
+  .md-prev pre{margin:.4em 0;padding:8px 10px;background:#0F172A;color:#E2E8F0;border-radius:6px;overflow:auto;font-size:12px}
+  .md-prev pre code{background:none;padding:0;color:inherit}
+  .md-prev code{background:#F1F5F9;padding:1px 5px;border-radius:4px;font-size:12px}
+  .md-prev a{color:var(--accent)}
+  .lbl-md{display:inline-block;margin-left:6px;padding:0 6px;border-radius:3px;background:#EFF6FF;color:var(--accent);font-size:10px;font-weight:600;vertical-align:middle}
+  /* Image uploader */
+  .img-list{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+  .img-item{position:relative;width:180px;border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
+  .img-item img{width:100%;height:110px;object-fit:cover;border-radius:6px;display:block}
+  .img-item .img-meta{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+  .img-item .img-meta input{font-size:11px;padding:5px 7px}
+  .img-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border:none;border-radius:50%;background:rgba(15,42,74,.85);color:#fff;cursor:pointer;font-size:12px;line-height:1}
+  /* Embedded in the workbench admin pane: drop page chrome + auth card */
+  body.embedded{background:#fff}
+  body.embedded .wrap{max-width:none;padding:6px 6px 24px}
+  body.embedded #pageTitle,body.embedded .sub,body.embedded #authCard{display:none}
+</style>
+</head>
+<body class="show-en">
+<div class="wrap">
+  <h1 id="pageTitle">JA Insight Hub · 洞察录入 / Submit Insight</h1>
+  <div class="sub">提交后后端会自动用 <b>英文版</b> 标题 + 关键属性 + 摘要生成向量并入库。带 * 为必填。
+    The backend auto-embeds the <b>English</b> title + key attributes + summary.</div>
+
+  <div class="card" id="authCard">
+    <h2>鉴权 / Auth</h2>
+    <div class="field">
+      <label>Ingest Token <span class="hint">（.env 里的 INGEST_TOKEN，或留空改用管理员 API key）</span></label>
+      <input id="ingestToken" type="password" placeholder="INGEST_TOKEN" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>Admin API Key <span class="hint">（可选，二选一：Bearer 管理员 key）</span></label>
+      <input id="adminKey" type="password" placeholder="ja_..." autocomplete="off" />
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>关键属性 / Key Attributes</h2>
+    <div class="row3">
+      <div><label>编号 report_id *</label><input id="report_id" placeholder="02" /></div>
+      <div><label>日期 report_date *</label><input id="report_date" type="date" /></div>
+      <div><label>类型 type</label><input id="type" placeholder="daily-insights" /></div>
+    </div>
+    <div class="row3">
+      <div><label>分类 category</label><input id="category" placeholder="中国教育市场" /></div>
+      <div><label>状态 status</label><input id="status" placeholder="RADAR" /></div>
+      <div><label>创建人 creator</label><input id="creator" placeholder="" /></div>
+    </div>
+    <div class="field">
+      <label>访问权限 access <span class="hint">（逗号分隔，如 <code>NUS,SMU,NTU</code>；留空 = <code>default</code> 所有人可见）</span></label>
+      <input id="access" placeholder="NUS,SMU,NTU" />
+    </div>
+    <div class="row">
+      <div><label>相关客户 clients</label><input id="clients" placeholder="NUS, SMU, NTU, INSEAD" /></div>
+      <div><label>适用赛道 tracks</label><input id="tracks" placeholder="Master's Programs / EMBA & MBA ..." /></div>
+    </div>
+  </div>
+
+  <div class="langtabs">
+    <button type="button" id="tabEn" class="on" onclick="setLang('en')">English 字段</button>
+    <button type="button" id="tabZh" onclick="setLang('zh')">中文字段</button>
+    <button type="button" id="tabBoth" onclick="setLang('both')">两者都显示</button>
+  </div>
+
+  <div class="card en-block">
+    <h2>English content</h2>
+    <div class="field"><label>Title (EN) *</label><textarea id="title_en"></textarea></div>
+    <div class="field"><label>Summary (EN) *<span class="lbl-md">Markdown</span></label><textarea id="summary_en" class="md" data-md="block"></textarea></div>
+    <div class="field"><label>Key Insights (EN)<span class="lbl-md">Markdown</span></label><textarea id="insight_en" class="md" data-md="block"></textarea></div>
+    <div class="field"><label>Recommendations (EN) <span class="hint">一行一条 / one per line · 支持 **粗体**、链接</span></label><textarea id="recommendations_en" class="md" data-md="lines"></textarea></div>
+    <div class="field"><label>Recommended Services (EN) <span class="hint">一行一条</span></label><textarea id="recommended_services_en"></textarea></div>
+  </div>
+
+  <div class="card zh-block">
+    <h2>中文内容</h2>
+    <div class="field"><label>标题（中文）</label><textarea id="title_zh"></textarea></div>
+    <div class="field"><label>摘要（中文）<span class="lbl-md">Markdown</span></label><textarea id="summary_zh" class="md" data-md="block"></textarea></div>
+    <div class="field"><label>洞察（中文）<span class="lbl-md">Markdown</span></label><textarea id="insight_zh" class="md" data-md="block"></textarea></div>
+    <div class="field"><label>建议（中文）<span class="hint">一行一条 · 支持 **粗体**、链接</span></label><textarea id="recommendations_zh" class="md" data-md="lines"></textarea></div>
+    <div class="field"><label>推荐服务（中文）<span class="hint">一行一条</span></label><textarea id="recommended_services_zh"></textarea></div>
+  </div>
+
+  <div class="card">
+    <h2>图片 / Images</h2>
+    <div class="field">
+      <label>上传图片 <span class="hint">后端会用视觉模型生成英文描述并向量化，可被语义检索命中 / vision-described &amp; embedded</span></label>
+      <input id="imgFile" type="file" accept="image/*" multiple onchange="addImages(this.files)" />
+    </div>
+    <div id="imgList" class="img-list"></div>
+  </div>
+
+  <div class="card">
+    <h2>来源 / Sources</h2>
+    <div class="field">
+      <label>每行一条，格式 <code>等级 | 标题 | URL</code> <span class="hint">tier | title | url</span></label>
+      <textarea id="sources" placeholder="E | SCMP: ... | https://www.scmp.com/..."></textarea>
+    </div>
+  </div>
+
+  <div class="submit">
+    <button class="go" id="goBtn" onclick="submitForm()">发布洞察 / Publish</button>
+    <span id="msg"></span>
+  </div>
+</div>
+
+<script>
+function setLang(l){
+  document.body.className = l==='both' ? '' : 'show-'+l;
+  document.getElementById('tabEn').classList.toggle('on', l==='en');
+  document.getElementById('tabZh').classList.toggle('on', l==='zh');
+  document.getElementById('tabBoth').classList.toggle('on', l==='both');
+}
+function val(id){ return (document.getElementById(id).value || '').trim(); }
+function lines(id){ return val(id).split('\n').map(s=>s.trim()).filter(Boolean); }
+function csv(id){ return val(id).split(',').map(s=>s.trim()).filter(Boolean); }
+
+function parseSources(){
+  return lines('sources').map(function(ln){
+    var p = ln.split('|').map(function(x){return x.trim();});
+    return { tier: p[0]||'', title: p[1]||'', url: p[2]||'' };
+  });
+}
+
+// ── Markdown live preview (mirror of src/mdrender.ts — keep in sync) ──────────
+function escHtml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){return escHtml(s).replace(/"/g,'&quot;');}
+function mdInline(escaped){
+  var s=escaped, codes=[];
+  s=s.replace(/`([^`]+)`/g,function(_,c){codes.push('<code>'+c+'</code>');return ' '+(codes.length-1)+' ';});
+  s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,function(_,t,u){return '<a href="'+u+'" target="_blank" rel="noopener noreferrer">'+t+'</a>';});
+  s=s.replace(/\*\*([^*]+?)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/(^|[^*\w])\*(?!\s)([^*]+?)\*(?!\w)/g,'$1<em>$2</em>');
+  s=s.replace(/(^|[^_\w])_(?!\s)([^_]+?)_(?!\w)/g,'$1<em>$2</em>');
+  s=s.replace(/ (\d+) /g,function(_,i){return codes[+i];});
+  return s;
+}
+function mdBlock(md){
+  if(!md)return '';
+  var lines=escHtml(String(md).replace(/\r\n?/g,'\n')).split('\n'),out=[],i=0;
+  function sp(l){return /^```/.test(l)||/^#{1,6}\s/.test(l)||/^&gt;\s?/.test(l)||/^\s*[-*+]\s+/.test(l)||/^\s*\d+[.)]\s+/.test(l);}
+  while(i<lines.length){
+    var line=lines[i];
+    if(/^```/.test(line)){var b=[];i++;while(i<lines.length&&!/^```\s*$/.test(lines[i]))b.push(lines[i++]);i++;out.push('<pre><code>'+b.join('\n')+'</code></pre>');continue;}
+    var h=line.match(/^(#{1,6})\s+(.*)$/);
+    if(h){var lv=h[1].length;out.push('<h'+lv+'>'+mdInline(h[2].trim())+'</h'+lv+'>');i++;continue;}
+    if(/^&gt;\s?/.test(line)){var bq=[];while(i<lines.length&&/^&gt;\s?/.test(lines[i]))bq.push(lines[i++].replace(/^&gt;\s?/,''));out.push('<blockquote>'+mdInline(bq.join(' '))+'</blockquote>');continue;}
+    if(/^\s*[-*+]\s+/.test(line)){var it=[];while(i<lines.length&&/^\s*[-*+]\s+/.test(lines[i]))it.push('<li>'+mdInline(lines[i++].replace(/^\s*[-*+]\s+/,''))+'</li>');out.push('<ul>'+it.join('')+'</ul>');continue;}
+    if(/^\s*\d+[.)]\s+/.test(line)){var j=[];while(i<lines.length&&/^\s*\d+[.)]\s+/.test(lines[i]))j.push('<li>'+mdInline(lines[i++].replace(/^\s*\d+[.)]\s+/,''))+'</li>');out.push('<ol>'+j.join('')+'</ol>');continue;}
+    if(/^\s*$/.test(line)){i++;continue;}
+    var p=[];while(i<lines.length&&!/^\s*$/.test(lines[i])&&!sp(lines[i]))p.push(lines[i++]);
+    out.push('<p>'+mdInline(p.join('\n')).replace(/\n/g,'<br>')+'</p>');
+  }
+  return out.join('\n');
+}
+function mdLines(txt){return txt.split('\n').map(function(s){return s.trim();}).filter(Boolean).map(function(l){return '<p>'+mdInline(escHtml(l))+'</p>';}).join('');}
+function bindAllMd(){
+  Array.prototype.forEach.call(document.querySelectorAll('textarea.md'),function(ta){
+    var prev=document.createElement('div');prev.className='md-prev';
+    var mode=ta.getAttribute('data-md')||'block';
+    function upd(){var v=ta.value;prev.innerHTML=v.trim()?(mode==='lines'?mdLines(v):mdBlock(v)):'<span class="md-empty">实时预览 / live preview</span>';}
+    ta.parentNode.insertBefore(prev,ta.nextSibling);
+    ta.addEventListener('input',upd);upd();
+  });
+}
+
+// ── Image uploader (base64 → sent in the create payload) ─────────────────────
+var imageItems=[];
+function addImages(files){
+  Array.prototype.forEach.call(files,function(f){
+    if(!/^image\//.test(f.type))return;
+    var r=new FileReader();
+    r.onload=function(){imageItems.push({data:r.result,alt:'',caption:''});renderImgList();};
+    r.readAsDataURL(f);
+  });
+  document.getElementById('imgFile').value='';
+}
+function renderImgList(){
+  document.getElementById('imgList').innerHTML=imageItems.map(function(im,i){
+    return '<div class="img-item"><img src="'+im.data+'" alt="">'
+      +'<div class="img-meta">'
+      +'<input placeholder="alt 替代文字" value="'+escAttr(im.alt)+'" oninput="imageItems['+i+'].alt=this.value">'
+      +'<input placeholder="图注 caption" value="'+escAttr(im.caption)+'" oninput="imageItems['+i+'].caption=this.value">'
+      +'</div>'
+      +'<button type="button" class="img-del" title="移除" onclick="imageItems.splice('+i+',1);renderImgList()">✕</button>'
+      +'</div>';
+  }).join('');
+  postHeight();
+}
+
+// ── Embedded mode (inside the workbench admin pane) ──────────────────────────
+// Same origin as the workbench, so we reuse its stored API key and report
+// success back to the parent. Outside an iframe this all no-ops.
+var EMBED=(function(){try{return window.self!==window.top;}catch(e){return true;}})();
+function embeddedKey(){try{return localStorage.getItem('ja_api_key')||'';}catch(e){return '';}}
+function postHeight(){if(!EMBED)return;try{parent.postMessage({type:'ja-frame-height',height:document.documentElement.scrollHeight+24},'*');}catch(e){}}
+
+async function submitForm(){
+  var msg = document.getElementById('msg'), btn = document.getElementById('goBtn');
+  msg.className=''; msg.textContent='';
+
+  if(!val('report_id') || !val('report_date') || !val('title_en') || !val('summary_en')){
+    msg.className='err'; msg.textContent='请填写 report_id / report_date / 英文标题 / 英文摘要'; return;
+  }
+
+  var access = csv('access');
+  var payload = {
+    report_id: val('report_id'),
+    report_date: val('report_date'),
+    access: access.length ? access : undefined,
+    category: val('category')||undefined,
+    status: val('status')||undefined,
+    type: val('type')||undefined,
+    creator: val('creator')||undefined,
+    clients: val('clients')||undefined,
+    tracks: val('tracks')||undefined,
+    title_en: val('title_en'),
+    title_zh: val('title_zh')||undefined,
+    summary_en: val('summary_en'),
+    summary_zh: val('summary_zh')||undefined,
+    insight_en: val('insight_en')||undefined,
+    insight_zh: val('insight_zh')||undefined,
+    recommendations_en: lines('recommendations_en'),
+    recommendations_zh: lines('recommendations_zh'),
+    recommended_services_en: lines('recommended_services_en'),
+    recommended_services_zh: lines('recommended_services_zh'),
+    sources: parseSources(),
+  };
+  // The "key attributes as JSON" blob — stored verbatim alongside the columns.
+  payload.attributes = {
+    date: payload.report_date,
+    id: payload.report_id,
+    access: access.length ? access : ['default'],
+    type: payload.type || null,
+    category_en: payload.category || null,
+    status: payload.status || null,
+    clients_en: payload.clients || null,
+    tracks_en: payload.tracks || null,
+    lang: 'en'
+  };
+  if(imageItems.length){
+    payload.images = imageItems.map(function(im){
+      return { data: im.data, alt: im.alt||undefined, caption: im.caption||undefined };
+    });
+  }
+
+  var headers = { 'Content-Type':'application/json' };
+  if(EMBED){
+    var ek = embeddedKey();
+    if(!ek){ msg.className='err'; msg.textContent='未登录或缺少 API Key，请在工作台重新登录'; return; }
+    headers['Authorization'] = 'Bearer ' + ek;
+  } else {
+    var token = val('ingestToken'), adminKey = val('adminKey');
+    if(token) headers['X-Ingest-Token'] = token;
+    if(adminKey) headers['Authorization'] = 'Bearer ' + adminKey;
+    if(!token && !adminKey){ msg.className='err'; msg.textContent='请填写 Ingest Token 或 Admin API Key'; return; }
+  }
+
+  btn.disabled = true; msg.textContent='提交中…';
+  try{
+    var res = await fetch('/api/insights', { method:'POST', headers: headers, body: JSON.stringify(payload) });
+    var data = await res.json();
+    if(res.ok){
+      msg.className='ok'; msg.textContent='✅ 已发布并向量化 · id=' + data.insight.id;
+      if(EMBED){ try{ parent.postMessage({type:'ja-insight-created', insight:data.insight}, '*'); }catch(e){} }
+    }
+    else { msg.className='err'; msg.textContent='❌ ' + (data.error || res.status) + (data.details?(' · '+JSON.stringify(data.details.fieldErrors)):''); }
+  }catch(e){ msg.className='err'; msg.textContent='❌ ' + e.message; }
+  finally{ btn.disabled = false; postHeight(); }
+}
+
+// Attach live Markdown previews to the tagged textareas.
+bindAllMd();
+
+// When embedded in the workbench: hide page chrome, auto-size the iframe.
+if(EMBED){
+  document.body.classList.add('embedded');
+  window.addEventListener('resize', postHeight);
+  window.addEventListener('load', postHeight);
+  document.addEventListener('input', postHeight, true);
+  // Fires on first layout (incl. when the hidden admin pane becomes visible)
+  // and whenever previews/images grow the form.
+  if(window.ResizeObserver){ try{ new ResizeObserver(postHeight).observe(document.body); }catch(e){} }
+  postHeight();
+}
+</script>
+</body>
+</html>

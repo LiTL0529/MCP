@@ -1,0 +1,35 @@
+{
+  "name": "ja-insight-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "JA Insight Hub MCP server — Supabase + pgvector bilingual insight reports with per-user access control",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/src/server.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "create-key": "tsx scripts/create-user.ts",
+    "backfill": "tsx scripts/backfill-embeddings.ts",
+    "ingest-md": "tsx scripts/ingest-md.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "https-proxy-agent": "^9.1.0",
+    "openai": "^4.67.0",
+    "undici": "^7.27.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.7.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

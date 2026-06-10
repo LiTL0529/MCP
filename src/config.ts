@@ -1,0 +1,61 @@
+import "dotenv/config";
+import { setGlobalDispatcher, EnvHttpProxyAgent } from "undici";
+
+function required(name: string): string {
+  const v = process.env[name];
+  if (!v || !v.trim()) {
+    throw new Error(`Missing required env var: ${name}. Copy .env.example to .env and fill it in.`);
+  }
+  return v.trim();
+}
+
+function optional(name: string, fallback = ""): string {
+  return (process.env[name] ?? fallback).trim();
+}
+
+// Outbound proxy (common in CN networks where api.openai.com needs a proxy).
+// Honour the standard env vars; HTTPS_PROXY wins.
+const proxyUrl =
+  optional("HTTPS_PROXY") ||
+  optional("https_proxy") ||
+  optional("HTTP_PROXY") ||
+  optional("http_proxy") ||
+  optional("ALL_PROXY") ||
+  undefined;
+
+// Route Node's global fetch (used by @supabase/supabase-js) through the proxy.
+// EnvHttpProxyAgent honours HTTP(S)_PROXY *and* NO_PROXY, so localhost (e.g. an
+// MCP client hitting our own server) bypasses the proxy while api.openai.com /
+// *.supabase.co go through it.
+if (proxyUrl) {
+  setGlobalDispatcher(new EnvHttpProxyAgent());
+}
+
+export const config = {
+  proxyUrl,
+  supabaseUrl: required("SUPABASE_URL"),
+  supabaseServiceRoleKey: required("SUPABASE_SERVICE_ROLE_KEY"),
+
+  openaiApiKey: required("OPENAI_API_KEY"),
+  // Optional: point at an OpenAI-compatible endpoint (e.g. Alibaba DashScope
+  // https://dashscope.aliyuncs.com/compatible-mode/v1). Empty => OpenAI default.
+  openaiBaseUrl: optional("OPENAI_BASE_URL") || undefined,
+  embeddingModel: optional("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
+  embeddingDim: Number(optional("EMBEDDING_DIM", "1536")),
+  // Vision model used to describe uploaded images; the description is then
+  // embedded with `embeddingModel` so images live in the same vector space as
+  // text. Must be served by the same OPENAI_BASE_URL / OPENAI_API_KEY.
+  visionModel: optional("OPENAI_VISION_MODEL", "gpt-4o-mini"),
+
+  // Supabase Storage bucket that holds uploaded insight images (public read).
+  storageBucket: optional("SUPABASE_STORAGE_BUCKET", "ja-insight-images"),
+
+  port: Number(optional("PORT", "8787")),
+  ingestToken: optional("INGEST_TOKEN"),
+  corsOrigins: optional("CORS_ORIGINS")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+};
+
+export type AppConfig = typeof config;

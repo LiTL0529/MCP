@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "ja-key",
+      "description": "JA Insight Hub API Key (ja_...)",
+      "password": true
+    }
+  ],
+  "servers": {
+    "ja-insights-hub": {
+      "type": "http",
+      "url": "http://localhost:8787/mcp",
+      "headers": {
+        "Authorization": "Bearer ${input:ja-key}"
+      }
+    }
+  }
+}
