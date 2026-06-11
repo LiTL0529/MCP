@@ -499,7 +499,8 @@
 </div>
 <div class="adm-sub active" id="sub-daily">
 <div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📡 实时洞察上传</div></div>
-<iframe id="submitFrame" src="/submit.html" title="实时洞察录入" style="width:100%;height:1200px;border:0;display:block;background:#fff"></iframe>
+<iframe id="submitFrame" src="about:blank" data-src="/submit.html" title="实时洞察录入" style="width:100%;height:1200px;border:0;display:block;background:#fff"></iframe>
+<script>(function(){var f=document.getElementById('submitFrame');if(f)f.src=(window.JA_BASE||'')+f.getAttribute('data-src');})();</script>
 </div>
 </div>
 
@@ -1936,7 +1937,9 @@ try {
   JA.api = function(path, opts){
     opts = opts || {};
     opts.headers = Object.assign({}, opts.headers || {}, { 'Authorization': 'Bearer ' + JA.key() });
-    return fetch(path, opts);
+    // window.JA_BASE lets the app be mounted under a sub-path (e.g. '/ja' when
+    // proxied at insights.jefurryaxis.ai). Empty when served from the app root.
+    return fetch((window.JA_BASE || '') + path, opts);
   };
 
   function setIdentity(me){

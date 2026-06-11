@@ -375,7 +375,8 @@ async function submitForm(){
 
   btn.disabled = true; msg.textContent='提交中…';
   try{
-    var res = await fetch('/api/insights', { method:'POST', headers: headers, body: JSON.stringify(payload) });
+    // Relative so it works whether served at /submit.html or /ja/submit.html.
+    var res = await fetch('api/insights', { method:'POST', headers: headers, body: JSON.stringify(payload) });
     var data = await res.json();
     if(res.ok){
       msg.className='ok'; msg.textContent='✅ 已发布并向量化 · id=' + data.insight.id;
