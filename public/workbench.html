@@ -1936,7 +1936,13 @@ try {
   JA.key = function(){ return localStorage.getItem(KS) || ''; };
   JA.api = function(path, opts){
     opts = opts || {};
-    opts.headers = Object.assign({}, opts.headers || {}, { 'Authorization': 'Bearer ' + JA.key() });
+    // Primary auth is the portal session cookie (sent automatically same-origin).
+    // A legacy API key in localStorage, if present, is still honoured.
+    var key = JA.key();
+    var headers = Object.assign({}, opts.headers || {});
+    if (key) headers['Authorization'] = 'Bearer ' + key;
+    opts.headers = headers;
+    opts.credentials = opts.credentials || 'same-origin';
     // window.JA_BASE lets the app be mounted under a sub-path (e.g. '/ja' when
     // proxied at insights.jefurryaxis.ai). Empty when served from the app root.
     return fetch((window.JA_BASE || '') + path, opts);
@@ -1986,7 +1992,7 @@ try {
       await showApp(JA.me);
     } catch(e){ showLogin('连接失败：' + e.message); }
   };
-  JA.logout = function(){ localStorage.removeItem(KS); JA.me = null; showLogin(''); };
+  JA.logout = function(){ localStorage.removeItem(KS); JA.me = null; window.location.href = '/login'; };
   window.doLogin = JA.login;
   window.doLogout = JA.logout;
 
@@ -2043,13 +2049,15 @@ try {
   });
 
   JA.boot = async function(){
-    if(!JA.key()){ showLogin(''); return; }
+    // Portal-cookie auth: the page is gated by the portal login (nginx
+    // auth_request), so the jh_access_token cookie is present. Ask the backend
+    // who we are — no API key prompt. If the cookie is missing/expired, send the
+    // user to the portal login.
     try {
       var r = await JA.api('/api/me');
-      if(!r.ok){ showLogin(''); return; }
-      JA.me = await r.json();
-      await showApp(JA.me);
-    } catch(e){ showLogin(''); }
+      if(r.ok){ JA.me = await r.json(); await showApp(JA.me); return; }
+    } catch(e){}
+    window.location.href = '/login';
   };
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', JA.boot);

@@ -121,7 +121,7 @@ export async function searchInsights(user: UserContext, params: SearchParams) {
   const { data, error } = await supabase.rpc("ja_match_insights", {
     query_embedding: queryEmbedding,
     p_groups: user.accessGroups,
-    p_is_admin: user.isAdmin,
+    p_is_admin: user.seeAll,
     match_count: params.limit ?? 10,
     p_category: params.category ?? null,
     p_status: params.status ?? null,
@@ -148,7 +148,7 @@ export async function listInsights(user: UserContext, params: ListParams) {
 
   const { data, error } = await supabase.rpc("ja_list_insights", {
     p_groups: user.accessGroups,
-    p_is_admin: user.isAdmin,
+    p_is_admin: user.seeAll,
     p_category: params.category ?? null,
     p_status: params.status ?? null,
     p_date_from: params.dateFrom ?? null,
@@ -174,7 +174,7 @@ export async function aggregateInsights(user: UserContext, params: AggregatePara
   const groupBy: AggregateGroupBy = params.groupBy ?? "category";
   const { data, error } = await supabase.rpc("ja_aggregate_insights", {
     p_groups: user.accessGroups,
-    p_is_admin: user.isAdmin,
+    p_is_admin: user.seeAll,
     p_group_by: groupBy,
     p_category: params.category ?? null,
     p_status: params.status ?? null,
@@ -192,7 +192,7 @@ export async function getInsight(user: UserContext, id: string, lang: Lang = "bo
   const { data, error } = await supabase.rpc("ja_get_insight", {
     p_id: id,
     p_groups: user.accessGroups,
-    p_is_admin: user.isAdmin,
+    p_is_admin: user.seeAll,
   });
 
   if (error) throw new Error(`ja_get_insight failed: ${error.message}`);

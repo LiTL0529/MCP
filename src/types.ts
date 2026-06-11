@@ -1,10 +1,13 @@
-/** The authenticated caller, derived from their API key. */
+/** The authenticated caller — from a portal session cookie or an API key. */
 export interface UserContext {
   userId: string;
   email: string;
   name: string | null;
   accessGroups: string[];
-  isAdmin: boolean;
+  isAdmin: boolean;                 // may ingest insights + read the audit log
+  seeAll: boolean;                  // may read every insight (employees: true; customers: false)
+  role?: string | null;            // portal role (admin/super_admin/ae/am/transfer/customer)
+  authVia: "apikey" | "portal";
 }
 
 export type Lang = "en" | "zh" | "both";

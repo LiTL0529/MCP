@@ -74,6 +74,11 @@ export const config = {
     ? "full"
     : "summary") as "summary" | "full",
 
+  // Existing portal (FastAPI) base URL. Browser users are identified by
+  // delegating to the portal's GET /api/me with their forwarded session cookie
+  // (jh_access_token). Same Supabase project, same box.
+  portalApiBase: optional("PORTAL_API_BASE", "http://127.0.0.1:8100"),
+
   port: Number(optional("PORT", "8787")),
   ingestToken: optional("INGEST_TOKEN"),
   corsOrigins: optional("CORS_ORIGINS")

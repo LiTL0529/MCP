@@ -5,7 +5,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { config } from "./config.js";
-import { resolveApiKey } from "./auth.js";
+import { resolveApiKey, resolvePortalUser } from "./auth.js";
 import { queryToolCalls, recordSession } from "./audit.js";
 import { buildMcpServer } from "./mcp.js";
 import { createInsight, getDailyCards, getInsight, listInsights, searchInsights } from "./insights.js";
@@ -32,14 +32,13 @@ function bearer(req: Request): string | null {
 
 // ── Auth middleware (MCP read path) ────────────────────────
 async function requireUser(req: Request, res: Response, next: NextFunction) {
+  // Browser users authenticate via the portal session cookie; agents/scripts via
+  // a Bearer API key. Try the key first, then fall back to the portal cookie.
   const raw = bearer(req);
-  if (!raw) {
-    res.status(401).json({ error: "Missing 'Authorization: Bearer <api_key>' header" });
-    return;
-  }
-  const user = await resolveApiKey(raw);
+  let user = raw ? await resolveApiKey(raw) : null;
+  if (!user) user = await resolvePortalUser(req.header("cookie"));
   if (!user) {
-    res.status(401).json({ error: "Invalid or revoked API key" });
+    res.status(401).json({ error: "未登录或登录已失效（请先登录 portal，或提供有效 API key）" });
     return;
   }
   req.user = user;
@@ -54,16 +53,17 @@ async function requireIngestAuth(req: Request, res: Response, next: NextFunction
     next();
     return;
   }
+  // Otherwise require an authenticated ADMIN — a portal admin (cookie) or an
+  // admin API key. Only admins may ingest insights.
   const raw = bearer(req);
-  if (raw) {
-    const user = await resolveApiKey(raw);
-    if (user?.isAdmin) {
-      req.user = user;
-      next();
-      return;
-    }
+  let user = raw ? await resolveApiKey(raw) : null;
+  if (!user) user = await resolvePortalUser(req.header("cookie"));
+  if (user?.isAdmin) {
+    req.user = user;
+    next();
+    return;
   }
-  res.status(401).json({ error: "Ingest requires the INGEST_TOKEN header or an admin API key" });
+  res.status(403).json({ error: "仅管理员可录入洞察" });
 }
 
 // ── Ingest payload schema ──────────────────────────────────
@@ -225,7 +225,10 @@ export function buildApp() {
       return;
     }
     try {
-      const created = await createInsight(parsed.data, req.user?.userId);
+      // created_by FKs ja_users — only set it for API-key users (portal user ids
+      // live in Supabase auth, not ja_users).
+      const createdBy = req.user?.authVia === "apikey" ? req.user.userId : undefined;
+      const created = await createInsight(parsed.data, createdBy);
       res.status(201).json({ ok: true, insight: created });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
@@ -246,9 +249,10 @@ export function buildApp() {
     }
     const created: any[] = [];
     const failed: any[] = [];
+    const createdBy = req.user?.authVia === "apikey" ? req.user.userId : undefined;
     for (const input of inputs) {
       try {
-        created.push(await createInsight(input, req.user?.userId));
+        created.push(await createInsight(input, createdBy));
       } catch (e) {
         failed.push({ report_id: input.report_id, report_date: input.report_date, error: (e as Error).message });
       }
@@ -270,7 +274,7 @@ export function buildApp() {
 
   app.get("/api/me", requireUser, (req, res) => {
     const u = req.user!;
-    res.json({ email: u.email, name: u.name, access_groups: u.accessGroups, is_admin: u.isAdmin });
+    res.json({ email: u.email, name: u.name, access_groups: u.accessGroups, is_admin: u.isAdmin, role: u.role ?? null });
   });
 
   // Audit trail (admin only) — the recorded agent⇄server tool-call conversation.

@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { supabase } from "./supabase.js";
+import { config } from "./config.js";
 import type { UserContext } from "./types.js";
 
 export function hashKey(raw: string): string {
@@ -55,5 +56,49 @@ export async function resolveApiKey(raw: string): Promise<UserContext | null> {
     name: user.name,
     accessGroups: user.access_groups ?? [],
     isAdmin: user.is_admin,
+    seeAll: user.is_admin, // API-key users: admin sees all; others see their groups + default
+    role: null,
+    authVia: "apikey",
   };
+}
+
+/**
+ * Resolve a browser request to its portal identity by delegating to the existing
+ * FastAPI portal's `GET /api/me` with the forwarded session cookie
+ * (`jh_access_token`, a Supabase Auth JWT). Both apps share one Supabase project,
+ * so the portal is the single source of truth for who the user is and whether
+ * they're an admin. Returns null if the cookie is missing or invalid.
+ *
+ * Visibility: any logged-in employee may read every insight; the `customer` role
+ * is restricted to public (access=default) insights. Only admins may ingest.
+ */
+export async function resolvePortalUser(
+  cookieHeader: string | undefined,
+): Promise<UserContext | null> {
+  if (!cookieHeader || cookieHeader.indexOf("jh_access_token") === -1) return null;
+  try {
+    const r = await fetch(`${config.portalApiBase}/api/me`, { headers: { cookie: cookieHeader } });
+    if (!r.ok) return null;
+    const me = (await r.json()) as {
+      id?: string;
+      email?: string;
+      name?: string | null;
+      role?: string | null;
+      is_admin?: boolean;
+    };
+    if (!me || !me.email) return null;
+    const role = me.role ?? null;
+    return {
+      userId: me.id ?? me.email,
+      email: me.email,
+      name: me.name ?? null,
+      accessGroups: [],
+      isAdmin: Boolean(me.is_admin),
+      seeAll: role !== "customer", // employees see all; customers only access=default
+      role,
+      authVia: "portal",
+    };
+  } catch {
+    return null;
+  }
 }

@@ -364,7 +364,7 @@ export function buildMcpServer(user: UserContext): McpServer {
       },
       async (args) => {
         try {
-          const result = await runReadonlySql(args.sql, user.accessGroups, user.isAdmin);
+          const result = await runReadonlySql(args.sql, user.accessGroups, user.seeAll);
           return jsonResult({
             source: "ja-insight-hub",
             columns: result.columns,
