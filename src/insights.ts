@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js";
+import { config } from "./config.js";
 import { buildFieldInputs, describeImage, embed, embedMany } from "./embeddings.js";
 import { uploadImage } from "./storage.js";
 import { toDailyCard, type DailyCard } from "./cardmap.js";
@@ -24,6 +25,16 @@ export interface ListParams {
   limit?: number;
   offset?: number;
   lang?: Lang;
+}
+
+export type AggregateGroupBy = "category" | "status" | "type" | "month";
+
+export interface AggregateParams {
+  groupBy?: AggregateGroupBy;
+  category?: string | null;
+  status?: string | null;
+  dateFrom?: string | null;
+  dateTo?: string | null;
 }
 
 export interface CreateInsightInput {
@@ -116,7 +127,8 @@ export async function searchInsights(user: UserContext, params: SearchParams) {
     p_status: params.status ?? null,
     p_date_from: params.dateFrom ?? null,
     p_date_to: params.dateTo ?? null,
-    min_similarity: params.minSimilarity ?? 0,
+    // Default threshold drops weak matches; an explicit value (incl. 0) wins.
+    min_similarity: params.minSimilarity ?? config.searchMinSimilarity,
   });
 
   if (error) throw new Error(`ja_match_insights failed: ${error.message}`);
@@ -154,6 +166,26 @@ export async function listInsights(user: UserContext, params: ListParams) {
     offset,
     items: rows.map((r: any) => shapeSummaryRow(r, lang)),
   };
+}
+
+// Counts grouped by category/status/type/month, computed in Postgres so the
+// model never has to enumerate-and-tally. Returns the buckets plus a total.
+export async function aggregateInsights(user: UserContext, params: AggregateParams) {
+  const groupBy: AggregateGroupBy = params.groupBy ?? "category";
+  const { data, error } = await supabase.rpc("ja_aggregate_insights", {
+    p_groups: user.accessGroups,
+    p_is_admin: user.isAdmin,
+    p_group_by: groupBy,
+    p_category: params.category ?? null,
+    p_status: params.status ?? null,
+    p_date_from: params.dateFrom ?? null,
+    p_date_to: params.dateTo ?? null,
+  });
+
+  if (error) throw new Error(`ja_aggregate_insights failed: ${error.message}`);
+  const buckets = (data ?? []).map((r: any) => ({ bucket: r.bucket, count: Number(r.count) }));
+  const total = buckets.reduce((sum: number, b: { count: number }) => sum + b.count, 0);
+  return { group_by: groupBy, total, buckets };
 }
 
 export async function getInsight(user: UserContext, id: string, lang: Lang = "both") {

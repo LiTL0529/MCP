@@ -36,7 +36,7 @@
 可见  ⇔  是 admin  ∨  'default' ∈ access  ∨  access ∩ 用户权限组 ≠ ∅
 ```
 
-检索/浏览/取详情分别走 `match_insights` / `list_insights` / `get_insight` 三个 RPC，
+检索/浏览/聚合/取详情分别走 `match_insights` / `list_insights` / `aggregate_insights` / `get_insight` 四个 RPC，
 它们都接收调用者的 `(groups, is_admin)` 并在库内完成权限过滤。
 
 ---
@@ -57,6 +57,7 @@ cp .env.example .env      # 填入下方变量
 | `OPENAI_EMBEDDING_MODEL` | 默认 `text-embedding-3-small` |
 | `OPENAI_VISION_MODEL` | 描述图片的视觉模型，默认 `gpt-4o-mini`（DashScope 用 `qwen-vl-max`）。须与 embedding 同一 `OPENAI_BASE_URL`/key |
 | `SUPABASE_STORAGE_BUCKET` | 存图片的公开桶，默认 `ja-insight-images`（建库脚本会自动创建） |
+| `SEARCH_MIN_SIMILARITY` | 语义检索默认最低相似度，默认 `0.2`；低于它的弱匹配直接不返回。单次可用 `min_similarity` 覆盖（传 `0` = 全返回） |
 | `EMBEDDING_DIM` | 必须与迁移里的 `vector(N)` 一致（3-small = 1536） |
 | `PORT` | HTTP 端口，默认 8787 |
 | `INGEST_TOKEN` | 录入表单用的共享令牌（也可改用 admin API key） |
@@ -179,12 +180,71 @@ Streamable HTTP，鉴权走 header。Claude Code 示例（`.mcp.json`）：
 | 工具 | 作用 | 主要参数 |
 |---|---|---|
 | `whoami` | 返回当前用户、权限组、是否 admin | — |
-| `search_insights` | 语义检索（标题/摘要/属性/图片四向量分别打分取 max、去重、返回整篇全文 + 图片 + `matched_field`），仅返回有权访问的 | `query`(必填)、`limit`、`category`、`status`、`date_from`、`date_to`、`min_similarity`、`lang` |
-| `list_insights` | 按条件浏览/分页（非语义） | `category`、`status`、`date_from`、`date_to`、`limit`、`offset`、`lang` |
+| `search_insights` | **语义检索**：找「最相关的几条」。标题/摘要/属性/图片四向量分别打分取 max、去重、返回整篇全文 + 图片 + `matched_field`，仅返回有权访问的 | `query`(必填)、`limit`、`category`、`status`、`date_from`、`date_to`、`min_similarity`、`lang` |
+| `list_insights` | **枚举/浏览**：按精确字段（品类/状态/日期）取「全部」并分页（非相关度排序）。用于「某时间段/某品类的全部洞察」这类需要完整集合再综述的场景，返回 `total` 可翻页 | `category`、`status`、`date_from`、`date_to`、`limit`(≤200)、`offset`、`lang` |
+| `aggregate_insights` | **聚合统计**：按 `group_by`（`category`/`status`/`type`/`month`）在库内算 `count`，回答「有多少 / 各品类分布 / 按月趋势」。`month` 按 `YYYY-MM` 升序排，适合趋势 | `group_by`、`category`、`status`、`date_from`、`date_to` |
 | `get_insight` | 按 id 取整篇双语报告 | `id`(uuid)、`lang` |
+| `run_sql` | **自助跨表 SQL**:让 agent 自己写只读 `SELECT`/`WITH` 做多表 JOIN / 复杂聚合。**仅在配置了 `SUPABASE_READONLY_URL` 时注册**。权限不在工具里、也不信任 agent 的 SQL——查询以低权限只读角色 `ja_reader` 在 **RLS** 下执行,调用者的 `(groups, is_admin)` 由服务端从 API key 注入,所以无论写什么 SQL 都看不到无权的行 | `sql`(单条只读语句) |
+| `list_tool_calls` | **审计读取(仅 admin)**:翻看记录下来的 agent⇄server 对话——每次工具调用的参数、结果摘要、成败、耗时。**只对 admin 注册**,普通用户的工具列表里看不到。传 `session_id` 可拉出某次会话的完整往返 | `tool`、`email`、`session_id`、`errors_only`、`date_from`、`date_to`、`limit`、`offset` |
 
 `lang` ∈ `en` / `zh` / `both`（默认 `both`，前端可自行切换中英文）。
 `get_insight` 对无权或不存在的 id 统一返回 `{found:false}`（不泄露是否存在）。
+
+> **检索分流（agentic RAG 的关键）**：语义检索负责「找得到」，但「需要把很多条联合总结/统计才能得出」的问题靠它不行——
+> 让 agent 自己分流：找某几条相关 → `search_insights`；要某切片的全部再归纳 → `list_insights`(翻页取全量) → 逐条 `get_insight`；
+> 计数/分布/趋势 → `aggregate_insights`（库内算好数字，**不要让模型自己数**）；
+> 上面四个表达不了的多表 JOIN / 自定义聚合 → `run_sql`（见下）。
+
+### 跨表自助 SQL：`run_sql` + `ja-insights-sql` skill
+
+当 agent 需要「跨多张表关联、多维度组合过滤、自定义 GROUP BY」这类前四个工具表达不了的查询时,让它**自己写只读 SQL**。安全模型分两层,职责不混:
+
+- **Skill 管「会写」**:`skills/ja-insights-sql/SKILL.md` 给 agent schema、查询约定和范例;`schema://ja-insights` 这个 MCP resource 实时从库里生成可查的表/列(永不漂移)。
+- **数据库管「能看」**(真正的安全边界,见 `migrations/0006_readonly_sql.sql`):查询以低权限角色 **`ja_reader`** 执行——只有非向量列的 `SELECT` 权限、`default_transaction_read_only`、且**受 RLS 约束**。RLS 复用 `ja_can_access`,调用者的 `(groups, is_admin)` 由 Node 层从 API key 注入到事务级 GUC。**即使 agent 写 `select * from ja_insights`(完全不带权限条件),也只会返回它有权看的行,JOIN 同样被逐行过滤。**
+
+> ⚠ **`ja_reader` 必须是独立的低权限角色,绝不能用 service-role / postgres 超管**——后者会绕过 RLS,让任意查询读到全部租户数据。`SUPABASE_READONLY_URL` 留空则 `run_sql` 工具直接不注册。
+
+启用步骤:
+
+1. 在 Supabase SQL Editor 跑 `migrations/0006_readonly_sql.sql`(建 `ja_reader` 角色 + 列级授权 + RLS 策略)。
+2. 给角色设密码(别进版本库):`alter role ja_reader with password '<强随机>';`
+3. `.env` 填 `SUPABASE_READONLY_URL=postgresql://ja_reader:<password>@db.<ref>.supabase.co:5432/postgres?sslmode=require`,可选 `SQL_MAX_ROWS` / `SQL_TIMEOUT_MS`。
+4. 重启服务;`run_sql` 工具与 `schema://ja-insights` resource 自动出现。把 `skills/ja-insights-sql/` 发给使用方 agent 安装(Claude 系),或让它直接读 `schema://ja-insights` resource。
+
+**护栏**:单条语句、仅 `SELECT`/`WITH`、禁 `;`、外层强制 `LIMIT`(默认 1000,`truncated` 标记溢出)、`statement_timeout` 默认 5s。这些是纵深防御;真正挡住越权的是只读角色 + RLS。
+
+> **要拆出更多表(如 `ja_clients` / `ja_competitors`)时**:在 `0006` 里照模板给 `ja_reader` 加列级 `SELECT`(纯参考表不必开 RLS,JOIN 已被驱动表过滤;自带 `access` 的敏感表则照 `ja_insights` 加一条同款 RLS 策略),再把表名加进 `src/mcp.ts` 的 `QUERYABLE_TABLES`。
+
+### 对话审计:`ja_tool_calls` / `ja_mcp_sessions`
+
+> MCP server 只能观测到 agent 对它的**工具调用**,看不到 agent 与大模型之间的自然语言对话。所以「对话记录」= 工具调用审计——而这恰恰是有价值的部分:`search_insights.query` 是用户的提问,`run_sql.sql` 是 agent 写的查询。
+
+每次工具调用都会落库(见 `migrations/0007_audit.sql`,已并入 `setup_all.sql`):
+
+| 表 | 内容 |
+|---|---|
+| `ja_mcp_sessions` | 每个 MCP 会话一行:`session_id`、`user_id`、客户端 name/version、起止时间 |
+| `ja_tool_calls` | 每次调用一行:`tool`、`arguments`(完整)、`ok`/`error`、`latency_ms`、`result_meta`(`found`/`count`/`row_count` 等摘要)、`result`(仅 `AUDIT_STORE_RESULTS=full` 时存完整返回)、`user_id`/`email`/`session_id` |
+
+要点:
+
+- **服务端用 service-role 写、fire-and-forget**:日志失败只 `console.error`,绝不影响或拖慢工具返回([src/audit.ts](src/audit.ts))。
+- **agent 读不到日志**:两张表开了 RLS 且不授权给 `ja_reader`、也不在 `QUERYABLE_TABLES` 里,所以 `run_sql` 查不到审计数据;只有 service-role(后端)能读写。
+- **开关**:`.env` 里 `AUDIT_LOG=off` 整体关闭;`AUDIT_STORE_RESULTS=full` 连完整返回体一起存(行更大,默认 `summary` 只存摘要,省空间)。
+- **默认开启**:所以**全新部署必须建好这两张表**(跑 `setup_all.sql` 或单独跑 `0007_audit.sql`),否则每次调用都会打一条「表不存在」的错误日志(不致命但很吵)。
+
+**读取(仅 admin)**——三条路径,权限都是「必须是 admin」:
+
+- **MCP 工具 `list_tool_calls`**:admin 的 agent 可对话式查(按 `tool`/`email`/`session_id`/`errors_only`/日期过滤,`session_id` 拉整段会话)。**只对 admin 注册**,普通用户工具列表里根本看不到它。
+- **REST `GET /api/audit`**(给 workbench 后台用,`Authorization: Bearer <admin key>`):同样的过滤参数,返回 `{ total, limit, offset, items }`,非 admin 直接 403。
+- **后端直查**(service-role / SQL Editor),临时排查用:
+
+```sql
+select created_at, email, tool, arguments, ok, latency_ms, result_meta
+from ja_tool_calls order by created_at desc limit 50;
+```
+
+> 两个读路径都走后端 service-role 读这两张 RLS 表(只有服务端读得到),并在工具/端点层强制 `is_admin`——读不到别人日志的边界在「调用方必须是 admin」这一关,而不是 RLS。
 
 ---
 
@@ -201,6 +261,7 @@ Streamable HTTP，鉴权走 header。Claude Code 示例（`.mcp.json`）：
 | 端点 | 作用 |
 |---|---|
 | `GET /api/me` | 当前用户身份与权限组 |
+| `GET /api/audit` | **仅 admin**:工具调用审计日志(过滤 `tool`/`email`/`session_id`/`errors_only`/`date_from`/`date_to`/`limit`/`offset`),非 admin 返回 403 |
 | `GET /api/insights` | 列表/分页（access 过滤） |
 | `GET /api/insights/search?q=` | 语义检索 |
 | `GET /api/insights/dates` | 有权访问的日期列表 |

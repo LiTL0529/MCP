@@ -341,6 +341,48 @@ language sql stable as $$
     and ja_can_access(i.access, p_groups, p_is_admin);
 $$;
 
+-- ── Aggregate (counts / breakdown / trend) ─────────────────
+-- Computes the tally in Postgres so the model never has to enumerate and
+-- count by hand. p_group_by ∈ {category | status | type | month}; 'month'
+-- buckets by report_date (YYYY-MM), ordered chronologically for trends.
+drop function if exists ja_aggregate_insights(text[], boolean, text, text, text, date, date);
+create function ja_aggregate_insights(
+  p_groups    text[]  default '{}',
+  p_is_admin  boolean default false,
+  p_group_by  text    default 'category',
+  p_category  text    default null,
+  p_status    text    default null,
+  p_date_from date    default null,
+  p_date_to   date    default null
+) returns table (
+  bucket text,
+  count  bigint
+)
+language sql stable as $$
+  with agg as (
+    select
+      case p_group_by
+        when 'status' then coalesce(i.status, '(none)')
+        when 'type'   then coalesce(i.type,   '(none)')
+        when 'month'  then to_char(i.report_date, 'YYYY-MM')
+        else               coalesce(i.category, '(none)')
+      end as bucket,
+      count(*) as count
+    from ja_insights i
+    where ja_can_access(i.access, p_groups, p_is_admin)
+      and (p_category  is null or i.category = p_category)
+      and (p_status    is null or i.status   = p_status)
+      and (p_date_from is null or i.report_date >= p_date_from)
+      and (p_date_to   is null or i.report_date <= p_date_to)
+    group by 1
+  )
+  select bucket, count
+  from agg
+  order by case when p_group_by = 'month' then bucket end asc nulls last,
+           count desc,
+           bucket asc;
+$$;
+
 -- ============================================================
 -- Seed data — sample users + the example.md article.
 -- The insight is inserted WITHOUT an embedding; run
@@ -417,3 +459,41 @@ insert into ja_insights (
   )
 )
 on conflict (report_date, report_id) do nothing;
+
+
+-- ============================================================
+-- Audit log (from 0007_audit.sql) — bundled here so fresh installs
+-- have the tables that AUDIT_LOG=on writes to. Idempotent.
+-- ============================================================
+create table if not exists ja_mcp_sessions (
+  session_id     text primary key,
+  user_id        uuid references ja_users(id) on delete set null,
+  email          text,
+  client_name    text,
+  client_version text,
+  started_at     timestamptz not null default now(),
+  last_seen_at   timestamptz not null default now()
+);
+create index if not exists ja_mcp_sessions_user_idx on ja_mcp_sessions(user_id, started_at desc);
+
+create table if not exists ja_tool_calls (
+  id          uuid primary key default gen_random_uuid(),
+  session_id  text,
+  user_id     uuid references ja_users(id) on delete set null,
+  email       text,
+  tool        text not null,
+  arguments   jsonb not null default '{}'::jsonb,
+  ok          boolean not null default true,
+  error       text,
+  latency_ms  integer,
+  result_meta jsonb,
+  result      jsonb,
+  created_at  timestamptz not null default now()
+);
+create index if not exists ja_tool_calls_user_idx    on ja_tool_calls(user_id, created_at desc);
+create index if not exists ja_tool_calls_tool_idx    on ja_tool_calls(tool);
+create index if not exists ja_tool_calls_created_idx on ja_tool_calls(created_at desc);
+create index if not exists ja_tool_calls_session_idx on ja_tool_calls(session_id);
+
+alter table ja_mcp_sessions enable row level security;
+alter table ja_tool_calls   enable row level security;

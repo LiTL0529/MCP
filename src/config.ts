@@ -50,6 +50,30 @@ export const config = {
   // Supabase Storage bucket that holds uploaded insight images (public read).
   storageBucket: optional("SUPABASE_STORAGE_BUCKET", "ja-insight-images"),
 
+  // Default minimum cosine similarity for semantic search. Matches below this
+  // are dropped so weak/irrelevant results don't surface. Callers can still
+  // override per query via `min_similarity` (pass 0 to disable). Tune to your
+  // data — cross-lingual hits (zh query vs en embedding) tend to score lower.
+  searchMinSimilarity: ((v: number) => (Number.isFinite(v) ? v : 0.2))(
+    Number(optional("SEARCH_MIN_SIMILARITY", "0.2")),
+  ),
+
+  // Read-only Postgres DSN for the `run_sql` MCP tool, logging in as the
+  // low-privilege `ja_reader` role (migration 0006). Empty => the SQL tool is
+  // not registered. NEVER point this at the service role — that bypasses RLS.
+  readonlyDatabaseUrl: optional("SUPABASE_READONLY_URL") || undefined,
+  // run_sql guard rails: max rows returned and per-query timeout (ms).
+  sqlMaxRows: ((v: number) => (Number.isFinite(v) && v > 0 ? v : 1000))(Number(optional("SQL_MAX_ROWS", "1000"))),
+  sqlTimeoutMs: ((v: number) => (Number.isFinite(v) && v > 0 ? v : 5000))(Number(optional("SQL_TIMEOUT_MS", "5000"))),
+
+  // Audit log of the agent ⇄ server tool-call conversation (tables in 0007).
+  // AUDIT_LOG=off disables it entirely. AUDIT_STORE_RESULTS=full also persists
+  // the full returned payload (bigger rows); default 'summary' keeps only meta.
+  auditEnabled: optional("AUDIT_LOG", "on").toLowerCase() !== "off",
+  auditStoreResults: (optional("AUDIT_STORE_RESULTS", "summary").toLowerCase() === "full"
+    ? "full"
+    : "summary") as "summary" | "full",
+
   port: Number(optional("PORT", "8787")),
   ingestToken: optional("INGEST_TOKEN"),
   corsOrigins: optional("CORS_ORIGINS")

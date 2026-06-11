@@ -87,10 +87,16 @@ async function callTools(label: string, apiKey: string) {
       arguments: { query: "Chinese companies investing in Singapore, jobs for students", lang: "en", limit: 5 },
     }),
   );
+  const agg = parse(
+    await client.callTool({ name: "aggregate_insights", arguments: { group_by: "category" } }),
+  );
 
   console.log(`\n=== ${label} (${who.email}, groups=[${who.access_groups}], admin=${who.is_admin}) ===`);
   console.log(`  list_insights : total=${list.total}, items=${list.items.length}`);
   console.log(`  search_insights: count=${search.count}`);
+  console.log(
+    `  aggregate     : total=${agg.total}, buckets=${agg.buckets.map((b: any) => `${b.bucket}:${b.count}`).join(", ")}`,
+  );
   if (search.items[0]) {
     const top = search.items[0];
     console.log(`    top: "${String(top.title.en).slice(0, 60)}…"  sim=${top.similarity}`);

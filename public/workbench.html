@@ -443,6 +443,7 @@
 <button class="adm-tab" onclick="admT('inbox',this)">💡 需求意见箱 <span style="background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:6px" id="sugBadge">3</span></button>
 <button class="adm-tab" onclick="admT('archive',this)">🗂️ 归档管理</button>
 <button class="adm-tab" onclick="admT('settings',this)">⚙️ 系统设置</button>
+<button class="adm-tab" onclick="admT('audit',this);auditLoad(0)">🔍 调用日志</button>
 </div>
 
 <!-- Tab: Overview -->
@@ -607,6 +608,85 @@
 <div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">🎬 来源平台</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="cvPlatTags"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新平台" id="newCvPlatInput" onkeydown="if(event.key==='Enter')addTag('cvplat',this)"><button class="btn btn-p btn-sm" onclick="addTag('cvplat',document.getElementById('newCvPlatInput'))">添加</button></div></div></div>
 <div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">🔐 登录设置</div></div><div style="padding:14px"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">用户通过账号+密码登录，勾选「记住我」后7天免登录</div><div style="font-size:11px;color:var(--green);font-weight:600">✅ 账号密码认证</div></div></div>
 </div></div>
+
+<!-- Tab: Audit log (admin-only audit of agent⇄server tool calls) -->
+<div class="adm-pane" id="ap-audit">
+<div class="e-tbl-wrap">
+<div class="e-tbl-head"><div class="e-tbl-title">🔍 调用日志 · Agent ⇄ Server 对话审计</div><button class="btn btn-s btn-sm" onclick="auditLoad(0)">↻ 刷新</button></div>
+<div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;border-bottom:1px solid var(--border)">
+<div class="frm" style="margin:0"><label class="fl">工具</label><select class="fi" id="auTool" style="width:150px"><option value="">全部</option><option>search_insights</option><option>list_insights</option><option>aggregate_insights</option><option>get_insight</option><option>run_sql</option><option>whoami</option><option>list_tool_calls</option></select></div>
+<div class="frm" style="margin:0"><label class="fl">用户邮箱</label><input type="text" class="fi" id="auEmail" placeholder="全部" style="width:170px"></div>
+<div class="frm" style="margin:0"><label class="fl">会话 ID</label><input type="text" class="fi" id="auSession" placeholder="可选" style="width:160px"></div>
+<div class="frm" style="margin:0"><label class="fl">起始日期</label><input type="date" class="fi" id="auFrom" style="width:130px"></div>
+<div class="frm" style="margin:0"><label class="fl">结束日期</label><input type="date" class="fi" id="auTo" style="width:130px"></div>
+<label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--navy);padding-bottom:6px"><input type="checkbox" id="auErr">仅看失败</label>
+<button class="btn btn-p btn-sm" onclick="auditLoad(0)">查询</button>
+<button class="btn btn-s btn-sm" onclick="auditReset()">重置</button>
+</div>
+<table class="e-tbl"><thead><tr><th style="width:140px">时间</th><th style="width:150px">用户</th><th style="width:120px">工具</th><th>参数 / 结果摘要</th><th style="width:64px">状态</th><th style="width:70px">耗时</th></tr></thead><tbody id="auTbl"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">点击「查询」加载</td></tr></tbody></table>
+<div class="e-tbl-ft"><span id="auFt">—</span><span style="display:flex;gap:6px;align-items:center"><button class="btn btn-s btn-xs" id="auPrev" onclick="auditPage(-1)">上一页</button><span id="auPg" style="font-size:11px;color:var(--muted)">—</span><button class="btn btn-s btn-xs" id="auNext" onclick="auditPage(1)">下一页</button></span></div>
+</div>
+</div>
+
+<script>
+/* Audit-log panel — calls GET /api/audit (admin-only) via window.JA.api. */
+(function(){
+  var PAGE=50, offset=0, total=0;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function shortJSON(o,n){ if(o==null) return ''; var s=(typeof o==='string')?o:JSON.stringify(o); return s.length>n? s.slice(0,n)+'…':s; }
+  function fullJSON(o){ if(o==null) return ''; return (typeof o==='string')?o:JSON.stringify(o,null,2); }
+  function fmtTime(t){ if(!t) return ''; var d=new Date(t); if(isNaN(d.getTime())) return t; var p=function(x){return(x<10?'0':'')+x}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
+  function qs(){
+    var p=new URLSearchParams();
+    var t=document.getElementById('auTool').value; if(t)p.set('tool',t);
+    var e=document.getElementById('auEmail').value.trim(); if(e)p.set('email',e);
+    var s=document.getElementById('auSession').value.trim(); if(s)p.set('session_id',s);
+    var f=document.getElementById('auFrom').value; if(f)p.set('date_from',f);
+    var to=document.getElementById('auTo').value; if(to)p.set('date_to',to);
+    if(document.getElementById('auErr').checked)p.set('errors_only','true');
+    p.set('limit',PAGE); p.set('offset',offset);
+    return p.toString();
+  }
+  window.auditLoad=async function(off){
+    if(typeof off==='number') offset=off;
+    var tb=document.getElementById('auTbl');
+    if(!tb) return;
+    tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">加载中…</td></tr>';
+    try{
+      var r=await window.JA.api('/api/audit?'+qs());
+      if(r.status===403){ tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">需要管理员权限</td></tr>'; return; }
+      if(!r.ok){ throw new Error('HTTP '+r.status); }
+      var j=await r.json(); total=j.total||0;
+      var items=j.items||[];
+      if(!items.length){
+        tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">无记录</td></tr>';
+      } else {
+        tb.innerHTML=items.map(function(it){
+          var okBadge=it.ok?'<span style="color:var(--green);font-weight:600">✓ OK</span>':'<span style="color:var(--red);font-weight:600">✕ ERR</span>';
+          var metaStr=it.error? ('error: '+it.error) : shortJSON(it.result_meta,140);
+          return '<tr>'+
+            '<td style="white-space:nowrap;font-size:11px">'+esc(fmtTime(it.created_at))+'</td>'+
+            '<td style="font-size:11px;word-break:break-all">'+esc(it.email||'')+'</td>'+
+            '<td><code style="font-size:11px">'+esc(it.tool)+'</code></td>'+
+            '<td style="font-size:11px"><div title="'+esc(fullJSON(it.arguments))+'" style="color:var(--navy);word-break:break-all">'+esc(shortJSON(it.arguments,180))+'</div>'+(metaStr?('<div style="color:var(--muted);margin-top:2px;word-break:break-all">'+esc(metaStr)+'</div>'):'')+'</td>'+
+            '<td>'+okBadge+'</td>'+
+            '<td style="font-size:11px;color:var(--muted)">'+(it.latency_ms!=null?(it.latency_ms+'ms'):'')+'</td>'+
+          '</tr>';
+        }).join('');
+      }
+      var from=total? (offset+1):0, to=Math.min(offset+items.length,total);
+      document.getElementById('auFt').textContent='共 '+total+' 条 · 显示 '+from+'–'+to;
+      document.getElementById('auPg').textContent='第 '+(Math.floor(offset/PAGE)+1)+' 页';
+      document.getElementById('auPrev').disabled=offset<=0;
+      document.getElementById('auNext').disabled=offset+PAGE>=total;
+    }catch(e){
+      tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">加载失败：'+esc(e.message)+'</td></tr>';
+    }
+  };
+  window.auditPage=function(dir){ var no=offset+dir*PAGE; if(no<0)no=0; if(no>=total&&dir>0)return; offset=no; window.auditLoad(); };
+  window.auditReset=function(){ ['auEmail','auSession','auFrom','auTo'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';}); document.getElementById('auTool').value=''; document.getElementById('auErr').checked=false; window.auditLoad(0); };
+})();
+</script>
 </div><!-- admin -->
 </div><!-- main -->
 

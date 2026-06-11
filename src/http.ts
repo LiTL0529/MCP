@@ -6,6 +6,7 @@ import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { config } from "./config.js";
 import { resolveApiKey } from "./auth.js";
+import { queryToolCalls, recordSession } from "./audit.js";
 import { buildMcpServer } from "./mcp.js";
 import { createInsight, getDailyCards, getInsight, listInsights, searchInsights } from "./insights.js";
 import { parseBilingualMd } from "./markdown.js";
@@ -172,6 +173,15 @@ export function buildApp() {
         enableJsonResponse: true,
         onsessioninitialized: (sid) => {
           sessions.set(sid, { transport, userId: user.userId });
+          // Record the session for the audit trail; client name/version is known
+          // once initialize has been processed.
+          let client: { name?: string; version?: string } | undefined;
+          try {
+            client = server.server.getClientVersion();
+          } catch {
+            client = undefined;
+          }
+          recordSession(user, sid, client);
         },
         onsessionclosed: (sid) => {
           sessions.delete(sid);
@@ -263,6 +273,29 @@ export function buildApp() {
     res.json({ email: u.email, name: u.name, access_groups: u.accessGroups, is_admin: u.isAdmin });
   });
 
+  // Audit trail (admin only) — the recorded agent⇄server tool-call conversation.
+  app.get("/api/audit", requireUser, async (req, res) => {
+    if (!req.user!.isAdmin) {
+      res.status(403).json({ error: "Admin only" });
+      return;
+    }
+    try {
+      const result = await queryToolCalls({
+        tool: str(req.query.tool),
+        email: str(req.query.email),
+        sessionId: str(req.query.session_id),
+        errorsOnly: req.query.errors_only === "true" ? true : null,
+        dateFrom: str(req.query.date_from),
+        dateTo: str(req.query.date_to),
+        limit: num(req.query.limit, 50),
+        offset: num(req.query.offset, 0),
+      });
+      res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
   // Workbench daily view: fully-rendered cards for one date.
   app.get("/api/daily", requireUser, async (req, res) => {
     const date = str(req.query.date);
@@ -292,7 +325,8 @@ export function buildApp() {
         status: str(req.query.status),
         dateFrom: str(req.query.date_from),
         dateTo: str(req.query.date_to),
-        minSimilarity: num(req.query.min_similarity, 0),
+        // Absent => use the server default threshold; present => honour it (0 = all).
+        minSimilarity: req.query.min_similarity != null ? num(req.query.min_similarity, 0) : undefined,
         lang: langOf(req.query.lang),
       });
       res.json({ count: items.length, items });

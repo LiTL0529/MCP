@@ -46,6 +46,13 @@
   .md-prev pre code{background:none;padding:0;color:inherit}
   .md-prev code{background:#F1F5F9;padding:1px 5px;border-radius:4px;font-size:12px}
   .md-prev a{color:var(--accent)}
+  /* Markdown toolbar */
+  .md-bar{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:0;padding:5px 6px;border:1px solid var(--border);border-bottom:none;border-radius:6px 6px 0 0;background:#F8FAFC}
+  .md-b{min-width:28px;height:26px;padding:0 7px;border:1px solid var(--border);background:#fff;border-radius:4px;cursor:pointer;font-size:12px;color:#334155;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+  .md-b:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .md-b.b{font-weight:800}.md-b.i{font-style:italic}
+  .md-bar-sep{width:1px;align-self:stretch;background:var(--border);margin:2px 3px}
+  textarea.md{border-radius:0 0 6px 6px}
   .lbl-md{display:inline-block;margin-left:6px;padding:0 6px;border-radius:3px;background:#EFF6FF;color:var(--accent);font-size:10px;font-weight:600;vertical-align:middle}
   /* Image uploader */
   .img-list{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
@@ -173,6 +180,7 @@ function mdInline(escaped){
   s=s.replace(/`([^`]+)`/g,function(_,c){codes.push('<code>'+c+'</code>');return ' '+(codes.length-1)+' ';});
   s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,function(_,t,u){return '<a href="'+u+'" target="_blank" rel="noopener noreferrer">'+t+'</a>';});
   s=s.replace(/\*\*([^*]+?)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/~~([^~]+?)~~/g,'<del>$1</del>');
   s=s.replace(/(^|[^*\w])\*(?!\s)([^*]+?)\*(?!\w)/g,'$1<em>$2</em>');
   s=s.replace(/(^|[^_\w])_(?!\s)([^_]+?)_(?!\w)/g,'$1<em>$2</em>');
   s=s.replace(/ (\d+) /g,function(_,i){return codes[+i];});
@@ -197,13 +205,79 @@ function mdBlock(md){
   return out.join('\n');
 }
 function mdLines(txt){return txt.split('\n').map(function(s){return s.trim();}).filter(Boolean).map(function(l){return '<p>'+mdInline(escHtml(l))+'</p>';}).join('');}
+// ── Toolbar commands: operate on the textarea selection, fire 'input' so the
+//    live preview + iframe auto-resize update through the existing listeners. ──
+function mdFire(ta){ ta.dispatchEvent(new Event('input',{bubbles:true})); }
+function mdSurround(ta,before,after,ph){
+  var s=ta.selectionStart,e=ta.selectionEnd,v=ta.value,sel=v.slice(s,e)||ph;
+  ta.value=v.slice(0,s)+before+sel+after+v.slice(e);
+  ta.focus();ta.selectionStart=s+before.length;ta.selectionEnd=s+before.length+sel.length;
+  mdFire(ta);
+}
+function mdPrefixLine(ta,prefix){ // single line: replace any existing block marker
+  var s=ta.selectionStart,v=ta.value,ls=v.lastIndexOf('\n',s-1)+1,le=v.indexOf('\n',ls);
+  if(le<0)le=v.length;
+  var line=v.slice(ls,le).replace(/^(#{1,6}\s+|>\s+|[-*+]\s+|\d+[.)]\s+)/,'');
+  var nl=prefix+line;ta.value=v.slice(0,ls)+nl+v.slice(le);
+  ta.focus();ta.selectionStart=ta.selectionEnd=ls+nl.length;mdFire(ta);
+}
+function mdPrefixLines(ta,prefix){ // every line in the selection
+  var s=ta.selectionStart,e=ta.selectionEnd,v=ta.value,ls=v.lastIndexOf('\n',s-1)+1,le=v.indexOf('\n',e);
+  if(le<0)le=v.length;
+  var nb=v.slice(ls,le).split('\n').map(function(l){return prefix+l;}).join('\n');
+  ta.value=v.slice(0,ls)+nb+v.slice(le);
+  ta.focus();ta.selectionStart=ls;ta.selectionEnd=ls+nb.length;mdFire(ta);
+}
+function mdLink(ta){
+  var s=ta.selectionStart,e=ta.selectionEnd,v=ta.value,sel=v.slice(s,e)||'链接文字',ins='['+sel+'](https://)';
+  ta.value=v.slice(0,s)+ins+v.slice(e);ta.focus();
+  var p=s+ins.indexOf('(')+1;ta.selectionStart=p;ta.selectionEnd=p+'https://'.length;mdFire(ta);
+}
+function mdCmd(ta,cmd){
+  if(cmd==='bold')mdSurround(ta,'**','**','粗体');
+  else if(cmd==='italic')mdSurround(ta,'*','*','斜体');
+  else if(cmd==='strike')mdSurround(ta,'~~','~~','删除线');
+  else if(cmd==='code')mdSurround(ta,'`','`','code');
+  else if(cmd==='link')mdLink(ta);
+  else if(cmd==='h1')mdPrefixLine(ta,'# ');
+  else if(cmd==='h2')mdPrefixLine(ta,'## ');
+  else if(cmd==='h3')mdPrefixLine(ta,'### ');
+  else if(cmd==='ul')mdPrefixLines(ta,'- ');
+  else if(cmd==='ol')mdPrefixLines(ta,'1. ');
+  else if(cmd==='quote')mdPrefixLines(ta,'> ');
+}
+// Toolbar button sets: [label, tooltip, cmd, extraClass]
+var MD_BTNS_BLOCK=[['H1','大标题','h1'],['H2','标题','h2'],['H3','小标题','h3'],['SEP'],['B','加粗 (Ctrl+B)','bold','b'],['I','斜体 (Ctrl+I)','italic','i'],['S','删除线','strike'],['SEP'],['•','无序列表','ul'],['1.','有序列表','ol'],['❝','引用','quote'],['SEP'],['🔗','链接','link'],['</>','行内代码','code']];
+var MD_BTNS_LINES=[['B','加粗 (Ctrl+B)','bold','b'],['I','斜体 (Ctrl+I)','italic','i'],['🔗','链接','link'],['</>','行内代码','code']];
+function buildMdBar(ta,mode){
+  var bar=document.createElement('div');bar.className='md-bar';
+  (mode==='lines'?MD_BTNS_LINES:MD_BTNS_BLOCK).forEach(function(b){
+    if(b[0]==='SEP'){var sp=document.createElement('span');sp.className='md-bar-sep';bar.appendChild(sp);return;}
+    var btn=document.createElement('button');btn.type='button';btn.className='md-b'+(b[3]?' '+b[3]:'');
+    btn.title=b[1];btn.textContent=b[0];
+    btn.addEventListener('mousedown',function(ev){ev.preventDefault();}); // keep textarea selection
+    btn.addEventListener('click',function(ev){ev.preventDefault();mdCmd(ta,b[2]);});
+    bar.appendChild(btn);
+  });
+  return bar;
+}
 function bindAllMd(){
   Array.prototype.forEach.call(document.querySelectorAll('textarea.md'),function(ta){
-    var prev=document.createElement('div');prev.className='md-prev';
     var mode=ta.getAttribute('data-md')||'block';
+    // strike isn't in the renderer subset, so map it to bold-ish? skip if unsupported
+    ta.parentNode.insertBefore(buildMdBar(ta,mode),ta);
+    var prev=document.createElement('div');prev.className='md-prev';
     function upd(){var v=ta.value;prev.innerHTML=v.trim()?(mode==='lines'?mdLines(v):mdBlock(v)):'<span class="md-empty">实时预览 / live preview</span>';}
     ta.parentNode.insertBefore(prev,ta.nextSibling);
-    ta.addEventListener('input',upd);upd();
+    ta.addEventListener('input',upd);
+    ta.addEventListener('keydown',function(ev){
+      if((ev.ctrlKey||ev.metaKey)&&!ev.altKey&&!ev.shiftKey){
+        var k=ev.key.toLowerCase();
+        if(k==='b'){ev.preventDefault();mdCmd(ta,'bold');}
+        else if(k==='i'){ev.preventDefault();mdCmd(ta,'italic');}
+      }
+    });
+    upd();
   });
 }
 
