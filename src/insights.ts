@@ -84,7 +84,6 @@ function shapeSummaryRow(r: any, lang: Lang) {
     summary: pickLang(r.summary_en, r.summary_zh, lang),
     attributes: r.attributes,
     images: r.images ?? [],
-    ...(typeof r.similarity === "number" ? { similarity: Number(r.similarity.toFixed(4)) } : {}),
   };
 }
 
@@ -132,13 +131,9 @@ export async function searchInsights(user: UserContext, params: SearchParams) {
   });
 
   if (error) throw new Error(`ja_match_insights failed: ${error.message}`);
-  // Returns full bilingual articles (one per article, deduped) plus the
-  // per-article max similarity and which field matched.
-  return (data ?? []).map((r: any) => ({
-    ...shapeFullRow(r, lang),
-    similarity: typeof r.similarity === "number" ? Number(r.similarity.toFixed(4)) : undefined,
-    matched_field: r.matched_field,
-  }));
+  // Returns full bilingual articles (one per article, deduped), ranked
+  // most-relevant first. The relevance score / matched field are NOT surfaced.
+  return (data ?? []).map((r: any) => shapeFullRow(r, lang));
 }
 
 export async function listInsights(user: UserContext, params: ListParams) {

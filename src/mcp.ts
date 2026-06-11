@@ -18,8 +18,7 @@ const SERVER_INSTRUCTIONS = [
   "JA Insight Hub is the authoritative, access-controlled source for JA insight reports.",
   "Whenever you use these tools, ALWAYS report back to the user (in the user's language):",
   "(1) whether the server returned valid results — read the `found` flag and `count`;",
-  "(2) the actual returned content (title / summary / key points), citing it instead of answering from your own knowledge;",
-  "(3) the relevance of each result — its `similarity` (0–1, higher = more relevant) and `matched_field`.",
+  "(2) the actual returned content (title / summary / key points), citing it instead of answering from your own knowledge.",
   "If `found` is false or `count` is 0, tell the user explicitly that no matching insight was found",
   "(this can also mean the current API key has no access) — do NOT invent or fill in insights that were not returned by the tool.",
 ].join(" ");
@@ -87,7 +86,7 @@ export function buildMcpServer(user: UserContext): McpServer {
     {
       title: "Search insights (semantic)",
       description:
-        "Semantic search over the insight reports you are allowed to access. Each article is embedded as up to FOUR separate vectors (English title / summary / key attributes / image descriptions); the query is scored against each and the article's rank is the MAX. Returns one full bilingual article per match (deduped), including any `images` (url + caption + description), with `similarity` and `matched_field` (one of title/summary/attributes/image). The result also carries `found`, `count`, `min_similarity` and a `report` line. When answering the user, state whether anything was found (use `found`/`count`), summarise the returned `items` content (do not answer from your own knowledge), and include each result's `similarity` and `matched_field`; if `found` is false, tell the user no matching insight was found.",
+        "Semantic search over the insight reports you are allowed to access. Each article is embedded as up to four separate vectors (English title / summary / key attributes / image descriptions) and ranked by its best match; results come back most-relevant first. Returns one full bilingual article per match (deduped), including any `images` (url + caption + description), plus `found`, `count` and a `report` line. When answering, state whether anything was found (use `found`/`count`) and summarise the returned `items` content (title / summary / key points) instead of answering from your own knowledge; if `found` is false, tell the user no matching insight was found.",
       inputSchema: {
         query: z.string().min(1).describe("Natural-language query (any language)."),
         limit: z.number().int().min(1).max(50).optional().describe("Max results (default 10)."),
@@ -108,7 +107,6 @@ export function buildMcpServer(user: UserContext): McpServer {
     },
     async (args) => {
       try {
-        const threshold = args.min_similarity ?? config.searchMinSimilarity;
         const items = await searchInsights(user, {
           query: args.query,
           limit: args.limit,
@@ -119,22 +117,17 @@ export function buildMcpServer(user: UserContext): McpServer {
           minSimilarity: args.min_similarity,
           lang: args.lang ?? "both",
         });
-        const top = items[0];
-        // Explicit provenance fields so the agent can tell the user, verbatim,
-        // whether anything was found and how relevant it is.
+        // Provenance only — whether anything was found, so the agent doesn't
+        // fabricate. No relevance score or matched-field is surfaced.
         return jsonResult({
           source: "ja-insight-hub",
           query: args.query,
           found: items.length > 0,
           count: items.length,
-          min_similarity: threshold,
-          top_similarity: top ? top.similarity : null,
           report: items.length
-            ? `Found ${items.length} insight(s) at/above similarity ${threshold}. ` +
-              `Top match: similarity ${top!.similarity} on field "${top!.matched_field}". ` +
-              `Tell the user these came from JA Insight Hub and include each result's similarity.`
-            : `No accessible insight matched at/above similarity ${threshold}. ` +
-              `This may mean nothing relevant exists, it was filtered by the threshold, or this API key has no access. ` +
+            ? `Found ${items.length} insight(s). ` +
+              `Tell the user these came from JA Insight Hub and cite the returned content (title / summary / key points) instead of answering from your own knowledge.`
+            : `No accessible insight was found (nothing relevant exists, or this key/login has no access). ` +
               `Tell the user no matching insight was found — do not fabricate one.`,
           items,
         });

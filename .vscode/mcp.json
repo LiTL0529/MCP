@@ -1,19 +1,12 @@
 {
   "inputs": [
-    {
-      "type": "promptString",
-      "id": "ja-key",
-      "description": "JA Insight Hub API Key (ja_...)",
-      "password": true
-    }
+    { "type": "promptString", "id": "ja-key", "description": "JA Insight Hub API key", "password": true }
   ],
   "servers": {
-    "ja-insights-hub": {
+    "ja-insight-hub": {
       "type": "http",
-      "url": "http://localhost:8787/mcp",
-      "headers": {
-        "Authorization": "Bearer ${input:ja-key}"
-      }
+      "url": "https://insights.jefurryaxis.ai/ja/mcp",
+      "headers": { "Authorization": "Bearer ${input:ja-key}" }
     }
   }
 }
