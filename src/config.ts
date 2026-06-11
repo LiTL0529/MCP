@@ -79,6 +79,27 @@ export const config = {
   // (jh_access_token). Same Supabase project, same box.
   portalApiBase: optional("PORTAL_API_BASE", "http://127.0.0.1:8100"),
 
+  // ── MCP OAuth (Authorization Server) ─────────────────────
+  // OAUTH_ENABLED=off disables the OAuth flow (clients then need a static API
+  // key). When on, MCP clients can connect with just the server URL: they do
+  // Dynamic Client Registration + PKCE, the user logs in once in the browser
+  // with their portal account, and the client gets a bearer token.
+  oauthEnabled: optional("OAUTH_ENABLED", "on").toLowerCase() !== "off",
+  // Public origin the server is reached at (for the URLs we advertise in OAuth
+  // metadata). No trailing slash.
+  publicBaseUrl: optional("PUBLIC_BASE_URL", "https://insights.jefurryaxis.ai"),
+  // Public path prefix the reverse proxy mounts the server under (it strips the
+  // prefix before forwarding). "/" if the server is at the domain root.
+  oauthMount: optional("OAUTH_PUBLIC_MOUNT", "/ja"),
+  // Anon key used when authenticating email/password against Supabase Auth from
+  // the OAuth login page. Falls back to the service-role key (server-side only)
+  // if unset, which Supabase also accepts as the `apikey`.
+  supabaseAnonKey: optional("SUPABASE_ANON_KEY") || undefined,
+  // Token lifetimes (seconds): access ~1h, refresh ~30d, auth code ~5m.
+  oauthAccessTtlSec: ((v: number) => (Number.isFinite(v) && v > 0 ? v : 3600))(Number(optional("OAUTH_ACCESS_TTL", "3600"))),
+  oauthRefreshTtlSec: ((v: number) => (Number.isFinite(v) && v > 0 ? v : 2592000))(Number(optional("OAUTH_REFRESH_TTL", "2592000"))),
+  oauthCodeTtlSec: ((v: number) => (Number.isFinite(v) && v > 0 ? v : 300))(Number(optional("OAUTH_CODE_TTL", "300"))),
+
   port: Number(optional("PORT", "8787")),
   ingestToken: optional("INGEST_TOKEN"),
   corsOrigins: optional("CORS_ORIGINS")

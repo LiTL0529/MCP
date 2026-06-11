@@ -497,3 +497,55 @@ create index if not exists ja_tool_calls_session_idx on ja_tool_calls(session_id
 
 alter table ja_mcp_sessions enable row level security;
 alter table ja_tool_calls   enable row level security;
+
+-- ============================================================
+-- 0008 — MCP OAuth (Authorization Server) state
+-- ============================================================
+create table if not exists ja_oauth_clients (
+  client_id                  text primary key,
+  client_secret              text,
+  client_secret_expires_at   bigint,
+  client_id_issued_at        bigint,
+  client_name                text,
+  redirect_uris              jsonb not null default '[]'::jsonb,
+  grant_types                jsonb,
+  response_types             jsonb,
+  scope                      text,
+  token_endpoint_auth_method text default 'none',
+  metadata                   jsonb not null default '{}'::jsonb,
+  created_at                 timestamptz not null default now()
+);
+
+create table if not exists ja_oauth_codes (
+  code_hash       text primary key,
+  client_id       text not null,
+  redirect_uri    text not null,
+  code_challenge  text not null,
+  scopes          jsonb not null default '[]'::jsonb,
+  resource        text,
+  subject         jsonb not null,
+  expires_at      timestamptz not null,
+  consumed        boolean not null default false,
+  created_at      timestamptz not null default now()
+);
+create index if not exists ja_oauth_codes_expires_idx on ja_oauth_codes (expires_at);
+
+create table if not exists ja_oauth_tokens (
+  id                 uuid primary key default gen_random_uuid(),
+  access_hash        text unique not null,
+  refresh_hash       text unique,
+  client_id          text not null,
+  subject            jsonb not null,
+  scopes             jsonb not null default '[]'::jsonb,
+  resource           text,
+  expires_at         timestamptz not null,
+  refresh_expires_at timestamptz,
+  revoked            boolean not null default false,
+  created_at         timestamptz not null default now(),
+  last_used_at       timestamptz
+);
+create index if not exists ja_oauth_tokens_refresh_idx on ja_oauth_tokens (refresh_hash);
+
+alter table ja_oauth_clients enable row level security;
+alter table ja_oauth_codes   enable row level security;
+alter table ja_oauth_tokens  enable row level security;

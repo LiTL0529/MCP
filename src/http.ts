@@ -3,9 +3,20 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
+import { authorizationHandler } from "@modelcontextprotocol/sdk/server/auth/handlers/authorize.js";
+import { tokenHandler } from "@modelcontextprotocol/sdk/server/auth/handlers/token.js";
+import { clientRegistrationHandler } from "@modelcontextprotocol/sdk/server/auth/handlers/register.js";
+import { revocationHandler } from "@modelcontextprotocol/sdk/server/auth/handlers/revoke.js";
 import { z } from "zod";
 import { config } from "./config.js";
 import { resolveApiKey, resolvePortalUser } from "./auth.js";
+import {
+  jaOAuthProvider,
+  resolveOAuthAccessToken,
+  authServerMetadata,
+  protectedResourceMetadata,
+  oauthUrls,
+} from "./oauth.js";
 import { queryToolCalls, recordSession } from "./audit.js";
 import { buildMcpServer } from "./mcp.js";
 import { createInsight, getDailyCards, getInsight, listInsights, searchInsights } from "./insights.js";
@@ -31,14 +42,25 @@ function bearer(req: Request): string | null {
 }
 
 // ── Auth middleware (MCP read path) ────────────────────────
-async function requireUser(req: Request, res: Response, next: NextFunction) {
-  // Browser users authenticate via the portal session cookie; agents/scripts via
-  // a Bearer API key. Try the key first, then fall back to the portal cookie.
+async function resolveCaller(req: Request): Promise<UserContext | null> {
+  // Agents/scripts present a Bearer token — either a static API key or an OAuth
+  // access token. Browser users present a portal session cookie.
   const raw = bearer(req);
   let user = raw ? await resolveApiKey(raw) : null;
+  if (!user && raw && config.oauthEnabled) user = await resolveOAuthAccessToken(raw);
   if (!user) user = await resolvePortalUser(req.header("cookie"));
+  return user;
+}
+
+async function requireUser(req: Request, res: Response, next: NextFunction) {
+  const user = await resolveCaller(req);
   if (!user) {
-    res.status(401).json({ error: "未登录或登录已失效（请先登录 portal，或提供有效 API key）" });
+    // Point OAuth-capable clients at our protected-resource metadata so they can
+    // discover the authorization server and start the login flow (RFC 9728).
+    if (config.oauthEnabled) {
+      res.setHeader("WWW-Authenticate", `Bearer resource_metadata="${oauthUrls.resourceMetadataUrl}"`);
+    }
+    res.status(401).json({ error: "未登录或登录已失效（请先登录 portal，或提供有效 API key / OAuth 令牌）" });
     return;
   }
   req.user = user;
@@ -53,11 +75,9 @@ async function requireIngestAuth(req: Request, res: Response, next: NextFunction
     next();
     return;
   }
-  // Otherwise require an authenticated ADMIN — a portal admin (cookie) or an
-  // admin API key. Only admins may ingest insights.
-  const raw = bearer(req);
-  let user = raw ? await resolveApiKey(raw) : null;
-  if (!user) user = await resolvePortalUser(req.header("cookie"));
+  // Otherwise require an authenticated ADMIN — a portal admin (cookie), an admin
+  // API key, or an admin OAuth token. Only admins may ingest insights.
+  const user = await resolveCaller(req);
   if (user?.isAdmin) {
     req.user = user;
     next();
@@ -132,6 +152,43 @@ export function buildApp() {
   });
 
   app.get("/health", (_req, res) => res.json({ ok: true, service: "ja-insight-hub", time: new Date().toISOString() }));
+
+  // ── OAuth 2.1 Authorization Server + discovery metadata ───
+  // MCP clients (Claude Code, Claude.ai, …) connect with just the server URL:
+  // they discover this AS from the 401 WWW-Authenticate header, register
+  // dynamically, run the PKCE auth-code flow, and the user logs in once with
+  // their portal account. The reverse proxy strips the public path prefix
+  // (/ja), so the handlers live here at root paths.
+  if (config.oauthEnabled) {
+    // Discovery documents must be readable cross-origin (web MCP clients).
+    const serveMeta = (body: object) => (_req: Request, res: Response) => {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Cache-Control", "no-store");
+      res.json(body);
+    };
+    // RFC 8414 (AS metadata) and RFC 9728 (protected-resource metadata). We
+    // answer both the root and the path-aware forms a client may probe — the
+    // proxy routes the domain-root .well-known/* here, and forwards /ja/* with
+    // the prefix stripped, so all variants land on these handlers.
+    const asMeta = serveMeta(authServerMetadata());
+    const prMeta = serveMeta(protectedResourceMetadata());
+    const mountTail = config.oauthMount === "/" ? "" : config.oauthMount.replace(/\/$/, "");
+    app.options(/\/\.well-known\/oauth-.*/, (_req, res) => {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.sendStatus(204);
+    });
+    app.get("/.well-known/oauth-authorization-server", asMeta);
+    if (mountTail) app.get(`/.well-known/oauth-authorization-server${mountTail}`, asMeta);
+    app.get("/.well-known/oauth-protected-resource", prMeta);
+    app.get(`/.well-known/oauth-protected-resource${mountTail}/mcp`, prMeta);
+
+    // Flow endpoints. The SDK handlers parse params, enforce PKCE, and call our
+    // provider. They each install their own body parser + CORS.
+    app.use("/authorize", authorizationHandler({ provider: jaOAuthProvider }));
+    app.use("/token", tokenHandler({ provider: jaOAuthProvider }));
+    app.use("/register", clientRegistrationHandler({ clientsStore: jaOAuthProvider.clientsStore }));
+    app.use("/revoke", revocationHandler({ provider: jaOAuthProvider }));
+  }
 
   // ── MCP (Streamable HTTP, stateful sessions) ─────────────
   // Each session is bound to the user that initialised it. We still

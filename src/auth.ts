@@ -102,3 +102,31 @@ export async function resolvePortalUser(
     return null;
   }
 }
+
+/**
+ * Authenticate an email/password against Supabase Auth (the same identity store
+ * the portal uses), then resolve the resulting identity through the portal's
+ * `GET /api/me` so role/is_admin are derived identically. Used by the OAuth
+ * login page when the browser has no portal session cookie yet. Returns null on
+ * bad credentials. The password is sent only server-side to Supabase Auth.
+ */
+export async function authenticatePassword(
+  email: string,
+  password: string,
+): Promise<UserContext | null> {
+  const apikey = config.supabaseAnonKey || config.supabaseServiceRoleKey;
+  try {
+    const r = await fetch(`${config.supabaseUrl}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey, Authorization: `Bearer ${apikey}` },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!r.ok) return null;
+    const data = (await r.json()) as { access_token?: string };
+    if (!data?.access_token) return null;
+    // Reuse the portal as the single source of truth for who this user is.
+    return resolvePortalUser(`jh_access_token=${data.access_token}`);
+  } catch {
+    return null;
+  }
+}
