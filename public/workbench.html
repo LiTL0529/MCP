@@ -230,8 +230,9 @@
 </head>
 <body>
 
-<!-- LOGIN OVERLAY (JA backend API-key auth) -->
-<div class="login-wrap" id="loginWrap" style="display:flex">
+<!-- LOGIN OVERLAY (legacy API-key auth) — hidden by default; the web app is
+     gated by the portal login, so this overlay is never shown to browser users. -->
+<div class="login-wrap" id="loginWrap" style="display:none">
   <div class="login-card">
     <div class="login-logo">Jeffery Insight Hub</div>
     <div class="login-sub">SALES ENABLEMENT · 登录</div>
