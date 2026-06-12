@@ -3,6 +3,7 @@ import { z } from "zod";
 import { config } from "./config.js";
 import { queryToolCalls, recordToolCall } from "./audit.js";
 import { aggregateInsights, getInsight, listInsights, searchInsights } from "./insights.js";
+import { addComment, listComments } from "./comments.js";
 import { introspectSchema, isSqlEnabled, runReadonlySql } from "./readonly-db.js";
 import type { UserContext } from "./types.js";
 
@@ -261,6 +262,48 @@ export function buildMcpServer(user: UserContext): McpServer {
     },
   );
 
+  register(
+    "add_comment",
+    {
+      title: "Comment on an insight",
+      description:
+        "Leave a comment / note on a specific insight article, identified by its uuid (from search_insights / list_insights / get_insight). Use this when the user wants to record feedback, a question, or a note about a retrieved article. You may only comment on insights you are allowed to access. Comments are stored for ADMINISTRATORS to review and are NOT shown back to regular users (there is no way for a non-admin to read them back). Returns { ok, comment_id }.",
+      inputSchema: {
+        insight_id: z
+          .string()
+          .uuid()
+          .describe("The insight uuid (from search_insights / list_insights / get_insight)."),
+        body: z
+          .string()
+          .min(1)
+          .max(5000)
+          .describe("The comment text — the user's note / feedback / question about this article."),
+      },
+    },
+    async (args) => {
+      try {
+        const created = await addComment(user, args.insight_id, args.body);
+        if (!created) {
+          return jsonResult({
+            ok: false,
+            reason: "not_found_or_forbidden",
+            report:
+              "That insight does not exist or you do not have access to it, so no comment was added. Tell the user the comment could not be saved.",
+          });
+        }
+        return jsonResult({
+          ok: true,
+          comment_id: created.id,
+          insight_id: created.insight_id,
+          created_at: created.created_at,
+          report: "Comment saved on this insight. It is visible to administrators for review.",
+        });
+      } catch (e) {
+        return errorResult(`add_comment error: ${(e as Error).message}`);
+      }
+    },
+  );
+
   // ── Audit trail read-back (admin only) ────────────────────────────────────
   // The recorded agent⇄server conversation. Only registered for admins, so it
   // never appears in a normal user's tool list.
@@ -307,6 +350,48 @@ export function buildMcpServer(user: UserContext): McpServer {
           });
         } catch (e) {
           return errorResult(`list_tool_calls error: ${(e as Error).message}`);
+        }
+      },
+    );
+
+    register(
+      "list_comments",
+      {
+        title: "List insight comments (admin)",
+        description:
+          "Admin-only. Browse the comments users have left on insight articles — newest-first, each with the author email, the comment text, and the commented-on insight (id / report_id / report_date / English title). Filter by insight_id, author email, or date range; results include a `total` for paging. This is how administrators review user feedback on articles.",
+        inputSchema: {
+          insight_id: z.string().uuid().optional().describe("Only comments on this insight uuid."),
+          email: z.string().optional().describe("Filter by the commenter's email."),
+          date_from: z.string().optional().describe("Inclusive lower bound (ISO timestamp or YYYY-MM-DD)."),
+          date_to: z.string().optional().describe("Inclusive upper bound (ISO timestamp or YYYY-MM-DD)."),
+          limit: z.number().int().min(1).max(200).optional().describe("Page size (default 50, max 200)."),
+          offset: z.number().int().min(0).optional().describe("Rows to skip for paging (default 0)."),
+        },
+      },
+      async (args) => {
+        try {
+          const result = await listComments({
+            insightId: args.insight_id ?? null,
+            email: args.email ?? null,
+            dateFrom: args.date_from ?? null,
+            dateTo: args.date_to ?? null,
+            limit: args.limit ?? 50,
+            offset: args.offset ?? 0,
+          });
+          const seen = result.offset + result.items.length;
+          return jsonResult({
+            source: "ja-insight-hub",
+            found: result.total > 0,
+            total: result.total,
+            count: result.items.length,
+            limit: result.limit,
+            offset: result.offset,
+            has_more: seen < result.total,
+            items: result.items,
+          });
+        } catch (e) {
+          return errorResult(`list_comments error: ${(e as Error).message}`);
         }
       },
     );

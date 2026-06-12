@@ -549,3 +549,20 @@ create index if not exists ja_oauth_tokens_refresh_idx on ja_oauth_tokens (refre
 alter table ja_oauth_clients enable row level security;
 alter table ja_oauth_codes   enable row level security;
 alter table ja_oauth_tokens  enable row level security;
+
+-- ============================================================
+-- 0009 — user comments on insight articles (admin-readable)
+-- ============================================================
+create table if not exists ja_insight_comments (
+  id           uuid primary key default gen_random_uuid(),
+  insight_id   uuid not null references ja_insights(id) on delete cascade,
+  author_id    text,
+  author_email text not null,
+  author_name  text,
+  author_via   text,
+  body         text not null,
+  created_at   timestamptz not null default now()
+);
+create index if not exists ja_insight_comments_insight_idx on ja_insight_comments (insight_id, created_at desc);
+create index if not exists ja_insight_comments_created_idx on ja_insight_comments (created_at desc);
+alter table ja_insight_comments enable row level security;
