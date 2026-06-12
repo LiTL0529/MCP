@@ -267,7 +267,7 @@ export function buildMcpServer(user: UserContext): McpServer {
     {
       title: "Comment on an insight",
       description:
-        "Leave a comment / note on a specific insight article, identified by its uuid (from search_insights / list_insights / get_insight). Use this when the user wants to record feedback, a question, or a note about a retrieved article. You may only comment on insights you are allowed to access. Comments are stored for ADMINISTRATORS to review and are NOT shown back to regular users (there is no way for a non-admin to read them back). Returns { ok, comment_id }.",
+        "Leave a comment / note on a specific insight article, identified by its uuid (from search_insights / list_insights / get_insight). Use this when the user wants to record feedback, a question, or a note about a retrieved article. You may only comment on insights you are allowed to access. Comments are readable by administrators (all of them) and by their own author (via list_comments); other regular users cannot see them. Returns { ok, comment_id }.",
       inputSchema: {
         insight_id: z
           .string()
@@ -300,6 +300,56 @@ export function buildMcpServer(user: UserContext): McpServer {
         });
       } catch (e) {
         return errorResult(`add_comment error: ${(e as Error).message}`);
+      }
+    },
+  );
+
+  register(
+    "list_comments",
+    {
+      title: "List insight comments",
+      description:
+        "Browse comments left on insight articles, newest-first — each with the author email, the comment text, and the commented-on insight (id / report_id / report_date / English title). ADMINS see every user's comments and may filter by author email; REGULAR USERS see ONLY their own comments (the email filter is ignored for them — they can never read other users' comments). Optionally filter by insight_id or date range; results include a `total` for paging. The response `scope` field is 'all' for admins, 'own' for regular users.",
+      inputSchema: {
+        insight_id: z.string().uuid().optional().describe("Only comments on this insight uuid."),
+        email: z
+          .string()
+          .optional()
+          .describe("Admin only: filter by commenter email. Ignored for regular users (always scoped to their own)."),
+        date_from: z.string().optional().describe("Inclusive lower bound (ISO timestamp or YYYY-MM-DD)."),
+        date_to: z.string().optional().describe("Inclusive upper bound (ISO timestamp or YYYY-MM-DD)."),
+        limit: z.number().int().min(1).max(200).optional().describe("Page size (default 50, max 200)."),
+        offset: z.number().int().min(0).optional().describe("Rows to skip for paging (default 0)."),
+      },
+    },
+    async (args) => {
+      try {
+        // Server-side scoping: non-admins are hard-locked to their own email
+        // (from the authenticated context, never from args), so they can only
+        // ever read their own comments. Admins may filter freely.
+        const emailFilter = user.isAdmin ? (args.email ?? null) : user.email;
+        const result = await listComments({
+          insightId: args.insight_id ?? null,
+          email: emailFilter,
+          dateFrom: args.date_from ?? null,
+          dateTo: args.date_to ?? null,
+          limit: args.limit ?? 50,
+          offset: args.offset ?? 0,
+        });
+        const seen = result.offset + result.items.length;
+        return jsonResult({
+          source: "ja-insight-hub",
+          scope: user.isAdmin ? "all" : "own",
+          found: result.total > 0,
+          total: result.total,
+          count: result.items.length,
+          limit: result.limit,
+          offset: result.offset,
+          has_more: seen < result.total,
+          items: result.items,
+        });
+      } catch (e) {
+        return errorResult(`list_comments error: ${(e as Error).message}`);
       }
     },
   );
@@ -350,48 +400,6 @@ export function buildMcpServer(user: UserContext): McpServer {
           });
         } catch (e) {
           return errorResult(`list_tool_calls error: ${(e as Error).message}`);
-        }
-      },
-    );
-
-    register(
-      "list_comments",
-      {
-        title: "List insight comments (admin)",
-        description:
-          "Admin-only. Browse the comments users have left on insight articles — newest-first, each with the author email, the comment text, and the commented-on insight (id / report_id / report_date / English title). Filter by insight_id, author email, or date range; results include a `total` for paging. This is how administrators review user feedback on articles.",
-        inputSchema: {
-          insight_id: z.string().uuid().optional().describe("Only comments on this insight uuid."),
-          email: z.string().optional().describe("Filter by the commenter's email."),
-          date_from: z.string().optional().describe("Inclusive lower bound (ISO timestamp or YYYY-MM-DD)."),
-          date_to: z.string().optional().describe("Inclusive upper bound (ISO timestamp or YYYY-MM-DD)."),
-          limit: z.number().int().min(1).max(200).optional().describe("Page size (default 50, max 200)."),
-          offset: z.number().int().min(0).optional().describe("Rows to skip for paging (default 0)."),
-        },
-      },
-      async (args) => {
-        try {
-          const result = await listComments({
-            insightId: args.insight_id ?? null,
-            email: args.email ?? null,
-            dateFrom: args.date_from ?? null,
-            dateTo: args.date_to ?? null,
-            limit: args.limit ?? 50,
-            offset: args.offset ?? 0,
-          });
-          const seen = result.offset + result.items.length;
-          return jsonResult({
-            source: "ja-insight-hub",
-            found: result.total > 0,
-            total: result.total,
-            count: result.items.length,
-            limit: result.limit,
-            offset: result.offset,
-            has_more: seen < result.total,
-            items: result.items,
-          });
-        } catch (e) {
-          return errorResult(`list_comments error: ${(e as Error).message}`);
         }
       },
     );
