@@ -59,7 +59,10 @@ export function recordToolCall(e: ToolCallEntry): void {
 
   const row = {
     session_id: e.sessionId ?? null,
-    user_id: e.user.userId,
+    // user_id FKs ja_users(id) (a uuid). Only API-key callers have a ja_users
+    // uuid; portal/OAuth callers carry a non-uuid portal id, so leave it null
+    // and identify them by `email`.
+    user_id: e.user.authVia === "apikey" ? e.user.userId : null,
     email: e.user.email,
     tool: e.tool,
     arguments: (e.args as Record<string, unknown>) ?? {},
@@ -136,7 +139,8 @@ export function recordSession(
 
   const row = {
     session_id: sessionId,
-    user_id: user.userId,
+    // See recordToolCall: only API-key callers map to a ja_users uuid.
+    user_id: user.authVia === "apikey" ? user.userId : null,
     email: user.email,
     client_name: client?.name ?? null,
     client_version: client?.version ?? null,
