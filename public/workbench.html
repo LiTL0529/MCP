@@ -501,8 +501,16 @@
 </div>
 <div class="adm-sub active" id="sub-daily">
 <div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📡 实时洞察上传</div></div>
-<iframe id="submitFrame" src="about:blank" data-src="/submit.html" title="实时洞察录入" style="width:100%;height:1200px;border:0;display:block;background:#fff"></iframe>
-<script>(function(){var f=document.getElementById('submitFrame');if(f)f.src=(window.JA_BASE||'')+f.getAttribute('data-src');})();</script>
+<iframe id="submitFrame" src="about:blank" data-src="/submit.html" title="实时洞察录入" style="width:100%;height:600px;border:0;display:block;background:#fff"></iframe>
+<script>(function(){
+  var f=document.getElementById('submitFrame');if(!f)return;
+  // Same-origin: measure the embedded form directly and fit the iframe to it,
+  // so there's no fixed-height blank gap (belt-and-suspenders with the child's
+  // postMessage height events handled elsewhere).
+  function fit(){try{var d=f.contentWindow.document;var h=Math.max(d.body.scrollHeight,d.documentElement.scrollHeight);if(h>40)f.style.height=(h+24)+'px';}catch(e){}}
+  f.addEventListener('load',function(){fit();setTimeout(fit,250);setTimeout(fit,900);try{new ResizeObserver(fit).observe(f.contentWindow.document.body);}catch(e){}});
+  f.src=(window.JA_BASE||'')+f.getAttribute('data-src');
+})();</script>
 </div>
 </div>
 
@@ -1026,6 +1034,7 @@ var CV=[
 var cvCol=[];
 try{cvCol=JSON.parse(localStorage.getItem('jh_cvcol')||'[]')}catch(e){cvCol=[]}
 var cvYear=2026,cvMon=5,cvCatF='全部';
+var cvPage=0,_cvKey='',CV_PAGE_SIZE=12;
 var col=[],fbD={};
 try{col=JSON.parse(localStorage.getItem('jh_col')||'[]')}catch(e){col=[]}
 /* migrate old col format {c,d,tp,t,cat} → new {did,tp,tm} */
@@ -1092,7 +1101,28 @@ function toast(m){var t=document.getElementById('ts');t.textContent=m;t.classLis
 /* ========== INSIGHT CARDS ========== */
 function mk(i){return'<div class="ic-card" onclick="openD('+i.id+')"><img class="ic-img" src="'+i.img+'" alt="" onerror="this.style.background=\'linear-gradient(135deg,#E2E8F0,#CBD5E1)\'"><div class="ic-bd"><div class="ic-tgs"><span class="tg" style="background:var(--navy);color:#fff;font-size:9px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span></div><div class="ic-tt">'+i.tz+'</div><div class="ic-mt"><span>'+i.mon+'</span><span class="ic-dl" onclick="event.stopPropagation();toast(\'下载中\')">⬇️</span></div></div></div>'}
 function rL(){document.getElementById('latG').innerHTML=D.slice().reverse().slice(0,4).map(mk).join('')}
-function rB(){var f=cF==='全部'?D:D.filter(function(i){return i.cat===cF});if(curMon!=='all')f=f.filter(function(i){return i.mon===curMon});document.getElementById('libG').innerHTML=f.map(mk).join('');document.getElementById('rCnt').textContent='共 '+f.length+' 条'}
+var libPage=0,_libKey='';var LIB_PAGE_SIZE=12;
+function rB(){
+  var f=cF==='全部'?D:D.filter(function(i){return i.cat===cF});
+  if(curMon!=='all')f=f.filter(function(i){return i.mon===curMon});
+  var key=cF+'|'+curMon;if(key!==_libKey){libPage=0;_libKey=key;} // reset page on filter change
+  var total=f.length,pages=Math.max(1,Math.ceil(total/LIB_PAGE_SIZE));
+  if(libPage>=pages)libPage=pages-1;if(libPage<0)libPage=0;
+  var pageItems=f.slice(libPage*LIB_PAGE_SIZE,(libPage+1)*LIB_PAGE_SIZE);
+  document.getElementById('libG').innerHTML=pageItems.map(mk).join('');
+  document.getElementById('rCnt').textContent='共 '+total+' 条';
+  renderLibPager(total,pages);
+}
+function renderLibPager(total,pages){
+  var g=document.getElementById('libG');if(!g)return;
+  var el=document.getElementById('libPager');
+  if(!el){el=document.createElement('div');el.id='libPager';el.style.cssText='display:flex;justify-content:center;align-items:center;gap:12px;margin:16px 0 4px;font-size:12px;color:var(--muted)';if(g.parentNode)g.parentNode.insertBefore(el,g.nextSibling);}
+  if(total<=LIB_PAGE_SIZE){el.innerHTML='';return;}
+  el.innerHTML='<button class="btn btn-s btn-xs" '+(libPage<=0?'disabled':'')+' onclick="libGo(-1)">‹ 上一页</button>'+
+    '<span>第 '+(libPage+1)+' / '+pages+' 页</span>'+
+    '<button class="btn btn-s btn-xs" '+(libPage>=pages-1?'disabled':'')+' onclick="libGo(1)">下一页 ›</button>';
+}
+function libGo(d){libPage+=d;rB();var p=document.getElementById('p-library');if(p)p.scrollIntoView({behavior:'smooth',block:'start'});}
 function libMonChange(sel){curMon=sel.value==='all'?'all':sel.options[sel.selectedIndex].text;rB();renderLibCat()}
 function renderLibCat(){var src=curMon==='all'?D:D.filter(function(i){return i.mon===curMon});var catSet={};src.forEach(function(i){catSet[i.cat]=(catSet[i.cat]||0)+1});var cats=['全部'].concat(Object.keys(catSet));document.getElementById('libCatList').innerHTML=cats.map(function(c){return'<div class="lib-cat-item'+(c===cF?' a':'')+'" onclick="cF=\''+c+'\';rB();renderLibCat()">'+c+(c!=='全部'?'<span class="lib-cat-cnt">'+(catSet[c]||0)+'</span>':'')+'</div>'}).join('')}
 
@@ -1113,6 +1143,15 @@ function submitSug(){var v=document.getElementById('sugInput');if(!v)return;var 
 
 // === Daily: Parsing & Rendering ===
 var diCards=[],diCatFilter='all',diLang='zh',diSearch='';
+var diPage=0,_diKey='',DI_PAGE_SIZE=10;
+function renderDiPager(total,pages){
+  var lst=document.getElementById('diList');if(!lst)return;
+  var el=document.getElementById('diPager');
+  if(!el){el=document.createElement('div');el.id='diPager';el.style.cssText='display:flex;justify-content:center;align-items:center;gap:12px;margin:16px 0 4px;font-size:12px;color:var(--muted)';if(lst.parentNode)lst.parentNode.insertBefore(el,lst.nextSibling);}
+  if(!total||total<=DI_PAGE_SIZE){el.innerHTML='';return;}
+  el.innerHTML='<button class="btn btn-s btn-xs" '+(diPage<=0?'disabled':'')+' onclick="diGo(-1)">‹ 上一页</button><span>第 '+(diPage+1)+' / '+pages+' 页</span><button class="btn btn-s btn-xs" '+(diPage>=pages-1?'disabled':'')+' onclick="diGo(1)">下一页 ›</button>';
+}
+function diGo(d){diPage+=d;renderDailyCards();var p=document.getElementById('diList');if(p)p.scrollIntoView({behavior:'smooth',block:'start'});}
 
 function buildDateBar(){
   var bar=document.getElementById('diDateBar');
@@ -1313,6 +1352,7 @@ function diCatColor(cat){
 function renderDailyCards(){
   var list=document.getElementById('diList');
   if(!list)return;
+  var _dp=document.getElementById('diPager');if(_dp)_dp.innerHTML=''; // clear pager; main path repopulates
 
   if(!diCards.length){
     list.innerHTML='<div class="di-empty">📡 请选择日期加载洞察，或在管理后台上传 HTML 文件</div>';
@@ -1335,7 +1375,13 @@ function renderDailyCards(){
   var en=diLang==='en';
   var _t=document.createElement('div');
 
-  list.innerHTML=filtered.map(function(c){
+  var diTot=filtered.length,diKey2=curDate+'|'+diSearch;
+  if(diKey2!==_diKey){diPage=0;_diKey=diKey2;}
+  var diPages=Math.max(1,Math.ceil(diTot/DI_PAGE_SIZE));
+  if(diPage>=diPages)diPage=diPages-1;if(diPage<0)diPage=0;
+  var diSlice=filtered.slice(diPage*DI_PAGE_SIZE,(diPage+1)*DI_PAGE_SIZE);
+  renderDiPager(diTot,diPages);
+  list.innerHTML=diSlice.map(function(c){
     var did=curDate+'-'+c.num;
     var isI=col.some(function(x){return x.did===did&&x.tp==='interest'});
     var isU=col.some(function(x){return x.did===did&&x.tp==='used'});
@@ -1562,6 +1608,14 @@ function cvPlatIcon(p){return{'小红书':'📕','抖音':'🎵','视频号':'�
 function cvYr(d){cvYear+=d;renderCVPage()}
 function cvSelMon(m){cvMon=m;renderCVPage()}
 function cvSelCat(c){cvCatF=c;renderCVPage()}
+function renderCvPager(total,pages){
+  var g=document.getElementById('cvGrid');if(!g)return;
+  var el=document.getElementById('cvPager');
+  if(!el){el=document.createElement('div');el.id='cvPager';el.style.cssText='display:flex;justify-content:center;align-items:center;gap:12px;margin:16px 0 4px;font-size:12px;color:var(--muted)';if(g.parentNode)g.parentNode.insertBefore(el,g.nextSibling);}
+  if(total<=CV_PAGE_SIZE){el.innerHTML='';return;}
+  el.innerHTML='<button class="btn btn-s btn-xs" '+(cvPage<=0?'disabled':'')+' onclick="cvGo(-1)">‹ 上一页</button><span>第 '+(cvPage+1)+' / '+pages+' 页</span><button class="btn btn-s btn-xs" '+(cvPage>=pages-1?'disabled':'')+' onclick="cvGo(1)">下一页 ›</button>';
+}
+function cvGo(d){cvPage+=d;renderCVPage();var p=document.getElementById('p-creative');if(p)p.scrollIntoView({behavior:'smooth',block:'start'});}
 
 function renderCVPage(){
   document.getElementById('cvYrLabel').textContent=cvYear;
@@ -1575,8 +1629,14 @@ function renderCVPage(){
     if(cvCatF!=='全部'&&v.cat!==cvCatF)return false;
     return true;
   });
-  document.getElementById('cvCnt').textContent='共 '+filtered.length+' 条选题';
-  document.getElementById('cvGrid').innerHTML=filtered.length?filtered.map(function(v){
+  var cvTot=filtered.length,cvKey2=cvYear+'|'+cvMon+'|'+cvCatF;
+  if(cvKey2!==_cvKey){cvPage=0;_cvKey=cvKey2;}
+  var cvPages=Math.max(1,Math.ceil(cvTot/CV_PAGE_SIZE));
+  if(cvPage>=cvPages)cvPage=cvPages-1;if(cvPage<0)cvPage=0;
+  var cvSlice=filtered.slice(cvPage*CV_PAGE_SIZE,(cvPage+1)*CV_PAGE_SIZE);
+  document.getElementById('cvCnt').textContent='共 '+cvTot+' 条选题';
+  renderCvPager(cvTot,cvPages);
+  document.getElementById('cvGrid').innerHTML=cvSlice.length?cvSlice.map(function(v){
     var platClr={'小红书':'#FF2442','抖音':'#111','视频号':'#07C160','B站':'#00A1D6','YouTube':'#FF0000','TikTok':'#111','Instagram':'#E1306C'}[v.plat]||'#64748B';
     var thumbHtml=v.imgs&&v.imgs.length?'<img src="'+v.imgs[0]+'" style="width:100%;height:100%;object-fit:cover">':'<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;flex-direction:column;gap:4px"><div style="font-size:28px;opacity:.6">'+cvPlatIcon(v.plat)+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">'+v.plat+'</div></div>';
     var d=new Date(v.date);var dateStr=d.getFullYear()+'年'+(d.getMonth()+1)+'月';
@@ -2149,7 +2209,7 @@ try {
     var d = ev.data || {};
     if(d.type === 'ja-frame-height'){
       var fr = document.getElementById('submitFrame');
-      if(fr && d.height) fr.style.height = Math.max(600, d.height) + 'px';
+      if(fr && d.height) fr.style.height = Math.max(200, d.height) + 'px';
     } else if(d.type === 'ja-insight-created'){
       var ins = d.insight || {};
       toast('📡 已发布并向量化' + (ins.report_id ? ' · #' + ins.report_id : ''));
