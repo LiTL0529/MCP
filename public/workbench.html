@@ -250,11 +250,11 @@
 <div class="ni a" onclick="nav('daily',this)"><span class="ic">📡</span>实时洞察</div>
 <div class="ni" onclick="nav('creative',this)"><span class="ic">🎬</span>创意洞察</div>
 <div class="ni" onclick="nav('library',this)"><span class="ic">📚</span>月度洞察</div>
+<div class="ni" onclick="nav('community',this)"><span class="ic">🏛️</span>需求社区</div>
 <div class="sb-sec">我的</div>
 <div class="ni" onclick="nav('fav',this)"><span class="ic">📌</span>我的收藏</div>
 <div class="ni" onclick="nav('feedback',this)"><span class="ic">📝</span>我的反馈</div>
 <div class="ni" onclick="nav('mydata',this)"><span class="ic">📊</span>整体数据</div>
-<div class="ni" onclick="nav('demandbox',this)"><span class="ic">📮</span>需求意见箱</div>
 <div class="sb-sec">管理</div>
 <div class="ni" onclick="nav('admin',this)"><span class="ic">⚙️</span>管理后台</div>
 </div>
@@ -374,6 +374,106 @@
 
 
 <!-- 需求意见箱 -->
+<!-- 需求社区 (community: posts + comments) -->
+<div class="ct page" id="p-community">
+<div style="max-width:880px;margin:0 auto">
+  <div id="commList">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-size:13px;color:var(--muted)" id="commCnt">加载中…</div>
+      <button class="btn btn-p btn-sm" onclick="commNew()">✏️ 发帖</button>
+    </div>
+    <div id="commPosts"></div>
+    <div id="commPager" style="display:flex;justify-content:center;align-items:center;gap:12px;margin:16px 0;font-size:12px;color:var(--muted)"></div>
+  </div>
+  <div id="commForm" style="display:none">
+    <button class="btn btn-s btn-sm" onclick="commShow('list')">‹ 返回社区</button>
+    <div class="e-tbl-wrap" style="margin-top:10px"><div class="e-tbl-head"><div class="e-tbl-title">✏️ 发布新帖</div></div>
+      <div style="padding:14px">
+        <div class="frm"><label class="fl">标题</label><input type="text" class="fi" id="commTitle" maxlength="200" placeholder="一句话说明你的需求或想法"></div>
+        <div class="frm"><label class="fl">内容</label><textarea class="fi" id="commBody" style="min-height:150px;resize:vertical" placeholder="详细描述…"></textarea></div>
+        <button class="btn btn-p" onclick="commSubmit()">发布</button>
+      </div>
+    </div>
+  </div>
+  <div id="commDetail" style="display:none"></div>
+</div>
+</div>
+<script>
+(function(){
+  var PAGE=10,off=0,total=0;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function nl2br(s){return esc(s).replace(/\n/g,'<br>')}
+  function fmt(t){if(!t)return'';var d=new Date(t);if(isNaN(d.getTime()))return t;var p=function(x){return(x<10?'0':'')+x};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())}
+  function who(em,nm){return esc(nm||(em||'').split('@')[0]||'匿名')}
+  function show(v){['List','Form','Detail'].forEach(function(k){var el=document.getElementById('comm'+k);if(el)el.style.display=(k.toLowerCase()===v?'':'none')})}
+  window.commShow=show;
+  window.renderCommunity=function(){show('list');commLoad(0)};
+  window.commNew=function(){var t=document.getElementById('commTitle'),b=document.getElementById('commBody');if(t)t.value='';if(b)b.value='';show('form')};
+  window.commLoad=async function(o){
+    if(typeof o==='number')off=o;
+    var box=document.getElementById('commPosts');if(!box)return;
+    box.innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">加载中…</div>';
+    try{
+      var r=await window.JA.api('/api/community/posts?limit='+PAGE+'&offset='+off);
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      var j=await r.json();total=j.total||0;var items=j.items||[];
+      document.getElementById('commCnt').textContent='共 '+total+' 个帖子';
+      box.innerHTML=items.length?items.map(function(p){
+        return '<div onclick="commOpen(\''+p.id+'\')" style="cursor:pointer;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px" onmouseover="this.style.boxShadow=\'0 2px 10px rgba(0,0,0,.06)\'" onmouseout="this.style.boxShadow=\'\'">'+
+          '<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px">'+(p.pinned?'📌 ':'')+esc(p.title)+'</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.5;max-height:42px;overflow:hidden">'+esc(p.excerpt)+'</div>'+
+          '<div style="display:flex;gap:12px;font-size:11px;color:var(--muted)"><span>👤 '+who(p.author_email,p.author_name)+'</span><span>🕐 '+fmt(p.created_at)+'</span><span>💬 '+(p.comment_count||0)+'</span></div>'+
+        '</div>';
+      }).join(''):'<div style="text-align:center;color:var(--muted);padding:40px">还没有帖子，点「发帖」发布第一个吧</div>';
+      var pages=Math.max(1,Math.ceil(total/PAGE)),cur=Math.floor(off/PAGE)+1;
+      document.getElementById('commPager').innerHTML=total>PAGE?'<button class="btn btn-s btn-xs" '+(off<=0?'disabled':'')+' onclick="commPage(-1)">‹ 上一页</button><span>第 '+cur+' / '+pages+' 页</span><button class="btn btn-s btn-xs" '+(off+PAGE>=total?'disabled':'')+' onclick="commPage(1)">下一页 ›</button>':'';
+    }catch(e){box.innerHTML='<div style="text-align:center;color:var(--red);padding:24px">加载失败：'+esc(e.message)+'</div>';}
+  };
+  window.commPage=function(d){var no=off+d*PAGE;if(no<0)no=0;if(no>=total&&d>0)return;commLoad(no)};
+  window.commSubmit=async function(){
+    var title=(document.getElementById('commTitle').value||'').trim(),body=(document.getElementById('commBody').value||'').trim();
+    if(!title||!body){if(window.toast)toast('标题和内容不能为空');return;}
+    try{
+      var r=await window.JA.api('/api/community/posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:title,body:body})});
+      var j=await r.json().catch(function(){return{}});
+      if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
+      if(window.toast)toast('已发布');show('list');commLoad(0);
+    }catch(e){if(window.toast)toast('发布失败：'+e.message);}
+  };
+  window.commOpen=async function(id){
+    var box=document.getElementById('commDetail');if(!box)return;
+    box.innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">加载中…</div>';show('detail');
+    try{
+      var r=await window.JA.api('/api/community/posts/'+encodeURIComponent(id));
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      var j=await r.json();var p=j.post||{};var cs=j.comments||[];
+      box.innerHTML='<button class="btn btn-s btn-sm" onclick="commShow(\'list\')">‹ 返回社区</button>'+
+        '<div class="e-tbl-wrap" style="margin-top:10px"><div style="padding:16px">'+
+          '<div style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px">'+(p.pinned?'📌 ':'')+esc(p.title)+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">👤 '+who(p.author_email,p.author_name)+' · '+fmt(p.created_at)+'</div>'+
+          '<div style="font-size:14px;line-height:1.7;color:#1e293b">'+nl2br(p.body)+'</div>'+
+        '</div></div>'+
+        '<div class="e-tbl-wrap" style="margin-top:12px"><div class="e-tbl-head"><div class="e-tbl-title">💬 评论 ('+cs.length+')</div></div>'+
+          '<div style="padding:12px 16px">'+
+            (cs.length?cs.map(function(c){return'<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;color:var(--muted);margin-bottom:3px">👤 '+who(c.author_email,c.author_name)+' · '+fmt(c.created_at)+'</div><div style="font-size:13px;line-height:1.6">'+nl2br(c.body)+'</div></div>'}).join(''):'<div style="color:var(--muted);font-size:13px;padding:8px 0">还没有评论</div>')+
+            '<div style="margin-top:12px;display:flex;gap:8px;align-items:flex-end"><textarea class="fi" id="commCmt" style="flex:1;min-height:60px;resize:vertical" placeholder="写下你的评论…"></textarea><button class="btn btn-p btn-sm" onclick="commAddComment(\''+esc(id)+'\')">发送</button></div>'+
+          '</div>'+
+        '</div>';
+    }catch(e){box.innerHTML='<button class="btn btn-s btn-sm" onclick="commShow(\'list\')">‹ 返回</button><div style="text-align:center;color:var(--red);padding:24px">加载失败：'+esc(e.message)+'</div>';}
+  };
+  window.commAddComment=async function(id){
+    var ta=document.getElementById('commCmt');var body=(ta&&ta.value||'').trim();
+    if(!body){if(window.toast)toast('评论不能为空');return;}
+    try{
+      var r=await window.JA.api('/api/community/posts/'+encodeURIComponent(id)+'/comments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:body})});
+      var j=await r.json().catch(function(){return{}});
+      if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
+      commOpen(id);
+    }catch(e){if(window.toast)toast('评论失败：'+e.message);}
+  };
+})();
+</script>
+
 <div class="ct page" id="p-demandbox">
 <!-- 简要说明栏（横幅，自适应铺满） -->
 <div style="background:linear-gradient(135deg,#EFF4FF,#F5F0FF);border:1px solid #DBE3FF;border-radius:12px;padding:18px 22px;margin-bottom:16px">
@@ -968,11 +1068,13 @@ var _daily_2026_05_29 = [{"num": "01", "cat": "edu", "clients": "NUS SMU NTU INS
     {did:'2026-02-10-02',tp:'interest',tm:Date.now()-800000000},
     {did:'2026-01-15-04',tp:'interest',tm:Date.now()-1000000000}
   ];
-  localStorage.setItem('jh_col',JSON.stringify(dc));
+  // Demo seed removed. One-time cleanup: wipe the fake 收藏/反馈/整体数据 data
+  // that earlier builds injected, without clobbering any real data the user adds later.
+  if(!localStorage.getItem('jh_demo_cleared')){localStorage.removeItem('jh_col');localStorage.removeItem('jh_fb');localStorage.removeItem('jh_cvcol');localStorage.setItem('jh_demo_cleared','1');}
 
   // Mock feedback - FORCE set
   var df={1:{u:true,note:'已用于NUS BIZ Q2招生'},3:{u:true,note:'分享给NTU参考'},5:{u:false,note:'暂时观望'},7:{u:true,note:'用于SMU EMBA推广'}};
-  localStorage.setItem('jh_fb',JSON.stringify(df));
+  /* demo feedback seed removed (was fake data) */
 
   // Mock CV annotations - FORCE set
   var dcc=[
@@ -982,7 +1084,7 @@ var _daily_2026_05_29 = [{"num": "01", "cat": "edu", "clients": "NUS SMU NTU INS
     {vid:2,tp:'interest',tm:Date.now()-150000000},
     {vid:3,tp:'interest',tm:Date.now()-120000000}
   ];
-  localStorage.setItem('jh_cvcol',JSON.stringify(dcc));
+  /* demo creative-favorites seed removed (was fake data) */
 })();
 
 </script>
@@ -1088,13 +1190,14 @@ function nav(p,el){
   document.getElementById('p-'+p).classList.add('active');
   document.querySelectorAll('.sb-nav>.ni').forEach(function(n){n.classList.remove('a')});
   if(el)el.classList.add('a');
-  document.getElementById('pgT').textContent={library:'月度洞察',daily:'实时洞察 · JA-Research',creative:'创意洞察',fav:'我的收藏',feedback:'我的反馈',demandbox:'需求意见箱',admin:'管理后台',mydata:'整体数据'}[p]||'';
+  document.getElementById('pgT').textContent={library:'月度洞察',daily:'实时洞察 · JA-Research',creative:'创意洞察',fav:'我的收藏',feedback:'我的反馈',demandbox:'需求意见箱',community:'需求社区',admin:'管理后台',mydata:'整体数据'}[p]||'';
   try{document.getElementById('adminSubNav').style.display=p==='admin'?'block':'none'}catch(e){}
   if(p==='daily')loadDaily(curDate);
   if(p==='creative')renderCVPage();
   if(p==='library')renderLibCat();
   if(p==='feedback')renderFB();
   if(p==='mydata')renderMyData();
+  if(p==='community')renderCommunity();
   if(p==='fav')favTab('daily',document.getElementById('favTabDaily'));
 }
 function toast(m){var t=document.getElementById('ts');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}

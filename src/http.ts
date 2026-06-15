@@ -23,6 +23,7 @@ import { createInsight, getDailyCards, getInsight, listInsights, searchInsights 
 import { createApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
+import { addPostComment, createPost, getPost, listPosts } from "./community.js";
 import { parseBilingualMd } from "./markdown.js";
 import type { Lang, UserContext } from "./types.js";
 
@@ -600,6 +601,61 @@ export function buildApp() {
         createdBy,
       );
       res.status(201).json({ ok: true, creative: created });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // ── 需求社区 (community: posts + comments) ───────────────
+  app.get("/api/community/posts", requireUser, async (req, res) => {
+    try {
+      res.json(await listPosts({ limit: num(req.query.limit, 10), offset: num(req.query.offset, 0) }));
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  const postSchema = z.object({ title: z.string().min(1).max(200), body: z.string().min(1).max(20000) });
+  app.post("/api/community/posts", requireUser, async (req, res) => {
+    const parsed = postSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "标题和内容不能为空" });
+      return;
+    }
+    try {
+      res.status(201).json({ ok: true, post: await createPost(req.user!, parsed.data.title, parsed.data.body) });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  app.get("/api/community/posts/:id", requireUser, async (req, res) => {
+    try {
+      const result = await getPost(req.params.id);
+      if (!result) {
+        res.status(404).json({ error: "帖子不存在" });
+        return;
+      }
+      res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  const postCommentSchema = z.object({ body: z.string().min(1).max(5000) });
+  app.post("/api/community/posts/:id/comments", requireUser, async (req, res) => {
+    const parsed = postCommentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "评论内容不能为空" });
+      return;
+    }
+    try {
+      const created = await addPostComment(req.user!, req.params.id, parsed.data.body);
+      if (!created) {
+        res.status(404).json({ error: "帖子不存在" });
+        return;
+      }
+      res.status(201).json({ ok: true, comment: created });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }

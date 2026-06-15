@@ -599,3 +599,23 @@ create index if not exists ja_creative_date_idx    on ja_creative_insights (repo
 create index if not exists ja_creative_category_idx on ja_creative_insights (category);
 create index if not exists ja_creative_access_idx   on ja_creative_insights using gin (access);
 alter table ja_creative_insights enable row level security;
+
+-- ============================================================
+-- 0013 — 需求社区 (community posts + comments)
+-- ============================================================
+create table if not exists ja_community_posts (
+  id uuid primary key default gen_random_uuid(),
+  author_id text, author_email text not null, author_name text,
+  title text not null, body text not null, pinned boolean not null default false,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create index if not exists ja_community_posts_created_idx on ja_community_posts (created_at desc);
+create table if not exists ja_community_comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references ja_community_posts(id) on delete cascade,
+  author_id text, author_email text not null, author_name text,
+  body text not null, created_at timestamptz not null default now()
+);
+create index if not exists ja_community_comments_post_idx on ja_community_comments (post_id, created_at);
+alter table ja_community_posts enable row level security;
+alter table ja_community_comments enable row level security;
