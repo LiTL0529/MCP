@@ -21,6 +21,8 @@ import { queryToolCalls, recordSession } from "./audit.js";
 import { buildMcpServer } from "./mcp.js";
 import { createInsight, getDailyCards, getInsight, listInsights, searchInsights } from "./insights.js";
 import { createApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
+import { createCreative, getCreative, listCreative } from "./creative.js";
+import { getOverviewStats } from "./stats.js";
 import { parseBilingualMd } from "./markdown.js";
 import type { Lang, UserContext } from "./types.js";
 
@@ -519,6 +521,85 @@ export function buildApp() {
         lang: langOf(req.query.lang),
       });
       res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // ── Overall stats (整体数据) — real, access-filtered analytics ──
+  app.get("/api/stats", requireUser, async (req, res) => {
+    try {
+      res.json(await getOverviewStats(req.user!));
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // ── Creative insights (创意洞察) ──────────────────────────
+  app.get("/api/creative", requireUser, async (req, res) => {
+    try {
+      const result = await listCreative(req.user!, {
+        category: str(req.query.category),
+        platform: str(req.query.platform),
+        dateFrom: str(req.query.date_from),
+        dateTo: str(req.query.date_to),
+        limit: num(req.query.limit, 24),
+        offset: num(req.query.offset, 0),
+      });
+      res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  app.get("/api/creative/:id", requireUser, async (req, res) => {
+    try {
+      const row = await getCreative(req.user!, req.params.id);
+      if (!row) {
+        res.status(404).json({ error: "Not found or not permitted" });
+        return;
+      }
+      res.json({ creative: row });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  const creativeSchema = z.object({
+    title: z.string().min(1),
+    platform: z.string().nullish(),
+    category: z.string().nullish(),
+    link: z.string().nullish(),
+    methods: z.array(z.string()).optional(),
+    images: z.array(z.string()).optional(),
+    body: z.record(z.any()).optional(),
+    report_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullish(),
+    access: z.array(z.string()).optional(),
+  });
+
+  app.post("/api/creative", requireIngestAuth, async (req, res) => {
+    const parsed = creativeSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Validation failed", details: parsed.error.flatten() });
+      return;
+    }
+    try {
+      const createdBy = req.user?.authVia === "apikey" ? req.user.userId : undefined;
+      const created = await createCreative(
+        {
+          title: parsed.data.title,
+          platform: parsed.data.platform ?? null,
+          category: parsed.data.category ?? null,
+          link: parsed.data.link ?? null,
+          methods: parsed.data.methods ?? [],
+          images: parsed.data.images ?? [],
+          body: parsed.data.body ?? {},
+          report_date: parsed.data.report_date ?? null,
+          access: parsed.data.access ?? ["default"],
+        },
+        createdBy,
+      );
+      res.status(201).json({ ok: true, creative: created });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }

@@ -576,3 +576,26 @@ alter table ja_api_keys add column if not exists expires_at timestamptz;
 -- 0011 — store raw API key for admin re-copy (security trade-off)
 -- ============================================================
 alter table ja_api_keys add column if not exists key_plain text;
+
+-- ============================================================
+-- 0012 — creative-insight (video decode) records
+-- ============================================================
+create table if not exists ja_creative_insights (
+  id           uuid primary key default gen_random_uuid(),
+  title        text not null,
+  platform     text,
+  category     text,
+  link         text,
+  methods      jsonb not null default '[]'::jsonb,
+  images       jsonb not null default '[]'::jsonb,
+  body         jsonb not null default '{}'::jsonb,
+  report_date  date not null default current_date,
+  access       text[] not null default '{default}',
+  created_by   uuid references ja_users(id) on delete set null,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+create index if not exists ja_creative_date_idx    on ja_creative_insights (report_date desc);
+create index if not exists ja_creative_category_idx on ja_creative_insights (category);
+create index if not exists ja_creative_access_idx   on ja_creative_insights using gin (access);
+alter table ja_creative_insights enable row level security;
