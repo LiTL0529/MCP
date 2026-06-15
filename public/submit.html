@@ -310,7 +310,9 @@ function renderImgList(){
 // success back to the parent. Outside an iframe this all no-ops.
 var EMBED=(function(){try{return window.self!==window.top;}catch(e){return true;}})();
 function embeddedKey(){try{return localStorage.getItem('ja_api_key')||'';}catch(e){return '';}}
-function postHeight(){if(!EMBED)return;try{parent.postMessage({type:'ja-frame-height',height:document.documentElement.scrollHeight+24},'*');}catch(e){}}
+// Use body scrollHeight (content), NOT documentElement: <html> stretches to the
+// iframe height, which would feed back into the parent's resize → endless growth.
+function postHeight(){if(!EMBED)return;try{parent.postMessage({type:'ja-frame-height',height:document.body.scrollHeight+24},'*');}catch(e){}}
 
 async function submitForm(){
   var msg = document.getElementById('msg'), btn = document.getElementById('goBtn');

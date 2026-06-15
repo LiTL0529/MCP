@@ -507,8 +507,12 @@
   // Same-origin: measure the embedded form directly and fit the iframe to it,
   // so there's no fixed-height blank gap (belt-and-suspenders with the child's
   // postMessage height events handled elsewhere).
-  function fit(){try{var d=f.contentWindow.document;var h=Math.max(d.body.scrollHeight,d.documentElement.scrollHeight);if(h>40)f.style.height=(h+24)+'px';}catch(e){}}
-  f.addEventListener('load',function(){fit();setTimeout(fit,250);setTimeout(fit,900);try{new ResizeObserver(fit).observe(f.contentWindow.document.body);}catch(e){}});
+  // Measure BODY scrollHeight (content), NOT documentElement — the <html>
+  // element stretches to the iframe height, which would feed back into unbounded
+  // growth. No continuous parent observer; the child's postMessage handles
+  // dynamic changes.
+  function fit(){try{var h=f.contentWindow.document.body.scrollHeight;if(h>40)f.style.height=(h+24)+'px';}catch(e){}}
+  f.addEventListener('load',function(){fit();setTimeout(fit,400);setTimeout(fit,1200);});
   f.src=(window.JA_BASE||'')+f.getAttribute('data-src');
 })();</script>
 </div>
@@ -1034,7 +1038,7 @@ var CV=[
 var cvCol=[];
 try{cvCol=JSON.parse(localStorage.getItem('jh_cvcol')||'[]')}catch(e){cvCol=[]}
 var cvYear=2026,cvMon=5,cvCatF='全部';
-var cvPage=0,_cvKey='',CV_PAGE_SIZE=12;
+var cvPage=0,_cvKey='',CV_PAGE_SIZE=5;
 var col=[],fbD={};
 try{col=JSON.parse(localStorage.getItem('jh_col')||'[]')}catch(e){col=[]}
 /* migrate old col format {c,d,tp,t,cat} → new {did,tp,tm} */
@@ -1101,7 +1105,7 @@ function toast(m){var t=document.getElementById('ts');t.textContent=m;t.classLis
 /* ========== INSIGHT CARDS ========== */
 function mk(i){return'<div class="ic-card" onclick="openD('+i.id+')"><img class="ic-img" src="'+i.img+'" alt="" onerror="this.style.background=\'linear-gradient(135deg,#E2E8F0,#CBD5E1)\'"><div class="ic-bd"><div class="ic-tgs"><span class="tg" style="background:var(--navy);color:#fff;font-size:9px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span></div><div class="ic-tt">'+i.tz+'</div><div class="ic-mt"><span>'+i.mon+'</span><span class="ic-dl" onclick="event.stopPropagation();toast(\'下载中\')">⬇️</span></div></div></div>'}
 function rL(){document.getElementById('latG').innerHTML=D.slice().reverse().slice(0,4).map(mk).join('')}
-var libPage=0,_libKey='';var LIB_PAGE_SIZE=12;
+var libPage=0,_libKey='';var LIB_PAGE_SIZE=5;
 function rB(){
   var f=cF==='全部'?D:D.filter(function(i){return i.cat===cF});
   if(curMon!=='all')f=f.filter(function(i){return i.mon===curMon});
@@ -1143,7 +1147,7 @@ function submitSug(){var v=document.getElementById('sugInput');if(!v)return;var 
 
 // === Daily: Parsing & Rendering ===
 var diCards=[],diCatFilter='all',diLang='zh',diSearch='';
-var diPage=0,_diKey='',DI_PAGE_SIZE=10;
+var diPage=0,_diKey='',DI_PAGE_SIZE=5;
 function renderDiPager(total,pages){
   var lst=document.getElementById('diList');if(!lst)return;
   var el=document.getElementById('diPager');
