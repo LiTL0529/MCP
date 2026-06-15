@@ -48,3 +48,29 @@ export async function uploadImage(data: string): Promise<{ url: string; path: st
   const { data: pub } = supabase.storage.from(config.storageBucket).getPublicUrl(path);
   return { url: pub.publicUrl, path };
 }
+
+/**
+ * Upload an arbitrary file (base64 data-URL or bare base64) to the community
+ * files bucket and return its public URL + metadata. Used for 需求社区 post
+ * attachments (md / html / pdf / …).
+ */
+export async function uploadFile(
+  data: string,
+  filename: string,
+): Promise<{ url: string; path: string; name: string; type: string; size: number }> {
+  const m = data.match(/^data:([^;,]+);base64,(.*)$/s);
+  const contentType = m ? m[1] : "application/octet-stream";
+  const base64 = m ? m[2] : data;
+  const buffer = Buffer.from(base64, "base64");
+  if (!buffer.length) throw new Error("file is empty or not valid base64");
+  const safe = (filename || "file").replace(/[^\w.\-]+/g, "_").slice(0, 120) || "file";
+  const path = `${randomUUID()}-${safe}`;
+
+  const { error } = await supabase.storage
+    .from(config.filesBucket)
+    .upload(path, buffer, { contentType, upsert: false });
+  if (error) throw new Error(`file upload failed: ${error.message}`);
+
+  const { data: pub } = supabase.storage.from(config.filesBucket).getPublicUrl(path);
+  return { url: pub.publicUrl, path, name: safe, type: contentType, size: buffer.length };
+}

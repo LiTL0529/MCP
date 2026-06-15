@@ -24,6 +24,7 @@ import { createApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
 import { addPostComment, createPost, getPost, listPosts } from "./community.js";
+import { uploadFile } from "./storage.js";
 import { parseBilingualMd } from "./markdown.js";
 import type { Lang, UserContext } from "./types.js";
 
@@ -615,7 +616,14 @@ export function buildApp() {
     }
   });
 
-  const postSchema = z.object({ title: z.string().min(1).max(200), body: z.string().min(1).max(20000) });
+  // Attachments arrive as base64 data-URLs; allowed file kinds + 15MB/file cap.
+  const ALLOWED_FILE_EXT = ["md","markdown","html","htm","pdf","txt","csv","json","docx","doc","xlsx","xls","pptx","ppt","png","jpg","jpeg","gif","webp","svg","zip"];
+  const MAX_FILE_BYTES = 15 * 1024 * 1024;
+  const postSchema = z.object({
+    title: z.string().min(1).max(200),
+    body: z.string().min(1).max(20000),
+    attachments: z.array(z.object({ data: z.string().min(1), name: z.string().min(1).max(160) })).max(10).optional(),
+  });
   app.post("/api/community/posts", requireUser, async (req, res) => {
     const parsed = postSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -623,7 +631,21 @@ export function buildApp() {
       return;
     }
     try {
-      res.status(201).json({ ok: true, post: await createPost(req.user!, parsed.data.title, parsed.data.body) });
+      const resolved: Array<{ name: string; url: string; type: string; size: number }> = [];
+      for (const att of parsed.data.attachments ?? []) {
+        const ext = (att.name.split(".").pop() || "").toLowerCase();
+        if (!ALLOWED_FILE_EXT.includes(ext)) {
+          res.status(400).json({ error: `不支持的文件类型 .${ext}（支持 md/html/pdf 等）` });
+          return;
+        }
+        if (Math.floor(att.data.length * 0.75) > MAX_FILE_BYTES) {
+          res.status(400).json({ error: `文件过大（单个上限 15MB）：${att.name}` });
+          return;
+        }
+        const up = await uploadFile(att.data, att.name);
+        resolved.push({ name: up.name, url: up.url, type: up.type, size: up.size });
+      }
+      res.status(201).json({ ok: true, post: await createPost(req.user!, parsed.data.title, parsed.data.body, resolved) });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }

@@ -619,3 +619,11 @@ create table if not exists ja_community_comments (
 create index if not exists ja_community_comments_post_idx on ja_community_comments (post_id, created_at);
 alter table ja_community_posts enable row level security;
 alter table ja_community_comments enable row level security;
+
+-- ============================================================
+-- 0014 — 需求社区 attachments (storage bucket + column)
+-- ============================================================
+insert into storage.buckets (id, name, public)
+values ('ja-community-files', 'ja-community-files', true)
+on conflict (id) do update set public = true;
+alter table ja_community_posts add column if not exists attachments jsonb not null default '[]'::jsonb;

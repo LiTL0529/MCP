@@ -49,6 +49,8 @@ export const config = {
 
   // Supabase Storage bucket that holds uploaded insight images (public read).
   storageBucket: optional("SUPABASE_STORAGE_BUCKET", "ja-insight-images"),
+  // Public bucket for 需求社区 post attachments (md / html / pdf / …).
+  filesBucket: optional("SUPABASE_FILES_BUCKET", "ja-community-files"),
 
   // Default minimum cosine similarity for semantic search. Matches below this
   // are dropped so weak/irrelevant results don't surface. Callers can still

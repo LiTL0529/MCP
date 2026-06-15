@@ -17,7 +17,7 @@ export async function listPosts(p: PostListParams) {
   const { data, count, error } = await supabase
     .from("ja_community_posts")
     .select(
-      "id, author_email, author_name, title, body, pinned, created_at, ja_community_comments(count)",
+      "id, author_email, author_name, title, body, pinned, created_at, attachments, ja_community_comments(count)",
       { count: "exact" },
     )
     .order("pinned", { ascending: false })
@@ -32,6 +32,7 @@ export async function listPosts(p: PostListParams) {
     excerpt: typeof row.body === "string" ? row.body.slice(0, 180) : "",
     pinned: row.pinned,
     created_at: row.created_at,
+    attachments: row.attachments || [],
     comment_count: Array.isArray(row.ja_community_comments) && row.ja_community_comments[0]
       ? row.ja_community_comments[0].count
       : 0,
@@ -39,7 +40,12 @@ export async function listPosts(p: PostListParams) {
   return { total: count ?? 0, limit, offset, items };
 }
 
-export async function createPost(user: UserContext, title: string, body: string) {
+export async function createPost(
+  user: UserContext,
+  title: string,
+  body: string,
+  attachments: Array<{ name: string; url: string; type: string; size: number }> = [],
+) {
   const { data, error } = await supabase
     .from("ja_community_posts")
     .insert({
@@ -48,6 +54,7 @@ export async function createPost(user: UserContext, title: string, body: string)
       author_name: user.name,
       title,
       body,
+      attachments,
     })
     .select("id, created_at")
     .single();
@@ -58,7 +65,7 @@ export async function createPost(user: UserContext, title: string, body: string)
 export async function getPost(id: string) {
   const { data: post, error } = await supabase
     .from("ja_community_posts")
-    .select("id, author_email, author_name, title, body, pinned, created_at")
+    .select("id, author_email, author_name, title, body, pinned, created_at, attachments")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(`getPost failed: ${error.message}`);
