@@ -20,6 +20,7 @@ import {
 import { queryToolCalls, recordSession } from "./audit.js";
 import { buildMcpServer } from "./mcp.js";
 import { createInsight, getDailyCards, getInsight, listInsights, searchInsights } from "./insights.js";
+import { createApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
 import { parseBilingualMd } from "./markdown.js";
 import type { Lang, UserContext } from "./types.js";
 
@@ -39,6 +40,17 @@ function bearer(req: Request): string | null {
   const h = req.header("authorization") ?? "";
   const m = h.match(/^Bearer\s+(.+)$/i);
   return m ? m[1].trim() : null;
+}
+
+// Normalise an expiry input to an ISO string or null. A bare date (YYYY-MM-DD)
+// is taken as end-of-day UTC so the key stays valid through that whole day;
+// anything else is treated as an ISO timestamp. Empty/unparseable => null.
+function normaliseExpiry(v: unknown): string | null {
+  if (typeof v !== "string" || !v.trim()) return null;
+  const s = v.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return `${s}T23:59:59.999Z`;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
 // ── Auth middleware (MCP read path) ────────────────────────
@@ -352,6 +364,81 @@ export function buildApp() {
         offset: num(req.query.offset, 0),
       });
       res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // ── API-key management (admin only) ──────────────────────
+  // The admin backend's token panel: list / mint / revoke / set-expiry of the
+  // static `ja_` keys agents use. Minting upserts the user so groups/admin can
+  // be set in one step; the raw key is returned ONCE.
+  const requireAdmin = (req: Request, res: Response): boolean => {
+    if (!req.user!.isAdmin) {
+      res.status(403).json({ error: "Admin only" });
+      return false;
+    }
+    return true;
+  };
+
+  app.get("/api/keys", requireUser, async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      res.json({ items: await listApiKeys() });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  const createKeySchema = z.object({
+    email: z.string().email(),
+    name: z.string().nullish(),
+    groups: z.array(z.string()).optional(),
+    is_admin: z.boolean().optional(),
+    label: z.string().nullish(),
+    // Accept a date (YYYY-MM-DD) or full ISO timestamp; empty/absent = no expiry.
+    expires_at: z.string().nullish(),
+  });
+
+  app.post("/api/keys", requireUser, async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const parsed = createKeySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Validation failed", details: parsed.error.flatten() });
+      return;
+    }
+    try {
+      const expiresAt = normaliseExpiry(parsed.data.expires_at);
+      const result = await createApiKey({
+        email: parsed.data.email,
+        name: parsed.data.name ?? null,
+        groups: parsed.data.groups ?? [],
+        isAdmin: parsed.data.is_admin ?? false,
+        label: parsed.data.label ?? null,
+        expiresAt,
+      });
+      // raw key is returned exactly once.
+      res.status(201).json({ ok: true, api_key: result.raw, key: result.key, user: result.user });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  app.post("/api/keys/:id/revoke", requireUser, async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      await revokeApiKey(req.params.id);
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  app.patch("/api/keys/:id/expiry", requireUser, async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      await setKeyExpiry(req.params.id, normaliseExpiry(req.body?.expires_at));
+      res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }

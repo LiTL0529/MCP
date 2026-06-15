@@ -445,6 +445,7 @@
 <button class="adm-tab" onclick="admT('archive',this)">🗂️ 归档管理</button>
 <button class="adm-tab" onclick="admT('settings',this)">⚙️ 系统设置</button>
 <button class="adm-tab" onclick="admT('audit',this);auditLoad(0)">🔍 调用日志</button>
+<button class="adm-tab" onclick="admT('tokens',this);keysLoad()">🔑 Token 管理</button>
 </div>
 
 <!-- Tab: Overview -->
@@ -687,6 +688,99 @@
   };
   window.auditPage=function(dir){ var no=offset+dir*PAGE; if(no<0)no=0; if(no>=total&&dir>0)return; offset=no; window.auditLoad(); };
   window.auditReset=function(){ ['auEmail','auSession','auFrom','auTo'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';}); document.getElementById('auTool').value=''; document.getElementById('auErr').checked=false; window.auditLoad(0); };
+})();
+</script>
+
+<!-- Tab: Token management (admin-only API-key management) -->
+<div class="adm-pane" id="ap-tokens">
+<div class="e-tbl-wrap" style="margin-bottom:14px">
+<div class="e-tbl-head"><div class="e-tbl-title">🔑 生成新 Token · 静态 API Key（给 Codex / 脚本 / Agent 用）</div></div>
+<div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+<div class="frm" style="margin:0"><label class="fl">用户邮箱 *</label><input type="email" class="fi" id="kEmail" placeholder="agent@example.com" style="width:200px"></div>
+<div class="frm" style="margin:0"><label class="fl">名称</label><input type="text" class="fi" id="kName" placeholder="可选" style="width:130px"></div>
+<div class="frm" style="margin:0"><label class="fl">访问组（逗号分隔）</label><input type="text" class="fi" id="kGroups" placeholder="NUS,SMU（留空=仅公开）" style="width:190px"></div>
+<div class="frm" style="margin:0"><label class="fl">标签</label><input type="text" class="fi" id="kLabel" placeholder="codex / 张三脚本" style="width:130px"></div>
+<div class="frm" style="margin:0"><label class="fl">过期日期（留空=永不）</label><input type="date" class="fi" id="kExpiry" style="width:150px"></div>
+<label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--navy);padding-bottom:6px"><input type="checkbox" id="kAdmin">管理员</label>
+<button class="btn btn-p btn-sm" onclick="keyCreate()">生成 Token</button>
+</div>
+<div id="kNewBox" style="display:none;padding:12px 14px;border-top:1px solid var(--border);background:#FFFBEB">
+<div style="font-size:12px;color:#92400E;font-weight:600;margin-bottom:6px">⚠️ 这是明文 Token，只显示这一次，请立即复制保存：</div>
+<div style="display:flex;gap:8px;align-items:center"><code id="kNewVal" style="flex:1;font-size:12px;background:#fff;border:1px solid #FDE68A;border-radius:6px;padding:8px 10px;word-break:break-all"></code><button class="btn btn-s btn-sm" onclick="keyCopy()">📋 复制</button></div>
+</div>
+</div>
+<div class="e-tbl-wrap">
+<div class="e-tbl-head"><div class="e-tbl-title">已有 Token 列表</div><button class="btn btn-s btn-sm" onclick="keysLoad()">↻ 刷新</button></div>
+<table class="e-tbl"><thead><tr><th style="width:96px">前缀</th><th>用户 / 标签</th><th style="width:54px">管理员</th><th style="width:120px">访问组</th><th style="width:96px">创建</th><th style="width:120px">最近使用</th><th style="width:120px">过期</th><th style="width:64px">状态</th><th style="width:60px">操作</th></tr></thead><tbody id="kTbl"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">点击「🔑 Token 管理」加载</td></tr></tbody></table>
+</div>
+</div>
+
+<script>
+/* Token-management panel — admin-only /api/keys CRUD via window.JA.api. */
+(function(){
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function fmtD(t){ if(!t) return '—'; var d=new Date(t); if(isNaN(d.getTime())) return t; var p=function(x){return(x<10?'0':'')+x}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+  function fmtDT(t){ if(!t) return '—'; var d=new Date(t); if(isNaN(d.getTime())) return t; var p=function(x){return(x<10?'0':'')+x}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+  var lastRaw='';
+  window.keyCopy=function(){ if(!lastRaw)return; navigator.clipboard.writeText(lastRaw).then(function(){ if(window.toast)toast('已复制 Token'); }); };
+  window.keysLoad=async function(){
+    var tb=document.getElementById('kTbl'); if(!tb)return;
+    tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">加载中…</td></tr>';
+    try{
+      var r=await window.JA.api('/api/keys');
+      if(r.status===403){ tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--red);padding:20px">需要管理员权限</td></tr>'; return; }
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      var j=await r.json(); var items=j.items||[];
+      if(!items.length){ tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">暂无 Token</td></tr>'; return; }
+      tb.innerHTML=items.map(function(k){
+        var st = k.status==='active'?'<span style="color:var(--green);font-weight:600">● 有效</span>'
+               : k.status==='revoked'?'<span style="color:var(--red);font-weight:600">● 已吊销</span>'
+               : '<span style="color:#D97706;font-weight:600">● 已过期</span>';
+        var act = k.status==='active'? '<button class="btn btn-s btn-xs" onclick="keyRevoke(\''+k.id+'\')">吊销</button>' : '—';
+        var grp = (k.access_groups&&k.access_groups.length)? esc(k.access_groups.join(',')) : '<span style="color:var(--muted)">公开</span>';
+        return '<tr>'+
+          '<td><code style="font-size:11px">'+esc(k.key_prefix)+'…</code></td>'+
+          '<td style="font-size:11px"><div style="color:var(--navy);font-weight:600;word-break:break-all">'+esc(k.email||'')+'</div><div style="color:var(--muted)">'+esc(k.label||'')+'</div></td>'+
+          '<td>'+(k.is_admin?'✔':'')+'</td>'+
+          '<td style="font-size:11px">'+grp+'</td>'+
+          '<td style="font-size:11px;color:var(--muted)">'+fmtD(k.created_at)+'</td>'+
+          '<td style="font-size:11px;color:var(--muted)">'+fmtDT(k.last_used_at)+'</td>'+
+          '<td style="font-size:11px;color:var(--muted)">'+fmtDT(k.expires_at)+'</td>'+
+          '<td style="font-size:11px">'+st+'</td>'+
+          '<td>'+act+'</td>'+
+        '</tr>';
+      }).join('');
+    }catch(e){ tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--red);padding:20px">加载失败：'+esc(e.message)+'</td></tr>'; }
+  };
+  window.keyCreate=async function(){
+    var email=document.getElementById('kEmail').value.trim();
+    if(!email){ if(window.toast)toast('请填写用户邮箱'); return; }
+    var body={ email:email, name:document.getElementById('kName').value.trim()||null,
+      groups:document.getElementById('kGroups').value.split(',').map(function(s){return s.trim()}).filter(Boolean),
+      is_admin:document.getElementById('kAdmin').checked, label:document.getElementById('kLabel').value.trim()||null,
+      expires_at:document.getElementById('kExpiry').value||null };
+    try{
+      var r=await window.JA.api('/api/keys',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+      var j=await r.json().catch(function(){return {};});
+      if(r.status===403){ if(window.toast)toast('需要管理员权限'); return; }
+      if(!r.ok){ throw new Error(j.error||('HTTP '+r.status)); }
+      lastRaw=j.api_key||'';
+      document.getElementById('kNewVal').textContent=lastRaw;
+      document.getElementById('kNewBox').style.display='';
+      ['kEmail','kName','kGroups','kLabel','kExpiry'].forEach(function(id){document.getElementById(id).value='';});
+      document.getElementById('kAdmin').checked=false;
+      if(window.toast)toast('Token 已生成');
+      keysLoad();
+    }catch(e){ if(window.toast)toast('生成失败：'+e.message); }
+  };
+  window.keyRevoke=async function(id){
+    if(!confirm('确定吊销这个 Token？吊销后立即失效，无法恢复。'))return;
+    try{
+      var r=await window.JA.api('/api/keys/'+encodeURIComponent(id)+'/revoke',{ method:'POST' });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      if(window.toast)toast('已吊销'); keysLoad();
+    }catch(e){ if(window.toast)toast('吊销失败：'+e.message); }
+  };
 })();
 </script>
 </div><!-- admin -->

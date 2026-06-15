@@ -23,11 +23,13 @@ export async function resolveApiKey(raw: string): Promise<UserContext | null> {
 
   const { data, error } = await supabase
     .from("ja_api_keys")
-    .select("id, revoked, user:ja_users(id, email, name, access_groups, is_admin, is_active)")
+    .select("id, revoked, expires_at, user:ja_users(id, email, name, access_groups, is_admin, is_active)")
     .eq("key_hash", key_hash)
     .maybeSingle();
 
   if (error || !data || data.revoked) return null;
+  // Time-based expiry (migration 0010): a past expires_at disables the key.
+  if (data.expires_at && new Date(data.expires_at as string).getTime() < Date.now()) return null;
 
   // supabase-js types a joined relation as an array or object depending on the
   // FK shape; normalise to a single object.

@@ -566,3 +566,8 @@ create table if not exists ja_insight_comments (
 create index if not exists ja_insight_comments_insight_idx on ja_insight_comments (insight_id, created_at desc);
 create index if not exists ja_insight_comments_created_idx on ja_insight_comments (created_at desc);
 alter table ja_insight_comments enable row level security;
+
+-- ============================================================
+-- 0010 — optional expiry for static API keys
+-- ============================================================
+alter table ja_api_keys add column if not exists expires_at timestamptz;
