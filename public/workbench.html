@@ -1476,15 +1476,26 @@ document.addEventListener('click',function(e){var w=document.getElementById('trL
 <script>
 // === js/mydata.js ===
 /* ========== OVERVIEW ========== */
-function renderOverview(){
+async function renderOverview(){
 var mNames=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+// Real analytics from the DB (access-filtered); falls back to localStorage mock if the API is unavailable.
+var _stat=null;try{var _sr=await window.JA.api('/api/stats');if(_sr.ok)_stat=await _sr.json();}catch(e){}
 var dailyKeys=[];for(var k in localStorage){if(k.indexOf('jh_daily_')===0)dailyKeys.push(k)}
-var dailyTotal=0;var monData={};dailyKeys.forEach(function(k){var dt=k.replace('jh_daily_','');var m=parseInt(dt.split('-')[1]);try{var arr=JSON.parse(localStorage.getItem(k));dailyTotal+=arr.length;monData[m]=(monData[m]||0)+arr.length}catch(e){}});
+var dailyTotal=0;var monData={};
+if(_stat&&_stat.insights&&_stat.insights.by_month){_stat.insights.by_month.forEach(function(b){var m=parseInt(String(b.bucket).split('-')[1]);if(m){monData[m]=(monData[m]||0)+b.count;dailyTotal+=b.count;}});}
+else{dailyKeys.forEach(function(k){var dt=k.replace('jh_daily_','');var m=parseInt(dt.split('-')[1]);try{var arr=JSON.parse(localStorage.getItem(k));dailyTotal+=arr.length;monData[m]=(monData[m]||0)+arr.length}catch(e){}});}
 var mx=1;for(var mm in monData){if(monData[mm]>mx)mx=monData[mm]}
 document.getElementById('monthTrend').innerHTML=mNames.map(function(n,i){var m=i+1;var v=monData[m]||0;var pct=Math.round(v/mx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:30px;text-align:right;color:var(--muted);font-weight:500">'+n+'</div><div style="flex:1;height:18px;background:#F1F5F9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#10B981,#059669);border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:9px;color:#fff;font-weight:600">'+(v||'')+'</div></div><div style="width:24px;font-weight:600;color:var(--navy);font-size:11px">'+v+'</div></div>'}).join('')+'<div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:right">年度累计 '+dailyTotal+' 条</div>';
-var cvMonData={};(CV||[]).forEach(function(v){if(v.date){var m=parseInt(v.date.split('-')[1]);if(m)cvMonData[m]=(cvMonData[m]||0)+1}});
-var cvTotal=CV?CV.length:0;var cvMx=1;for(var cm in cvMonData){if(cvMonData[cm]>cvMx)cvMx=cvMonData[cm]}
+var cvMonData={};
+if(_stat&&_stat.creative&&_stat.creative.by_month){_stat.creative.by_month.forEach(function(b){var m=parseInt(String(b.bucket).split('-')[1]);if(m)cvMonData[m]=(cvMonData[m]||0)+b.count;});}
+else{(CV||[]).forEach(function(v){if(v.date){var m=parseInt(v.date.split('-')[1]);if(m)cvMonData[m]=(cvMonData[m]||0)+1}});}
+var cvTotal=(_stat&&_stat.creative)?_stat.creative.total:(CV?CV.length:0);var cvMx=1;for(var cm in cvMonData){if(cvMonData[cm]>cvMx)cvMx=cvMonData[cm]}
 document.getElementById('cvTrend').innerHTML=mNames.map(function(n,i){var m=i+1;var v=cvMonData[m]||0;var pct=Math.round(v/cvMx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:30px;text-align:right;color:var(--muted);font-weight:500">'+n+'</div><div style="flex:1;height:18px;background:#F1F5F9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#F59E0B,#D97706);border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:9px;color:#fff;font-weight:600">'+(v||'')+'</div></div><div style="width:24px;font-weight:600;color:var(--navy);font-size:11px">'+v+'</div></div>'}).join('')+'<div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:right">年度累计 '+cvTotal+' 条</div>';
+var catEl=document.getElementById('catChart');
+if(catEl&&_stat&&_stat.insights&&_stat.insights.by_category){
+  var cats=_stat.insights.by_category;var cMx=1;cats.forEach(function(b){if(b.count>cMx)cMx=b.count;});
+  catEl.innerHTML=cats.length?cats.map(function(b){var pct=Math.round(b.count/cMx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:110px;text-align:right;color:var(--muted);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+b.bucket+'</div><div style="flex:1;height:18px;background:#F1F5F9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#3B82F6,#2563EB);border-radius:4px"></div></div><div style="width:24px;font-weight:600;color:var(--navy);text-align:right">'+b.count+'</div></div>'}).join(''):'<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">暂无数据</div>';
+}
 var hEl=document.getElementById('ovHeatmap');if(hEl){
 var weeks=12,days=7,today=new Date(),dNames=['日','一','二','三','四','五','六'];
 var colAnno={};col.forEach(function(c){if(c.did){var d=c.did.split('-').slice(0,3).join('-');colAnno[d]=(colAnno[d]||0)+1}});
