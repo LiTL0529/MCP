@@ -2087,7 +2087,7 @@ try {
       await showApp(JA.me);
     } catch(e){ showLogin('连接失败：' + e.message); }
   };
-  JA.logout = function(){ localStorage.removeItem(KS); JA.me = null; window.location.href = '/login'; };
+  JA.logout = function(){ localStorage.removeItem(KS); JA.me = null; fetch('/api/auth/logout', {method:'POST', credentials:'include'}).catch(function(){}).then(function(){ window.location.href = '/login'; }); };
   window.doLogin = JA.login;
   window.doLogout = JA.logout;
 
