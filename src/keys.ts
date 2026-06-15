@@ -41,6 +41,9 @@ export async function createApiKey(input: CreateKeyInput) {
       user_id: user.id,
       key_hash: hash,
       key_prefix: prefix,
+      // Raw key stored so the admin backend can re-copy it later (migration
+      // 0011 — deliberate trade-off; only read via the admin-gated endpoint).
+      key_plain: raw,
       label: input.label?.trim() || "admin-ui",
       expires_at: input.expiresAt ?? null,
     })
@@ -56,7 +59,7 @@ export async function listApiKeys() {
   const { data, error } = await supabase
     .from("ja_api_keys")
     .select(
-      "id, key_prefix, label, created_at, last_used_at, revoked, expires_at, user:ja_users(email, name, is_admin, access_groups, is_active)",
+      "id, key_prefix, key_plain, label, created_at, last_used_at, revoked, expires_at, user:ja_users(email, name, is_admin, access_groups, is_active)",
     )
     .order("created_at", { ascending: false });
   if (error) throw new Error(`listApiKeys failed: ${error.message}`);
@@ -68,6 +71,7 @@ export async function listApiKeys() {
     return {
       id: k.id,
       key_prefix: k.key_prefix,
+      key_plain: k.key_plain ?? null, // raw key if stored (0011+), else null (legacy)
       label: k.label,
       created_at: k.created_at,
       last_used_at: k.last_used_at,

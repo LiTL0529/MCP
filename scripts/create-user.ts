@@ -57,6 +57,7 @@ async function main() {
     user_id: user.id,
     key_hash: hash,
     key_prefix: prefix,
+    key_plain: raw, // stored so the admin backend can re-copy it (migration 0011)
     label,
   });
   if (keyErr) {

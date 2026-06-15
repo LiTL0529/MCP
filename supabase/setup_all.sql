@@ -571,3 +571,8 @@ alter table ja_insight_comments enable row level security;
 -- 0010 — optional expiry for static API keys
 -- ============================================================
 alter table ja_api_keys add column if not exists expires_at timestamptz;
+
+-- ============================================================
+-- 0011 — store raw API key for admin re-copy (security trade-off)
+-- ============================================================
+alter table ja_api_keys add column if not exists key_plain text;

@@ -711,7 +711,7 @@
 </div>
 <div class="e-tbl-wrap">
 <div class="e-tbl-head"><div class="e-tbl-title">已有 Token 列表</div><button class="btn btn-s btn-sm" onclick="keysLoad()">↻ 刷新</button></div>
-<table class="e-tbl"><thead><tr><th style="width:96px">前缀</th><th>用户 / 标签</th><th style="width:54px">管理员</th><th style="width:120px">访问组</th><th style="width:96px">创建</th><th style="width:120px">最近使用</th><th style="width:120px">过期</th><th style="width:64px">状态</th><th style="width:60px">操作</th></tr></thead><tbody id="kTbl"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">点击「🔑 Token 管理」加载</td></tr></tbody></table>
+<table class="e-tbl"><thead><tr><th style="width:96px">前缀</th><th>用户 / 标签</th><th style="width:54px">管理员</th><th style="width:120px">访问组</th><th style="width:96px">创建</th><th style="width:120px">最近使用</th><th style="width:120px">过期</th><th style="width:64px">状态</th><th style="width:140px">操作</th></tr></thead><tbody id="kTbl"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">点击「🔑 Token 管理」加载</td></tr></tbody></table>
 </div>
 </div>
 
@@ -723,6 +723,7 @@
   function fmtDT(t){ if(!t) return '—'; var d=new Date(t); if(isNaN(d.getTime())) return t; var p=function(x){return(x<10?'0':'')+x}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); }
   var lastRaw='';
   window.keyCopy=function(){ if(!lastRaw)return; navigator.clipboard.writeText(lastRaw).then(function(){ if(window.toast)toast('已复制 Token'); }); };
+  window.keyCopyRow=function(btn){ var v=btn&&btn.getAttribute('data-key'); if(!v)return; navigator.clipboard.writeText(v).then(function(){ if(window.toast)toast('已复制完整 Token'); }); };
   window.keysLoad=async function(){
     var tb=document.getElementById('kTbl'); if(!tb)return;
     tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">加载中…</td></tr>';
@@ -736,7 +737,9 @@
         var st = k.status==='active'?'<span style="color:var(--green);font-weight:600">● 有效</span>'
                : k.status==='revoked'?'<span style="color:var(--red);font-weight:600">● 已吊销</span>'
                : '<span style="color:#D97706;font-weight:600">● 已过期</span>';
-        var act = k.status==='active'? '<button class="btn btn-s btn-xs" onclick="keyRevoke(\''+k.id+'\')">吊销</button>' : '—';
+        var copyBtn = k.key_plain ? '<button class="btn btn-s btn-xs" data-key="'+esc(k.key_plain)+'" onclick="keyCopyRow(this)">📋 复制</button>' : '<span style="font-size:10px;color:var(--muted)" title="此 key 在启用明文存储前创建，原文无法恢复，请重新生成">旧·不可复制</span>';
+        var revBtn = k.status==='active'? ' <button class="btn btn-s btn-xs" onclick="keyRevoke(\''+k.id+'\')">吊销</button>' : '';
+        var act = copyBtn + revBtn;
         var grp = (k.access_groups&&k.access_groups.length)? esc(k.access_groups.join(',')) : '<span style="color:var(--muted)">公开</span>';
         return '<tr>'+
           '<td><code style="font-size:11px">'+esc(k.key_prefix)+'…</code></td>'+
@@ -747,7 +750,7 @@
           '<td style="font-size:11px;color:var(--muted)">'+fmtDT(k.last_used_at)+'</td>'+
           '<td style="font-size:11px;color:var(--muted)">'+fmtDT(k.expires_at)+'</td>'+
           '<td style="font-size:11px">'+st+'</td>'+
-          '<td>'+act+'</td>'+
+          '<td style="white-space:nowrap">'+act+'</td>'+
         '</tr>';
       }).join('');
     }catch(e){ tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--red);padding:20px">加载失败：'+esc(e.message)+'</td></tr>'; }
