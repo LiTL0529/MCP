@@ -25,6 +25,7 @@ import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
 import { addPostComment, createPost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike } from "./community.js";
 import { getUserState, setUserState, STATE_KEYS } from "./state.js";
+import { getInsightCategories, setSetting } from "./settings.js";
 import { uploadFile } from "./storage.js";
 import { parseBilingualMd } from "./markdown.js";
 import type { Lang, UserContext } from "./types.js";
@@ -324,7 +325,24 @@ export function buildApp() {
     const created: any[] = [];
     const failed: any[] = [];
     const createdBy = req.user?.authVia === "apikey" ? req.user.userId : undefined;
+    // Validate each report's 分类 against the categories defined in
+    // 系统设置 → 洞察栏目分类. Undefined categories are rejected (not ingested).
+    const allowed = await getInsightCategories();
+    const allowedSet = new Set(allowed.map((c) => c.trim()).filter(Boolean));
     for (const input of inputs) {
+      const attrs = (input.attributes ?? {}) as Record<string, unknown>;
+      const cands = [input.category, attrs.category_zh, attrs.category_en]
+        .map((c) => (typeof c === "string" ? c.trim() : ""))
+        .filter(Boolean);
+      if (allowedSet.size && !cands.some((c) => allowedSet.has(c))) {
+        const shown = cands[0] || "(空)";
+        failed.push({
+          report_id: input.report_id,
+          report_date: input.report_date,
+          error: `分类「${shown}」未在「系统设置 → 洞察栏目分类」中定义，请先添加该栏目或修正 .md 后重试`,
+        });
+        continue;
+      }
       try {
         created.push(await createInsight(input, createdBy));
       } catch (e) {
@@ -757,6 +775,35 @@ export function buildApp() {
     }
     try {
       res.json(await setUserState(req.user!, req.params.key, val));
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // ── 洞察栏目分类 (insight categories; admin-managed) ────────
+  app.get("/api/settings/categories", requireUser, async (_req, res) => {
+    try {
+      res.json({ categories: await getInsightCategories() });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  const categoriesSchema = z.object({ value: z.array(z.string().min(1).max(40)).max(200) });
+  app.put("/api/settings/categories", requireUser, async (req, res) => {
+    if (!req.user!.isAdmin) {
+      res.status(403).json({ error: "仅管理员可修改栏目分类" });
+      return;
+    }
+    const parsed = categoriesSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "栏目分类格式不正确" });
+      return;
+    }
+    try {
+      const cats = Array.from(new Set(parsed.data.value.map((s) => s.trim()).filter(Boolean)));
+      await setSetting("insight_categories", cats);
+      res.json({ ok: true, categories: cats });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }

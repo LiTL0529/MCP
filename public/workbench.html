@@ -770,17 +770,17 @@
     try{
       var resp=await window.JA.api('/api/insights/from-md',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({md:fileText})});
       var j=await resp.json().catch(function(){return{}});
-      if(!resp.ok)throw new Error(j.error||('HTTP '+resp.status));
-      var created=j.created||[],failed=j.failed||[];
-      var html='<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;font-size:12px">'+
-        '<div style="font-weight:700;color:var(--green);margin-bottom:6px">✅ 解析 '+(j.parsed||0)+' 条 · 入库成功 '+created.length+' 条'+(failed.length?(' · 失败 '+failed.length+' 条'):'')+'</div>';
+      // No parse summary at all (e.g. 400 no reports / 403 not admin) → surface error.
+      if(j.created===undefined&&j.failed===undefined)throw new Error(j.error||('HTTP '+resp.status));
+      var created=j.created||[],failed=j.failed||[],anyOk=created.length>0;
+      var html='<div style="background:'+(anyOk?'#F0FDF4;border:1px solid #BBF7D0':'#FEF2F2;border:1px solid #FECACA')+';border-radius:8px;padding:12px;font-size:12px">'+
+        '<div style="font-weight:700;color:'+(anyOk?'var(--green)':'var(--red)')+';margin-bottom:6px">'+(anyOk?'✅':'⚠️')+' 解析 '+(j.parsed||0)+' 条 · 入库成功 '+created.length+' 条'+(failed.length?(' · 失败 '+failed.length+' 条'):'')+'</div>';
       if(created.length)html+='<div style="color:var(--muted)">成功：'+created.map(function(c){return '#'+esc2(c.report_id||c.id||'?')}).join('、')+'</div>';
-      if(failed.length)html+='<div style="color:var(--red);margin-top:4px">失败：'+failed.map(function(f){return '#'+esc2(f.report_id||'?')+'（'+esc2(f.error||'')+'）'}).join('；')+'</div>';
+      if(failed.length)html+='<div style="color:var(--red);margin-top:4px;line-height:1.7">失败：<br>'+failed.map(function(f){return '#'+esc2(f.report_id||'?')+'　'+esc2(f.error||'')}).join('<br>')+'</div>';
       html+='</div>';
       if(r)r.innerHTML=html;
-      if(window.toast)toast('已入库 '+created.length+' 条');
-      fileText='';fileName='';if(input)input.value='';var fn=document.getElementById('mdFileName');if(fn){fn.style.display='none';fn.textContent='';}
-      if(window.JA&&JA.loadDates)JA.loadDates().then(function(){if(window.loadDaily)loadDaily();}).catch(function(){});
+      if(window.toast)toast(anyOk?('已入库 '+created.length+' 条'):'入库失败，请查看提示');
+      if(anyOk){fileText='';fileName='';if(input)input.value='';var fn=document.getElementById('mdFileName');if(fn){fn.style.display='none';fn.textContent='';}if(window.JA&&JA.loadDates)JA.loadDates().then(function(){if(window.loadDaily)loadDaily();}).catch(function(){});}
     }catch(e){
       if(r)r.innerHTML='<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px;font-size:12px;color:var(--red)">❌ '+esc2(e.message)+'</div>';
     }finally{if(btn){btn.textContent=old;btn.disabled=!String(fileText).trim();}}
@@ -1265,6 +1265,8 @@ var _daily_2026_05_29 = [{"num": "01", "cat": "edu", "clients": "NUS SMU NTU INS
 var CLIENTS=['SMU SOA','SMU MITB','SMU UG','SMU OAFA','SMU EMBAC','SMU OAR','SMU SOE','SMU LKCSB','SMU Branding','NUS EMBA','NUS BME','NUS SAS','NUS SEA','NUS DJS','NUS FOS','NUS ChBE','NUS OAR','NUS LKYSPP','NUS BIZ','NUS SOCANTH','NUS Chem','NUS Medicine','NUS Nursing','NTU EMBAC','NTU NBS','NTU CCEB','NTU SPMS','SUTD','O2','科学中心','SUSS','NUS ISEM','NUS ISS','INSEAD'];
 var USERS=[{n:'王缘',r:'AE',ww:'wangyuan'},{n:'袁梦',r:'AE',ww:'yuanmeng'},{n:'欣怡',r:'AE',ww:'xinyi'},{n:'文利',r:'AE',ww:'wenli'},{n:'Emily',r:'AE',ww:'emily'},{n:'雅姗',r:'AE',ww:'yashan'},{n:'嘉懿',r:'AM',ww:'jiayi'},{n:'郑爽',r:'AM',ww:'zhengshuang'},{n:'赛姐',r:'admin',ww:'saijie'},{n:'晓红',r:'admin',ww:'xiaohong'},{n:'Sheryl',r:'transfer',ww:'sheryl'},{n:'钰汶',r:'transfer',ww:'yuwen'},{n:'瑞婷',r:'transfer',ww:'ruiting'},{n:'渝泽',r:'transfer',ww:'yuze'},{n:'左良姝',r:'admin',ww:'zuoliangshu'}];
 var CATS=['新加坡院校','中国教育','东南亚竞争','SG本地','印度市场','AI&科技','AEO/GEO','品牌营销','小红书','跨境金融'];
+// Persist 洞察栏目分类 to the server (source of truth for .md ingest validation).
+function saveCats(){try{if(window.JA&&window.JA.api)window.JA.api('/api/settings/categories',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:CATS})}).then(function(r){return r.json().catch(function(){return{}})}).then(function(j){if(j&&j.error&&window.toast)toast('保存失败：'+j.error)}).catch(function(){})}catch(e){}}
 var FBTAGS=['数据有说服力','想要更多细节','已促成进一步沟通','客户主动转发','内容太宏观需落地','不匹配客户行业'];
 var SCENES=['客户提案','客户会议','月报引用','内部培训','朋友圈','邮件/微信'];
 var CASSIGN={'SMU SOA':'王缘','SMU MITB':'王缘','NUS EMBA':'王缘/雅姗','NTU EMBAC':'袁梦','NTU NBS':'袁梦','SMU EMBAC':'欣怡','NUS BME':'文利','O2':'Emily','SMU Branding':'嘉懿','NUS BIZ':'郑爽','SUSS':'待分配','NUS ISEM':'待分配','INSEAD':'待分配'};
@@ -1731,13 +1733,13 @@ function renderCT(){document.getElementById('clientTbl').innerHTML=CLIENTS.map(f
 function delClient(i){if(!confirm('确认删除客户「'+CLIENTS[i]+'」？'))return;CLIENTS.splice(i,1);renderCT();popClients();toast('客户已删除')}
 
 function renderTags(){
-  document.getElementById('catTags').innerHTML=CATS.map(function(c,i){return'<span style="padding:3px 10px;border-radius:4px;background:'+catClr(c)+';color:#fff;font-size:10px;font-weight:500;cursor:pointer">'+c+' <span onclick="event.stopPropagation();if(confirm(\'删除栏目「'+c+'」？\')){CATS.splice('+i+',1);renderTags();toast(\'已删除\')}" style="cursor:pointer;opacity:.7;margin-left:2px">✕</span></span>'}).join('');
+  document.getElementById('catTags').innerHTML=CATS.map(function(c,i){return'<span style="padding:3px 10px;border-radius:4px;background:'+catClr(c)+';color:#fff;font-size:10px;font-weight:500;cursor:pointer">'+c+' <span onclick="event.stopPropagation();if(confirm(\'删除栏目「'+c+'」？\')){CATS.splice('+i+',1);saveCats();renderTags();toast(\'已删除\')}" style="cursor:pointer;opacity:.7;margin-left:2px">✕</span></span>'}).join('');
   document.getElementById('fbTagsAdmin').innerHTML=FBTAGS.map(function(t,i){return'<span style="padding:3px 10px;border-radius:12px;background:#DBEAFE;color:#1D4ED8;font-size:10px;font-weight:500;cursor:pointer">'+t+' <span onclick="event.stopPropagation();if(confirm(\'删除标签「'+t+'」？\')){FBTAGS.splice('+i+',1);renderTags();toast(\'已删除\')}" style="cursor:pointer;opacity:.7;margin-left:2px">✕</span></span>'}).join('');
   document.getElementById('sceneTags').innerHTML=SCENES.map(function(s,i){return'<span style="padding:3px 10px;border-radius:12px;background:#D1FAE5;color:#047857;font-size:10px;font-weight:500;cursor:pointer">'+s+' <span onclick="event.stopPropagation();if(confirm(\'删除场景「'+s+'」？\')){SCENES.splice('+i+',1);renderTags();toast(\'已删除\')}" style="cursor:pointer;opacity:.7;margin-left:2px">✕</span></span>'}).join('');
   var cvc=document.getElementById('cvCatTags');if(cvc)cvc.innerHTML=CVCATS.map(function(c,i){return'<span style="padding:3px 10px;border-radius:4px;background:#FEE2E2;color:#B91C1C;font-size:10px;font-weight:500;cursor:pointer">'+c+' <span onclick="event.stopPropagation();if(confirm(\'删除分类「'+c+'」？\')){CVCATS.splice('+i+',1);renderTags();toast(\'已删除\')}" style="cursor:pointer;opacity:.7;margin-left:2px">✕</span></span>'}).join('');
   var cvp=document.getElementById('cvPlatTags');if(cvp)cvp.innerHTML=CVPLATS.map(function(p,i){return'<span style="padding:3px 10px;border-radius:12px;background:#EDE9FE;color:#6D28D9;font-size:10px;font-weight:500;cursor:pointer">'+p+' <span onclick="event.stopPropagation();if(confirm(\'删除平台「'+p+'」？\')){CVPLATS.splice('+i+',1);renderTags();toast(\'已删除\')}" style="cursor:pointer;opacity:.7;margin-left:2px">✕</span></span>'}).join('');
 }
-function addTag(type,inputEl){var v=inputEl.value.trim();if(!v)return;if(type==='cat'){if(CATS.indexOf(v)>=0){toast('已存在');return}CATS.push(v)}else if(type==='fb'){if(FBTAGS.indexOf(v)>=0){toast('已存在');return}FBTAGS.push(v)}else if(type==='cvcat'){if(CVCATS.indexOf(v)>=0){toast('已存在');return}CVCATS.push(v)}else if(type==='cvplat'){if(CVPLATS.indexOf(v)>=0){toast('已存在');return}CVPLATS.push(v)}else{if(SCENES.indexOf(v)>=0){toast('已存在');return}SCENES.push(v)}inputEl.value='';renderTags();renderCVAdminDropdowns();loadDaily(curDate);toast('已添加「'+v+'」')}
+function addTag(type,inputEl){var v=inputEl.value.trim();if(!v)return;if(type==='cat'){if(CATS.indexOf(v)>=0){toast('已存在');return}CATS.push(v);saveCats()}else if(type==='fb'){if(FBTAGS.indexOf(v)>=0){toast('已存在');return}FBTAGS.push(v)}else if(type==='cvcat'){if(CVCATS.indexOf(v)>=0){toast('已存在');return}CVCATS.push(v)}else if(type==='cvplat'){if(CVPLATS.indexOf(v)>=0){toast('已存在');return}CVPLATS.push(v)}else{if(SCENES.indexOf(v)>=0){toast('已存在');return}SCENES.push(v)}inputEl.value='';renderTags();renderCVAdminDropdowns();loadDaily(curDate);toast('已添加「'+v+'」')}
 function renderChart(){var data=[{c:'SG院校',v:142,p:88},{c:'中国教育',v:131,p:82},{c:'小红书',v:114,p:71},{c:'AEO/GEO',v:85,p:55},{c:'AI&科技',v:88,p:55},{c:'全球竞争',v:77,p:48},{c:'品牌营销',v:56,p:35},{c:'SG本地',v:48,p:30},{c:'跨境金融',v:40,p:25},{c:'印度市场',v:19,p:12}],colors=['#3B82F6','#8B5CF6','#EF4444','#10B981','#10B981','#F59E0B','#F97316','#6366F1','#EC4899','#78716C'];document.getElementById('catChart').innerHTML=data.map(function(d,i){return'<div style="display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:6px"><div style="width:60px;text-align:right;color:var(--muted);font-weight:500">'+d.c+'</div><div style="flex:1;height:20px;background:#F1F5F9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+d.p+'%;background:'+colors[i]+';border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:9px;color:#fff;font-weight:600">'+d.p+'%</div></div><div style="width:30px;font-weight:600;color:var(--navy);font-size:11px">'+d.v+'</div></div>'}).join('')}
 
 /* ========== USER/CLIENT MODALS ========== */
@@ -2447,6 +2449,7 @@ try {
     if(me) setIdentity(me);
     await JA.loadDates();
     await JA.loadState();
+    await JA.loadSettings();
     try { initApp(); } catch(e){ console.error('initApp', e); }
   }
 
@@ -2498,6 +2501,20 @@ try {
       merge(j.col,'jh_col','col','col');
       merge(j.cvcol,'jh_cvcol','cvCol','cvcol');
       merge(j.libcol,'jh_libcol','libCol','libcol');
+    } catch(e){}
+  };
+
+  // 洞察栏目分类 (server is source of truth; 系统设置 edits persist via saveCats).
+  JA.loadSettings = async function(){
+    try {
+      var r = await JA.api('/api/settings/categories');
+      if(!r.ok) return;
+      var j = await r.json();
+      if(j && Array.isArray(j.categories) && j.categories.length && window.CATS){
+        CATS.length = 0;
+        for(var i=0;i<j.categories.length;i++) CATS.push(j.categories[i]);
+        if(typeof renderTags === 'function'){ try { renderTags(); } catch(e){} }
+      }
     } catch(e){}
   };
 
