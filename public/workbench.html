@@ -345,7 +345,7 @@
 <button class="btn btn-p btn-sm" onclick="exportFav()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>导出</button>
 </div>
 </div>
-<div id="favList"><div class="di-empty">暂无收藏，在实时洞察中点击⭐收藏按钮即可添加</div></div>
+<div id="favList"><div class="di-empty">暂无收藏，在实时洞察中点击收藏按钮即可添加</div></div>
 </div>
 
 <!-- 创意洞察收藏 -->
@@ -363,7 +363,7 @@
 <button class="btn btn-p btn-sm" onclick="exportFavCv()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>导出</button>
 </div>
 </div>
-<div class="ig" id="favCvGrid"><div class="di-empty">暂无创意洞察收藏，在创意洞察中点击⭐收藏按钮即可添加</div></div>
+<div class="ig" id="favCvGrid"><div class="di-empty">暂无创意洞察收藏，在创意洞察中点击收藏按钮即可添加</div></div>
 </div>
 
 <!-- 月度洞察收藏 -->
@@ -374,7 +374,7 @@
 <input type="text" class="fi" style="width:140px;padding:4px 8px;font-size:11px" placeholder="搜索收藏..." id="favLibSearchInput" oninput="renderFavLib()">
 </div>
 </div>
-<div class="ig" id="favLibGrid"><div class="di-empty">暂无月度洞察收藏，在月度洞察中点击 ☆ 收藏按钮即可添加</div></div>
+<div class="ig" id="favLibGrid"><div class="di-empty">暂无月度洞察收藏，在月度洞察中点击 收藏按钮即可添加</div></div>
 </div>
 </div>
 
@@ -497,7 +497,7 @@
         }).join('');
       }else{
         box.className='';
-        box.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px">'+(mode==='fav'?'还没有收藏的帖子，点帖子封面右上角的 ☆ 收藏感兴趣的内容':mode==='liked'?'还没有点赞的帖子，点帖子上的 🤍 点赞':'还没有帖子，点「发帖」发布第一个吧')+'</div>';
+        box.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px">'+(mode==='fav'?'还没有收藏的帖子，点帖子封面右上角的 收藏感兴趣的内容':mode==='liked'?'还没有点赞的帖子，点帖子上的 🤍 点赞':'还没有帖子，点「发帖」发布第一个吧')+'</div>';
       }
       var pages=Math.max(1,Math.ceil(total/PAGE)),cur=Math.floor(off/PAGE)+1;
       document.getElementById('commPager').innerHTML=total>PAGE?'<button class="btn btn-s btn-xs" '+(off<=0?'disabled':'')+' onclick="commPage(-1)">‹ 上一页</button><span>第 '+cur+' / '+pages+' 页</span><button class="btn btn-s btn-xs" '+(off+PAGE>=total?'disabled':'')+' onclick="commPage(1)">下一页 ›</button>':'';
@@ -1002,7 +1002,7 @@
 </div>
 <div class="e-tbl-wrap">
 <div class="e-tbl-head"><div class="e-tbl-title">已有 Token 列表</div><button class="btn btn-s btn-sm" onclick="keysLoad()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10"/><path d="M20.5 15a9 9 0 0 1-14.9 3.4L1 14"/></svg>刷新</button></div>
-<table class="e-tbl"><thead><tr><th style="width:96px">前缀</th><th>用户 / 标签</th><th style="width:54px">管理员</th><th style="width:120px">访问组</th><th style="width:96px">创建</th><th style="width:120px">最近使用</th><th style="width:120px">过期</th><th style="width:64px">状态</th><th style="width:140px">操作</th></tr></thead><tbody id="kTbl"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">点击「🔑 Token 管理」加载</td></tr></tbody></table>
+<table class="e-tbl"><thead><tr><th style="width:96px">前缀</th><th>用户 / 标签</th><th style="width:54px">管理员</th><th style="width:120px">访问组</th><th style="width:96px">创建</th><th style="width:120px">最近使用</th><th style="width:120px">过期</th><th style="width:64px">状态</th><th style="width:140px">操作</th></tr></thead><tbody id="kTbl"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">点击「Token 管理」加载</td></tr></tbody></table>
 </div>
 </div>
 
@@ -1094,21 +1094,21 @@
 
 <!-- DETAIL MODAL -->
 <div class="mo" id="mO" onclick="if(event.target===this)closeM()"><div class="ml"><div class="mi-w"><button class="mx" onclick="closeM()">✕</button><img class="mi" id="mImg" src=""></div><div class="mb"><div class="m-tgs" id="mTgs"></div><h2 class="m-tt" id="mTt"></h2>
-<div class="tp"><div class="tp-h"><div class="tp-t">📋 沟通指南</div><div style="display:flex;gap:8px"><button class="tp-cb" id="mFavB" onclick="libFav(cI.id,event)">☆ 收藏</button><button class="tp-cb" id="cpB" onclick="copyTP()">📋 一键复制</button></div></div><div id="tpC"></div></div>
+<div class="tp"><div class="tp-h"><div class="tp-t">📋 沟通指南</div><div style="display:flex;gap:8px"><button class="tp-cb" id="mFavB" onclick="libFav(cI.id,event)">收藏</button><button class="tp-cb" id="cpB" onclick="copyTP()">一键复制</button></div></div><div id="tpC"></div></div>
 <div class="ab"><button class="btn btn-p" onclick="dlI()">⬇️ 下载原图</button></div></div></div></div>
 
 <!-- FEEDBACK SUBMIT MODAL -->
 <div class="ovm" id="fbSubmitM" onclick="if(event.target===this)this.classList.remove('open')"><div class="ovb">
 <div class="ov-t">提交洞察反馈</div><div class="ov-s" id="fbSubmitSub"></div>
-<div class="frm"><label class="fl">是否使用了这条洞察？</label><div class="rating" id="useToggle"><div class="r-opt" onclick="toggleUse(this,'yes')" style="flex:1;text-align:center">✅ 已使用</div><div class="r-opt" onclick="toggleUse(this,'no')" style="flex:1;text-align:center">⏭️ 未使用</div></div></div>
+<div class="frm"><label class="fl">是否使用了这条洞察？</label><div class="rating" id="useToggle"><div class="r-opt" onclick="toggleUse(this,'yes')" style="flex:1;text-align:center">已使用</div><div class="r-opt" onclick="toggleUse(this,'no')" style="flex:1;text-align:center">未使用</div></div></div>
 <div id="usedSection" style="display:none">
-<div class="frm"><label class="fl">使用方式</label><div class="sc-opts"><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">📑</div><div class="sc-lb">客户提案</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">🤝</div><div class="sc-lb">客户会议</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">📊</div><div class="sc-lb">月报引用</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">🎓</div><div class="sc-lb">内部培训</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">📱</div><div class="sc-lb">朋友圈</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">📧</div><div class="sc-lb">邮件/微信</div></div></div></div>
+<div class="frm"><label class="fl">使用方式</label><div class="sc-opts"><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-lb">客户提案</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-lb">客户会议</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-lb">月报引用</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-lb">内部培训</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-lb">朋友圈</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-lb">邮件/微信</div></div></div></div>
 <div class="frm"><label class="fl">备注</label><input type="text" class="fi" id="fbNote" placeholder="业务场景描述/说明"></div>
 <div class="frm"><label class="fl">对应客户</label><select class="fi" id="fbClientSel" onchange="if(this.value==='other')document.getElementById('fbClientOther').style.display='block'"></select><input type="text" class="fi" id="fbClientOther" style="display:none;margin-top:6px" placeholder="请输入客户名称"></div>
-<div class="frm"><label class="fl">客户反应</label><div class="rating" id="fbReactGroup"><div class="r-opt" onclick="sr(this)">😍 非常感兴趣</div><div class="r-opt" onclick="sr(this)">🙂 感兴趣</div><div class="r-opt" onclick="sr(this)">😐 未回复</div><div class="r-opt" onclick="sr(this)">😕 拒绝</div></div></div>
+<div class="frm"><label class="fl">客户反应</label><div class="rating" id="fbReactGroup"><div class="r-opt" onclick="sr(this)">非常感兴趣</div><div class="r-opt" onclick="sr(this)">感兴趣</div><div class="r-opt" onclick="sr(this)">未回复</div><div class="r-opt" onclick="sr(this)">拒绝</div></div></div>
 <div class="frm"><label class="fl">反馈标签（可多选）</label><div class="ft-tags"><div class="ft-tag" onclick="this.classList.toggle('sel')">数据有说服力</div><div class="ft-tag" onclick="this.classList.toggle('sel')">想要更多细节</div><div class="ft-tag" onclick="this.classList.toggle('sel')">已促成进一步沟通</div><div class="ft-tag" onclick="this.classList.toggle('sel')">客户主动转发</div><div class="ft-tag" onclick="this.classList.toggle('sel')">内容太宏观需落地</div><div class="ft-tag" onclick="this.classList.toggle('sel')">不匹配客户行业</div></div></div>
 <div class="frm"><label class="fl">客户反馈</label><textarea class="fi fta" id="fbCfb" placeholder="客户的具体反馈内容"></textarea></div>
-<div class="frm"><label class="fl">是否促成后续？</label><div class="rating" id="fbFollowGroup"><div class="r-opt" onclick="sr(this)">✅ 是</div><div class="r-opt" onclick="sr(this)">❌ 否</div></div></div>
+<div class="frm"><label class="fl">是否促成后续？</label><div class="rating" id="fbFollowGroup"><div class="r-opt" onclick="sr(this)">是</div><div class="r-opt" onclick="sr(this)">否</div></div></div>
 </div>
 <div id="unusedSection" style="display:none">
 <div class="frm"><label class="fl">未使用原因</label><div class="rating"><div class="r-opt" onclick="sr(this)">与客户业务不相关</div><div class="r-opt" onclick="sr(this)">时机不对</div><div class="r-opt" onclick="sr(this)">内容深度不够</div><div class="r-opt" onclick="sr(this)">已有类似内容</div><div class="r-opt" onclick="sr(this)">其他</div></div></div>
@@ -1432,7 +1432,7 @@ function renderLibCat(){var src=curMon==='all'?D:D.filter(function(i){return i.m
 /* ========== DETAIL MODAL ========== */
 function openD(id){var i=D.find(function(x){return x.id===id});if(!i)return;cI=i;document.getElementById('mImg').src=i.img;document.getElementById('mTt').textContent=i.tz;document.getElementById('mTgs').innerHTML='<span class="tg" style="background:var(--navy);color:#fff;font-size:10px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span><span class="tg t-m">'+i.mon+'</span>';document.getElementById('tpC').innerHTML='<div class="tp-sec"><div class="tp-lbl">沟通要点</div><div class="tp-txt">'+i.tp.b+'</div></div><div class="tp-sec"><div class="tp-lbl" style="color:var(--green)">沟通话术</div><div class="tp-txt">'+(i.tp.c||'暂无')+'</div></div><div class="tp-sec"><div class="tp-lbl" style="color:var(--accent)">推荐产品</div><div class="tp-txt">'+(i.tp.d||'暂无')+'</div></div><div class="tp-sec"><div class="tp-lbl" style="color:var(--purple)">产品服务Link</div><div class="tp-txt">'+(i.tp.e?(i.tp.e.indexOf("http")===0?"<a href=\'"+i.tp.e+"\' target=\'_blank\' style=\'color:var(--accent)\'>"+i.tp.e+"</a>":i.tp.e):"暂无")+'</div></div>'+(i.src?'<div class="tp-sec" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><div class="tp-lbl" style="color:var(--orange)">📎 信源</div><div class="tp-txt" style="font-size:12px;color:var(--muted)">'+(i.src.indexOf('http')===0?'<a href="'+i.src+'" target="_blank" style="color:var(--accent)">'+i.src+'</a>':i.src)+'</div></div>':'');document.getElementById('mO').classList.add('open');document.body.style.overflow='hidden';updateLibModalBtn()}
 function closeM(){document.getElementById('mO').classList.remove('open');document.body.style.overflow=''}
-function copyTP(){if(!cI)return;navigator.clipboard.writeText('【'+cI.tz+'】\n\n【沟通要点】\n'+cI.tp.b+'\n\n【沟通话术】\n'+(cI.tp.c||'暂无')+'\n\n【推荐产品】\n'+(cI.tp.d||'暂无')+'\n\n【产品服务Link】\n'+(cI.tp.e||'暂无')+''+(cI.src?'\n\n【信源】\n'+cI.src:'')).then(function(){var b=document.getElementById('cpB');b.textContent='✅ 已复制';b.classList.add('cp');setTimeout(function(){b.textContent='📋 一键复制';b.classList.remove('cp')},1500);toast('已复制')})}
+function copyTP(){if(!cI)return;navigator.clipboard.writeText('【'+cI.tz+'】\n\n【沟通要点】\n'+cI.tp.b+'\n\n【沟通话术】\n'+(cI.tp.c||'暂无')+'\n\n【推荐产品】\n'+(cI.tp.d||'暂无')+'\n\n【产品服务Link】\n'+(cI.tp.e||'暂无')+''+(cI.src?'\n\n【信源】\n'+cI.src:'')).then(function(){var b=document.getElementById('cpB');b.textContent='已复制';b.classList.add('cp');setTimeout(function(){b.textContent='一键复制';b.classList.remove('cp')},1500);toast('已复制')})}
 function dlI(){if(!cI)return;var a=document.createElement('a');a.href=cI.img;a.download=cI.num+'_'+cI.tz+'.png';a.click();toast('下载中')}
 
 </script>
@@ -1441,8 +1441,8 @@ function dlI(){if(!cI)return;var a=document.createElement('a');a.href=cI.img;a.d
 // === Daily: Core ===
 function selDay(el,d){if(el.classList.contains('empty'))return;document.querySelectorAll('.week-day').forEach(function(x){x.classList.remove('a')});el.classList.add('a');loadDaily(d)}
 function renderDA(){var el=document.getElementById('dailyActions');if(!el)return;el.innerHTML=DI.map(function(i){var isI=col.some(function(c){return c.c===i.c&&c.d===curDate&&c.tp==='interest'}),isU=col.some(function(c){return c.c===i.c&&c.d===curDate&&c.tp==='used'}),isD=col.some(function(c){return c.c===i.c&&c.d===curDate&&c.tp==='deal'});return'<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#FAFBFC;border-radius:6px"><span style="font-size:11px;font-weight:700;color:var(--navy);width:24px">'+i.c+'</span><span style="flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+i.t+'</span><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:'+catClr(i.cat)+';color:#fff;flex-shrink:0">'+i.cat+'</span><button class="da-btn'+(isI?' clicked':'')+'" onclick="dAct(this,\'interest\',\''+i.c+'\',\''+i.t.replace(/'/g,"\\'")+'\',\''+i.cat+'\')">⭐</button><button class="da-btn'+(isU?' clicked':'')+'" onclick="dAct(this,\'used\',\''+i.c+'\',\''+i.t.replace(/'/g,"\\'")+'\',\''+i.cat+'\')">✅</button><button class="da-btn'+(isD?' clicked':'')+'"'+(isD?' style="border-color:var(--gold);background:#FEF3C7;color:#B45309"':'')+' onclick="dAct(this,\'deal\',\''+i.c+'\',\''+i.t.replace(/'/g,"\\'")+'\',\''+i.cat+'\')">🎯</button></div>'}).join('')}
-function dAct(btn,tp,code,title,cat){var idx=col.findIndex(function(c){return c.c===code&&c.d===curDate&&c.tp===tp});if(idx>=0){col.splice(idx,1);btn.classList.remove('clicked');btn.style.cssText=''}else{col.push({c:code,t:title,cat:cat,d:curDate,tp:tp,tm:new Date().toISOString()});btn.classList.add('clicked');if(tp==='deal'){btn.style.borderColor='var(--gold)';btn.style.background='#FEF3C7';btn.style.color='#B45309'}}lsSave('jh_col',col);updateKPI();toast({interest:'⭐ 收藏',used:'✅ 已使用',deal:'🎯 促进销售'}[tp]+' #'+code)}
-function submitSug(){var v=document.getElementById('sugInput');if(!v)return;var t=v.value.trim();if(!t)return;v.value='';toast('💡 建议已提交')}
+function dAct(btn,tp,code,title,cat){var idx=col.findIndex(function(c){return c.c===code&&c.d===curDate&&c.tp===tp});if(idx>=0){col.splice(idx,1);btn.classList.remove('clicked');btn.style.cssText=''}else{col.push({c:code,t:title,cat:cat,d:curDate,tp:tp,tm:new Date().toISOString()});btn.classList.add('clicked');if(tp==='deal'){btn.style.borderColor='var(--gold)';btn.style.background='#FEF3C7';btn.style.color='#B45309'}}lsSave('jh_col',col);updateKPI();toast({interest:'收藏',used:'已使用',deal:'促进销售'}[tp]+' #'+code)}
+function submitSug(){var v=document.getElementById('sugInput');if(!v)return;var t=v.value.trim();if(!t)return;v.value='';toast('建议已提交')}
 
 // === Daily: Parsing & Rendering ===
 var diCards=[],diCatFilter='all',diLang='zh',diSearch='';
@@ -1629,7 +1629,7 @@ function togDA(btn,tp,did){
   lsSave('jh_col',col);updateKPI();
   if(tp==='interest')toast(idx>=0?'已取消收藏':'已收藏');
   if(tp==='used')toast(idx>=0?'已取消使用':'已标记使用');
-  if(tp==='deal')toast(idx>=0?'已取消促成':'🎯 已标记促成销售');
+  if(tp==='deal')toast(idx>=0?'已取消促成':'已标记促成销售');
 }
 
 function diCatClass(cat){
@@ -1774,7 +1774,7 @@ function saveClient(){var name=document.getElementById('cmName').value.trim(),ow
 
 // === Inbox ===
 /* ========== INBOX ========== */
-var SUGS=[{av:'王',name:'王缘',cat:'💡 洞察选题建议',text:'希望增加医疗科技行业的洞察，NUS Medicine客户最近问得多',time:'2026-04-21 14:32',status:'unread'},{av:'袁',name:'袁梦',cat:'💡 洞察选题建议',text:'能不能加新加坡vs香港教育竞争力对比专题？',time:'2026-04-20 10:15',status:'adopted'},{av:'嘉',name:'嘉懿',cat:'🎨 洞察样式建议',text:'卡片希望能加客户标签，方便快速对应到具体客户',time:'2026-04-18 16:48',status:'unread'}];
+var SUGS=[{av:'王',name:'王缘',cat:'洞察选题建议',text:'希望增加医疗科技行业的洞察，NUS Medicine客户最近问得多',time:'2026-04-21 14:32',status:'unread'},{av:'袁',name:'袁梦',cat:'洞察选题建议',text:'能不能加新加坡vs香港教育竞争力对比专题？',time:'2026-04-20 10:15',status:'adopted'},{av:'嘉',name:'嘉懿',cat:'洞察样式建议',text:'卡片希望能加客户标签，方便快速对应到具体客户',time:'2026-04-18 16:48',status:'unread'}];
 function renderInbox(filter){var f=filter==='all'?SUGS:SUGS.filter(function(s){return s.status===filter});var sc={unread:['#FEF3C7','#B45309','未读'],adopted:['#D1FAE5','#047857','已采纳']};document.getElementById('inboxList').innerHTML=f.length?f.map(function(s,i){var st=sc[s.status];return'<div class="sug-item"><div class="sug-avatar">'+s.av+'</div><div class="sug-body"><div class="sug-text">'+s.text+'</div><div class="sug-meta">'+s.name+' · '+s.time+'</div></div><span class="role-tag" style="background:'+st[0]+';color:'+st[1]+';cursor:pointer" onclick="toggleSugStatus('+i+')">'+st[2]+'</span></div>'}).join(''):'<div style="text-align:center;padding:30px;color:var(--muted);font-size:12px">暂无记录</div>';document.getElementById('sugBadge').textContent=SUGS.filter(function(s){return s.status==='unread'}).length||''}
 function filterInbox(f,el){document.querySelectorAll('#ap-inbox .fb').forEach(function(b){b.classList.remove('a')});el.classList.add('a');renderInbox(f)}
 function toggleSugStatus(i){SUGS[i].status=SUGS[i].status==='unread'?'adopted':'unread';renderInbox('all');document.querySelectorAll('#ap-inbox .fb').forEach(function(b){b.classList.remove('a')});document.querySelector('#ap-inbox .fb').classList.add('a');toast(SUGS[i].status==='adopted'?'已采纳':'标记为未读')}
@@ -1804,7 +1804,7 @@ function adminUploadDaily(){
   reader.onload=function(e){
     var cards=parseDailyHTML(e.target.result);
     localStorage.setItem('jh_daily_'+date,JSON.stringify(cards));
-    toast('📡 已发布 '+cards.length+' 条洞察 · '+date);
+    toast('已发布 '+cards.length+' 条洞察 · '+date);
     if(curDate===date){diCards=cards;renderDailyCards()}
   };reader.readAsText(file);
 }
@@ -1856,7 +1856,7 @@ var wLabels=[];for(var ww=weeks-1;ww>=0;ww--){var wd=new Date(today);wd.setDate(
 hEl.innerHTML='<div style="display:grid;grid-template-columns:28px repeat('+weeks+',1fr);gap:3px;font-size:10px"><div></div>'+wLabels.map(function(l){return'<div style="text-align:center;color:var(--muted);font-weight:500;font-size:9px">'+l+'</div>'}).join('')+dNames.map(function(dn,di){return'<div style="text-align:right;padding-right:4px;color:var(--muted);font-weight:500;line-height:20px">'+dn+'</div>'+Array.from({length:weeks},function(_,wi){var cell=grid[wi*7+di];if(!cell||!cell.d)return'<div style="width:100%;height:20px;border-radius:3px;background:#F1F5F9"></div>';var op=cell.v===0?0:Math.min(0.2+cell.v/hMax*0.8,1);return'<div style="width:100%;height:20px;border-radius:3px;background:rgba(22,119,255,'+op+');cursor:pointer" title="'+cell.d+': '+cell.v+'条标注"></div>'}).join('')}).join('')+'</div><div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:flex-end;font-size:10px;color:var(--muted)"><span>少</span><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.15)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.4)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.65)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.9)"></div><span>多</span></div>'
 }}
 
-var labels={interest:'⭐ 收藏',used:'✅ 已使用',deal:'🎯 促进销售'};
+var labels={interest:'收藏',used:'已使用',deal:'促进销售'};
 
 
 /* ========== MY DATA: TAB SWITCH ========== */
@@ -2041,7 +2041,7 @@ function openCVD(id){
   var isI=cvCol.some(function(c){return c.vid===id&&c.tp==='interest'}),
       isU=cvCol.some(function(c){return c.vid===id&&c.tp==='used'}),
       isD=cvCol.some(function(c){return c.vid===id&&c.tp==='deal'});
-  document.getElementById('cvmBar').innerHTML='<button class="da-btn'+(isI?' clicked':'')+'" onclick="cvAct(this,\'interest\','+id+')">⭐ 收藏</button><button class="da-btn'+(isU?' clicked':'')+'" onclick="cvAct(this,\'used\','+id+')">✅ 已使用</button><button class="da-btn'+(isD?' clicked':'')+'"'+(isD?' style="border-color:var(--gold);background:#FEF3C7;color:#B45309"':'')+' onclick="cvAct(this,\'deal\','+id+')">🎯 促成销售</button><div style="flex:1"></div><button class="tp-cb" onclick="copyCVBody('+id+')">📋 一键复制</button>';
+  document.getElementById('cvmBar').innerHTML='<button class="da-btn'+(isI?' clicked':'')+'" onclick="cvAct(this,\'interest\','+id+')"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> 收藏</button><button class="da-btn'+(isU?' clicked':'')+'" onclick="cvAct(this,\'used\','+id+')"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.1l-3-3"/></svg> 已使用</button><button class="da-btn'+(isD?' clicked':'')+'"'+(isD?' style="border-color:var(--gold);background:#FEF3C7;color:#B45309"':'')+' onclick="cvAct(this,\'deal\','+id+')"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg> 促成销售</button><div style="flex:1"></div><button class="tp-cb" onclick="copyCVBody('+id+')"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 一键复制</button>';
   document.getElementById('cvMO').classList.add('open');document.body.style.overflow='hidden';
 }
 function closeCVM(){document.getElementById('cvMO').classList.remove('open');document.body.style.overflow=''}
@@ -2051,7 +2051,7 @@ function cvAct(btn,tp,vid){
   if(idx>=0){cvCol.splice(idx,1);btn.classList.remove('clicked');btn.style.cssText=''}
   else{cvCol.push({vid:vid,tp:tp,tm:new Date().toISOString()});btn.classList.add('clicked');if(tp==='deal'){btn.style.borderColor='var(--gold)';btn.style.background='#FEF3C7';btn.style.color='#B45309'}}
   lsSave('jh_cvcol',cvCol);
-  toast({interest:'⭐ 收藏',used:'✅ 已使用',deal:'🎯 促成销售'}[tp]);
+  toast({interest:'收藏',used:'已使用',deal:'促成销售'}[tp]);
 }
 
 function copyCVBody(id){
@@ -2066,7 +2066,7 @@ function editCV(id){
   var v=CV.find(function(x){return x.id===id});if(!v)return;
   var html='<div style="padding:20px 24px"><div class="e-tbl-title" style="margin-bottom:16px">编辑创意视频选题</div>';
   html+='<div style="display:grid;grid-template-columns:180px 1fr;gap:16px"><div>';
-  html+='<div class="up-area" style="padding:16px" onclick="document.getElementById(\'cvEditCoverInput\').click()"><div style="font-size:24px;margin-bottom:4px">🖼️</div><div style="font-size:11px;font-weight:600;color:var(--navy)">更换图片</div><div style="font-size:10px">可选多张</div><input type="file" id="cvEditCoverInput" accept=".png,.jpg,.jpeg,.webp,.gif" multiple style="display:none" onchange="var fs=this.files;this.parentElement.innerHTML=\'<div style=font-size:24px;margin-bottom:4px>✅</div><div style=font-size:11px;font-weight:600;color:var(--green)>已选 \'+fs.length+\' 张</div>\'"></div>';
+  html+='<div class="up-area" style="padding:16px" onclick="document.getElementById(\'cvEditCoverInput\').click()"><div style="margin-bottom:6px;color:var(--muted)"><svg class="svgi" style="width:24px;height:24px" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div style="font-size:11px;font-weight:600;color:var(--navy)">更换图片</div><div style="font-size:10px">可选多张</div><input type="file" id="cvEditCoverInput" accept=".png,.jpg,.jpeg,.webp,.gif" multiple style="display:none" onchange="var fs=this.files;this.parentElement.innerHTML=\'<div style=font-size:24px;margin-bottom:4px>✅</div><div style=font-size:11px;font-weight:600;color:var(--green)>已选 \'+fs.length+\' 张</div>\'"></div>';
   html+='</div><div>';
   html+='<div class="fi-row" style="margin-bottom:10px"><div class="frm" style="margin:0"><label class="fl">日期</label><input type="date" class="fi" id="cvEditDate" value="'+v.date+'"></div>';
   html+='<div class="frm" style="margin:0"><label class="fl">分类</label><select class="fi" id="cvEditCat">'+CVCATS.map(function(c){return'<option'+(c===v.cat?' selected':'')+'>'+c+'</option>'}).join('')+'</select></div></div>';
@@ -2287,13 +2287,13 @@ function libFav(id,ev){if(ev){if(ev.stopPropagation)ev.stopPropagation();if(ev.p
   var i=D.find(function(x){return x.id===id});if(!i)return;
   var idx=libCol.findIndex(function(x){return x.id===id});
   if(idx>=0){libCol.splice(idx,1);if(window.toast)toast('已取消收藏')}
-  else{libCol.unshift({id:id,t:i.tz,cat:i.cat,mon:i.mon,img:i.img,tm:Date.now()});if(window.toast)toast('⭐ 已收藏 '+i.num)}
+  else{libCol.unshift({id:id,t:i.tz,cat:i.cat,mon:i.mon,img:i.img,tm:Date.now()});if(window.toast)toast('已收藏 '+i.num)}
   lsSave('jh_libcol',libCol);
   if(typeof rB==='function')rB();
   updateLibModalBtn();
   var pane=document.getElementById('favPaneLib');if(pane&&pane.style.display!=='none')renderFavLib();
 }
-function updateLibModalBtn(){var b=document.getElementById('mFavB');if(!b||!cI)return;var on=isLibFav(cI.id);b.textContent=on?'⭐ 已收藏':'☆ 收藏';b.style.cssText=on?'border-color:var(--gold);background:#FEF3C7;color:#B45309':''}
+function updateLibModalBtn(){var b=document.getElementById('mFavB');if(!b||!cI)return;var on=isLibFav(cI.id);b.textContent=on?'已收藏':'收藏';b.style.cssText=on?'border-color:var(--gold);background:#FEF3C7;color:#B45309':''}
 function renderFavLib(){
   var grid=document.getElementById('favLibGrid');if(!grid)return;
   var ids=libCol.map(function(x){return x.id});
@@ -2302,7 +2302,7 @@ function renderFavLib(){
   var q=((document.getElementById('favLibSearchInput')||{}).value||'').trim().toLowerCase();
   if(q)items=items.filter(function(d){return(d.tz+' '+d.cat+' '+d.mon).toLowerCase().indexOf(q)>=0});
   var cnt=document.getElementById('favLibCntTotal');if(cnt)cnt.textContent=items.length+' 条';
-  if(!items.length){grid.innerHTML='<div class="di-empty">'+(libCol.length?'该筛选条件下暂无收藏':'暂无月度洞察收藏，在月度洞察中点击 ☆ 收藏按钮即可添加')+'</div>';return}
+  if(!items.length){grid.innerHTML='<div class="di-empty">'+(libCol.length?'该筛选条件下暂无收藏':'暂无月度洞察收藏，在月度洞察中点击 收藏按钮即可添加')+'</div>';return}
   grid.innerHTML=items.map(mk).join('');
 }
 var favCvYr=2026,favCvMo=0;
@@ -2325,7 +2325,7 @@ function renderFavCv(){
   var sq=((document.getElementById('favCvSearchInput')||{}).value||'').trim().toLowerCase();
   if(sq)items=items.filter(function(v){return(v.title+' '+v.cat+' '+v.plat+' '+(v.methods||[]).join(' ')).toLowerCase().indexOf(sq)>=0});
   var cntEl=document.getElementById('favCvCntTotal');if(cntEl)cntEl.textContent=items.length+' 条';
-  if(!items.length){grid.innerHTML='<div class="di-empty">'+(all.length?'该筛选条件下暂无收藏':'暂无创意洞察收藏，在创意洞察中点击⭐收藏按钮即可添加')+'</div>';return}
+  if(!items.length){grid.innerHTML='<div class="di-empty">'+(all.length?'该筛选条件下暂无收藏':'暂无创意洞察收藏，在创意洞察中点击收藏按钮即可添加')+'</div>';return}
   grid.innerHTML=items.map(function(v){
     var platClr={'小红书':'#FF2442','抖音':'#111','视频号':'#07C160','B站':'#00A1D6','YouTube':'#FF0000','TikTok':'#111','Instagram':'#E1306C'}[v.plat]||'#64748B';
     var thumbHtml=v.imgs&&v.imgs.length?'<img src="'+v.imgs[0]+'" style="width:100%;height:100%;object-fit:cover">':'<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;flex-direction:column;gap:4px"><div style="font-size:28px;opacity:.6">'+cvPlatIcon(v.plat)+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">'+v.plat+'</div></div>';
@@ -2371,11 +2371,11 @@ function exportFavCv(){
 <script>
 // === js/feedback.js ===
 /* ========== FEEDBACK ========== */
-function renderFB(){var _l=document.getElementById('fbList');if(_l)_l.innerHTML='<div class="di-empty" style="padding:30px;text-align:center;color:var(--muted)">暂无反馈数据</div>';var _s=document.getElementById('fbStats');if(_s)_s.innerHTML='';return; /* 示例数据已清空 */ document.getElementById('fbList').innerHTML=D.map(function(i){var fb=fbD[i.id],st=fb?(fb.u?'done-used':'done-unused'):'pending',badge=fb?(fb.u?'✅ 已使用':'⏭️ 未使用'):'⏳ 待反馈';return'<div class="mf-item"'+(!fb?' style="border-color:var(--gold)"':'')+'><div class="mf-num"'+(!fb?' style="background:var(--gold)"':'')+'>'+i.num+'</div><div class="mf-info"><div class="mf-title">'+i.tz+'</div><div class="mf-meta"><span class="tg '+i.cc+'" style="margin-right:4px">'+i.cat+'</span>'+(fb&&fb.u?' · 已用于客户':'')+'</div></div><div class="mf-status"><span class="mf-badge '+st+'">'+badge+'</span>'+(fb?'<button class="btn btn-s btn-sm" onclick="openFBDet('+i.id+')">详情</button>':'<button class="btn btn-p btn-sm" onclick="openFBSub('+i.id+')">提交</button>')+'</div></div>'}).join('');var done=Object.keys(fbD).length;document.getElementById('fbStats').innerHTML='<span style="padding:2px 8px;border-radius:4px;background:#D1FAE5;color:#047857;font-size:11px;font-weight:600">已 '+done+'</span><span style="padding:2px 8px;border-radius:4px;background:#FEF3C7;color:#B45309;font-size:11px;font-weight:600;margin-left:4px">待 '+(D.length-done)+'</span>'}
+function renderFB(){var _l=document.getElementById('fbList');if(_l)_l.innerHTML='<div class="di-empty" style="padding:30px;text-align:center;color:var(--muted)">暂无反馈数据</div>';var _s=document.getElementById('fbStats');if(_s)_s.innerHTML='';return; /* 示例数据已清空 */ document.getElementById('fbList').innerHTML=D.map(function(i){var fb=fbD[i.id],st=fb?(fb.u?'done-used':'done-unused'):'pending',badge=fb?(fb.u?'已使用':'⏭️ 未使用'):'⏳ 待反馈';return'<div class="mf-item"'+(!fb?' style="border-color:var(--gold)"':'')+'><div class="mf-num"'+(!fb?' style="background:var(--gold)"':'')+'>'+i.num+'</div><div class="mf-info"><div class="mf-title">'+i.tz+'</div><div class="mf-meta"><span class="tg '+i.cc+'" style="margin-right:4px">'+i.cat+'</span>'+(fb&&fb.u?' · 已用于客户':'')+'</div></div><div class="mf-status"><span class="mf-badge '+st+'">'+badge+'</span>'+(fb?'<button class="btn btn-s btn-sm" onclick="openFBDet('+i.id+')">详情</button>':'<button class="btn btn-p btn-sm" onclick="openFBSub('+i.id+')">提交</button>')+'</div></div>'}).join('');var done=Object.keys(fbD).length;document.getElementById('fbStats').innerHTML='<span style="padding:2px 8px;border-radius:4px;background:#D1FAE5;color:#047857;font-size:11px;font-weight:600">已 '+done+'</span><span style="padding:2px 8px;border-radius:4px;background:#FEF3C7;color:#B45309;font-size:11px;font-weight:600;margin-left:4px">待 '+(D.length-done)+'</span>'}
 function openFBSub(id){var i=D.find(function(x){return x.id===id});if(!i)return;document.getElementById('fbSubmitSub').textContent='洞察 #'+i.num+' · '+i.tz;document.getElementById('fbSubmitM').dataset.iid=id;document.getElementById('usedSection').style.display='none';document.getElementById('unusedSection').style.display='none';document.getElementById('fbClientOther').style.display='none';document.querySelectorAll('#fbSubmitM .r-opt').forEach(function(e){e.classList.remove('sel')});document.querySelectorAll('#fbSubmitM .sc-opt').forEach(function(e){e.classList.remove('sel')});document.querySelectorAll('#fbSubmitM .ft-tag').forEach(function(e){e.classList.remove('sel')});document.querySelectorAll('#fbSubmitM textarea').forEach(function(e){e.value=''});document.querySelectorAll('#fbSubmitM input[type=text]').forEach(function(e){e.value=''});var cs=document.getElementById('fbClientSel');cs.innerHTML='<option value="">请选择客户</option>';CLIENTS.forEach(function(cl){var o=document.createElement('option');o.value=cl;o.textContent=cl;cs.appendChild(o)});var o2=document.createElement('option');o2.value='other';o2.textContent='其他…';cs.appendChild(o2);document.getElementById('fbSubmitM').classList.add('open')}
 function toggleUse(el,v){sr(el);document.getElementById('usedSection').style.display=v==='yes'?'block':'none';document.getElementById('unusedSection').style.display=v==='no'?'block':'none'}
 function sr(el){el.parentElement.querySelectorAll('.r-opt').forEach(function(e){e.classList.remove('sel')});el.classList.add('sel')}
-function submitFB(){var m=document.getElementById('fbSubmitM'),id=parseInt(m.dataset.iid),ut=document.querySelector('#useToggle .r-opt.sel');if(!ut){toast('请选择是否使用');return}var used=ut.textContent.indexOf('已使用')>=0;var rec={u:used,tm:new Date().toISOString()};if(used){var ways=[];document.querySelectorAll('#usedSection .sc-opt.sel .sc-lb').forEach(function(e){ways.push(e.textContent)});rec.ways=ways;var cSel=document.getElementById('fbClientSel');rec.client=cSel.value==='other'?document.getElementById('fbClientOther').value.trim():cSel.value;var react=document.querySelector('#fbReactGroup .r-opt.sel');rec.react=react?react.textContent.replace(/^.{2}/,''):'';var tags=[];document.querySelectorAll('#usedSection .ft-tag.sel').forEach(function(e){tags.push(e.textContent)});rec.tags=tags;rec.cfb=document.getElementById('fbCfb').value.trim();var follow=document.querySelector('#fbFollowGroup .r-opt.sel');rec.follow=follow?follow.textContent.indexOf('是')>=0:false;rec.note=document.getElementById('fbNote').value.trim()}else{var reason=document.querySelector('#unusedSection .r-opt.sel');rec.reason=reason?reason.textContent:'';rec.suggest=document.getElementById('fbSuggest').value.trim()}fbD[id]=rec;lsSave('jh_fb',fbD);m.classList.remove('open');renderFB();updateKPI();toast('已提交')}
+function submitFB(){var m=document.getElementById('fbSubmitM'),id=parseInt(m.dataset.iid),ut=document.querySelector('#useToggle .r-opt.sel');if(!ut){toast('请选择是否使用');return}var used=ut.textContent.indexOf('已使用')>=0;var rec={u:used,tm:new Date().toISOString()};if(used){var ways=[];document.querySelectorAll('#usedSection .sc-opt.sel .sc-lb').forEach(function(e){ways.push(e.textContent)});rec.ways=ways;var cSel=document.getElementById('fbClientSel');rec.client=cSel.value==='other'?document.getElementById('fbClientOther').value.trim():cSel.value;var react=document.querySelector('#fbReactGroup .r-opt.sel');rec.react=react?react.textContent.trim():'';var tags=[];document.querySelectorAll('#usedSection .ft-tag.sel').forEach(function(e){tags.push(e.textContent)});rec.tags=tags;rec.cfb=document.getElementById('fbCfb').value.trim();var follow=document.querySelector('#fbFollowGroup .r-opt.sel');rec.follow=follow?follow.textContent.indexOf('是')>=0:false;rec.note=document.getElementById('fbNote').value.trim()}else{var reason=document.querySelector('#unusedSection .r-opt.sel');rec.reason=reason?reason.textContent:'';rec.suggest=document.getElementById('fbSuggest').value.trim()}fbD[id]=rec;lsSave('jh_fb',fbD);m.classList.remove('open');renderFB();updateKPI();toast('已提交')}
 function openFBDet(id){var i=D.find(function(x){return x.id===id});if(!i)return;var fb=fbD[id];document.getElementById('fbDetT').textContent='洞察 #'+i.num+' 反馈详情';document.getElementById('fbDetS').textContent=i.tz;document.getElementById('fbDetC').innerHTML=fb?'<div style="margin-bottom:10px"><span class="mf-badge '+(fb.u?'done-used':'done-unused')+'">'+(fb.u?'已使用':'未使用')+'</span><span style="color:var(--muted);margin-left:8px;font-size:11px">'+new Date(fb.tm).toLocaleString('zh-CN')+'</span></div><div style="font-size:12px;color:var(--muted)">完整记录需后端API</div>':'';document.getElementById('fbDetailM').classList.add('open')}
 function popClients(){document.getElementById('fbClientSel').innerHTML='<option value="">请选择客户...</option>'+CLIENTS.map(function(c){return'<option>'+c+'</option>'}).join('')+'<option value="other">其他（手动填写）</option>'}
 
@@ -2578,7 +2578,7 @@ try {
       if(fr && d.height) fr.style.height = Math.max(200, d.height) + 'px';
     } else if(d.type === 'ja-insight-created'){
       var ins = d.insight || {};
-      toast('📡 已发布并向量化' + (ins.report_id ? ' · #' + ins.report_id : ''));
+      toast('已发布并向量化' + (ins.report_id ? ' · #' + ins.report_id : ''));
       JA.loadDates().then(function(){ loadDaily(ins.report_date || curDate); });
     }
   });
