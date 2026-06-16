@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JA 每日洞察 API · 开发者中心</title>
 <style>
-:root{--navy:#0B1D3A;--accent:#3B82F6;--accent2:#2563EB;--green:#10B981;--red:#EF4444;--gold:#F59E0B;--purple:#8B5CF6;--bg:#F3F6FB;--card:#FFF;--text:#1E293B;--muted:#64748B;--border:#E2E8F0;--shadow:0 1px 3px rgba(0,0,0,.08);--shadow-lg:0 8px 24px rgba(0,0,0,.1);--r:10px}
+:root{--navy:#1D2129;--ink:#1D2129;--accent:#1677ff;--accent2:#0E5FD9;--green:#00875A;--red:#D9534F;--gold:#FA8C16;--purple:#6E59C7;--bg:#F5F7FA;--card:#FFF;--text:#1D2129;--muted:#646A73;--border:#E5E6EB;--shadow:0 1px 3px rgba(0,0,0,.05);--shadow-lg:0 4px 14px rgba(0,0,0,.08);--r:6px}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
 .wrap{max-width:920px;margin:0 auto;padding:24px 18px 60px}
@@ -35,7 +35,7 @@ h1{font-size:20px;color:var(--navy);margin:0 0 4px}
 .reveal .k{display:flex;gap:8px;align-items:center;margin-top:6px}
 code,.mono{font-family:"SF Mono", Menlo,Consolas,monospace}
 .key{flex:1;background:#fff;border:1px solid #FDE68A;border-radius:6px;padding:8px 10px;font-size:12px;word-break:break-all}
-pre{background:#0B1D3A;color:#E2E8F0;border-radius:8px;padding:12px 14px;overflow:auto;font-size:12px;line-height:1.6}
+pre{background:#1D2129;color:#E2E8F0;border-radius:6px;padding:12px 14px;overflow:auto;font-size:12px;line-height:1.6}
 table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
 th,td{border:1px solid var(--border);padding:6px 10px;text-align:left;vertical-align:top}
 th{background:#F8FAFC;color:var(--navy);font-weight:700}
@@ -43,7 +43,7 @@ th{background:#F8FAFC;color:var(--navy);font-weight:700}
 .doc h2:first-child{border-top:none;padding-top:0}
 .doc h3{font-size:14px;color:var(--navy);margin:14px 0 6px}
 .doc p,.doc li{font-size:13px}
-.pill{display:inline-block;background:#EDE9FE;color:#6D28D9;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600}
+.pill{display:inline-block;background:#EFF5FF;color:var(--accent);border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600}
 .muted{color:var(--muted);font-size:12px}
 .hide{display:none}
 a{color:var(--accent)}
@@ -52,13 +52,13 @@ a{color:var(--accent)}
 <body>
 <div class="wrap">
   <header>
-    <h1>🔌 JA 每日洞察 API · 开发者中心</h1>
+    <h1>JA 每日洞察 API · 开发者中心</h1>
     <div class="sub">为其他项目按用户拉取每日（实时）洞察 —— 在这里生成接入用的 API Key，并查看接口文档。</div>
   </header>
 
   <div class="tabs">
-    <button class="tab active" data-pane="gen" onclick="showPane('gen',this)">🔑 生成 API Key</button>
-    <button class="tab" data-pane="doc" onclick="showPane('doc',this)">📘 接口文档</button>
+    <button class="tab active" data-pane="gen" onclick="showPane('gen',this)">生成 API Key</button>
+    <button class="tab" data-pane="doc" onclick="showPane('doc',this)">接口文档</button>
   </div>
 
   <!-- ============ 生成 Key ============ -->
@@ -82,15 +82,15 @@ a{color:var(--accent)}
       <button class="btn btn-p" id="genBtn" onclick="genKey()">生成 Token</button>
 
       <div id="reveal" class="reveal hide">
-        <div style="font-size:12px;color:#92400E;font-weight:700">⚠️ 明文 Token 只显示这一次，请立即复制保存：</div>
-        <div class="k"><code class="key" id="revealKey"></code><button class="btn btn-s" onclick="copyKey()">📋 复制</button></div>
+        <div style="font-size:12px;color:#92400E;font-weight:700">明文 Token 只显示这一次，请立即复制保存：</div>
+        <div class="k"><code class="key" id="revealKey"></code><button class="btn btn-s" onclick="copyKey()">复制</button></div>
         <div class="muted" id="revealMeta" style="margin-top:6px"></div>
       </div>
     </div>
 
     <!-- 试调用（生成 query:daily key 后出现） -->
     <div class="card hide" id="testCard">
-      <h2>🧪 用刚生成的 Key 试调用</h2>
+      <h2>用刚生成的 Key 试调用</h2>
       <div class="frm">
         <div class="fld"><label>目标用户邮箱</label><input class="fi" id="tUser" type="email" placeholder="user@example.com" style="width:220px"></div>
         <div class="fld"><label>日期</label><input class="fi" id="tDate" type="date" style="width:160px"></div>
@@ -275,7 +275,7 @@ async function getDaily(user, date, lang="both"){
   window.copyKey = function(){
     var t = document.getElementById("revealKey").textContent;
     (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){
-      var b = event.target; var o = b.textContent; b.textContent = "✅ 已复制"; setTimeout(function(){ b.textContent = o; }, 1500);
+      var b = event.target; var o = b.textContent; b.textContent = "已复制"; setTimeout(function(){ b.textContent = o; }, 1500);
     }).catch(function(){ alert("复制失败，请手动选择复制"); });
   };
 

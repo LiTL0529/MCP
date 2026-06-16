@@ -398,8 +398,8 @@
   #p-community .crbtn{display:inline-flex;align-items:center;gap:5px;cursor:pointer;border:1px solid var(--border);background:#fff;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);line-height:1.7;transition:transform .15s ease,background .15s ease,border-color .15s ease,color .15s ease}
   #p-community .crbtn b{font-weight:700}
   #p-community .crbtn:hover{transform:translateY(-1px);border-color:#CBD5E1}
-  #p-community .crbtn.on-like{color:var(--red);border-color:#FECACA;background:#FEF2F2}
-  #p-community .crbtn.on-fav{color:var(--gold);border-color:#FDE68A;background:#FFFBEB}
+  #p-community .crbtn.on-like{color:var(--accent);border-color:#A8CBFA;background:#EFF5FF}
+  #p-community .crbtn.on-fav{color:var(--accent);border-color:#A8CBFA;background:#EFF5FF}
   #p-community .crbtn.big{padding:7px 16px;font-size:13px;gap:7px}
   #p-community .crbtn.pop{animation:crpop .3s cubic-bezier(.34,1.56,.64,1)}
   @keyframes crpop{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
@@ -407,7 +407,7 @@
   /* 小红书瀑布流 */
   #p-community .xhs-grid{column-count:2;column-gap:12px}
   @media(min-width:1180px){#p-community .xhs-grid{column-count:3}}
-  #p-community .xhs-card{break-inside:avoid;-webkit-column-break-inside:avoid;display:block;background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:0 0 12px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+  #p-community .xhs-card{break-inside:avoid;-webkit-column-break-inside:avoid;display:block;background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin:0 0 12px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
   #p-community .xhs-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
   #p-community .xhs-cover{position:relative;line-height:0}
   #p-community .xhs-cover-img{display:block;width:100%;height:auto}
@@ -416,7 +416,7 @@
   #p-community .xhs-pin{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;padding:2px 8px;border-radius:999px;line-height:1.6}
   #p-community .xhs-collect{position:absolute;top:8px;right:8px;border:none;cursor:pointer;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:transform .15s ease}
   #p-community .xhs-collect:hover{transform:scale(1.12)}
-  #p-community .xhs-collect.on-fav{color:var(--gold)}
+  #p-community .xhs-collect.on-fav{color:var(--accent)}
   #p-community .xhs-bd{padding:10px 12px}
   #p-community .xhs-tt{font-size:13.5px;font-weight:600;color:var(--navy);line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   #p-community .xhs-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -425,7 +425,7 @@
   #p-community .xhs-uname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #p-community .xhs-act{display:inline-flex;align-items:center;gap:4px;border:none;background:none;cursor:pointer;font-size:12px;color:var(--muted);padding:2px 4px;border-radius:8px;flex-shrink:0;transition:transform .15s ease}
   #p-community .xhs-act:hover{transform:scale(1.1)}
-  #p-community .xhs-act.on-like{color:var(--red)}
+  #p-community .xhs-act.on-like{color:var(--accent)}
   #p-community .xhs-act b{font-weight:600}
   #p-community .xhs-act.pop,#p-community .xhs-collect.pop{animation:crpop .3s cubic-bezier(.34,1.56,.64,1)}
   #p-community .xhs-meta{display:flex;gap:10px;font-size:10px;color:var(--muted);margin-top:6px}
@@ -433,13 +433,13 @@
   <div id="commList">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap">
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button id="commTabAll" class="btn btn-s btn-xs" onclick="commTab('all')">📋 全部</button>
-        <button id="commTabLiked" class="btn btn-s btn-xs" onclick="commTab('liked')">❤️ 我的点赞</button>
-        <button id="commTabFav" class="btn btn-s btn-xs" onclick="commTab('fav')">⭐ 我的收藏</button>
+        <button id="commTabAll" class="btn btn-s btn-xs" onclick="commTab('all')"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.5" y2="6"/><line x1="3" y1="12" x2="3.5" y2="12"/><line x1="3" y1="18" x2="3.5" y2="18"/></svg>全部</button>
+        <button id="commTabLiked" class="btn btn-s btn-xs" onclick="commTab('liked')"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M12 21l-1.45-1.32C5.4 14.96 2 11.88 2 8.1 2 5.42 4.12 3.3 6.8 3.3c1.52 0 2.98.71 3.94 1.83l1.26 1.47 1.26-1.47A5.23 5.23 0 0 1 17.2 3.3C19.88 3.3 22 5.42 22 8.1c0 3.78-3.4 6.86-8.55 11.59z"/></svg>我的点赞</button>
+        <button id="commTabFav" class="btn btn-s btn-xs" onclick="commTab('fav')"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>我的收藏</button>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
         <div style="font-size:13px;color:var(--muted)" id="commCnt">加载中…</div>
-        <button class="btn btn-p btn-sm" onclick="commNew()">✏️ 发帖</button>
+        <button class="btn btn-p btn-sm" onclick="commNew()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>发帖</button>
       </div>
     </div>
     <div id="commPosts"></div>
@@ -447,7 +447,7 @@
   </div>
   <div id="commForm" style="display:none">
     <button class="btn btn-s btn-sm" onclick="commShow('list')">‹ 返回社区</button>
-    <div class="e-tbl-wrap" style="margin-top:10px"><div class="e-tbl-head"><div class="e-tbl-title">✏️ 发布新帖</div></div>
+    <div class="e-tbl-wrap" style="margin-top:10px"><div class="e-tbl-head"><div class="e-tbl-title">发布新帖</div></div>
       <div style="padding:14px">
         <div class="frm"><label class="fl">标题</label><input type="text" class="fi" id="commTitle" maxlength="200" placeholder="一句话说明你的需求或想法"></div>
         <div class="frm"><label class="fl">内容</label><textarea class="fi" id="commBody" style="min-height:150px;resize:vertical" placeholder="详细描述…"></textarea></div>
@@ -487,17 +487,17 @@
         box.innerHTML=items.map(function(p){
           commState[p.id]={liked:!!p.liked_by_me,like_count:p.like_count||0,faved:!!p.faved_by_me,fav_count:p.fav_count||0};
           return '<div class="xhs-card" onclick="commOpen(\''+p.id+'\')">'+
-            '<div class="xhs-cover">'+(p.pinned?'<span class="xhs-pin">📌 置顶</span>':'')+coverFor(p)+favBtnHtml(p.id,'xhs')+'</div>'+
+            '<div class="xhs-cover">'+(p.pinned?'<span class="xhs-pin">置顶</span>':'')+coverFor(p)+favBtnHtml(p.id,'xhs')+'</div>'+
             '<div class="xhs-bd">'+
               '<div class="xhs-tt">'+esc(p.title)+'</div>'+
               '<div class="xhs-foot"><span class="xhs-user">'+avatarHtml(p.author_name,p.author_email)+'<span class="xhs-uname">'+who(p.author_email,p.author_name)+'</span></span>'+likeBtnHtml(p.id,'xhs')+'</div>'+
-              '<div class="xhs-meta"><span>🕐 '+fmt(p.created_at)+'</span><span>💬 '+(p.comment_count||0)+'</span>'+(p.attachments&&p.attachments.length?'<span>📎 '+p.attachments.length+'</span>':'')+'</div>'+
+              '<div class="xhs-meta"><span><svg class="svgi" style="width:11px;height:11px;vertical-align:-1px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> '+fmt(p.created_at)+'</span><span><svg class="svgi" style="width:11px;height:11px;vertical-align:-1px" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> '+(p.comment_count||0)+'</span>'+(p.attachments&&p.attachments.length?'<span><svg class="svgi" style="width:11px;height:11px;vertical-align:-1px" viewBox="0 0 24 24"><path d="M21.4 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95L10.1 18.3a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> '+p.attachments.length+'</span>':'')+'</div>'+
             '</div>'+
           '</div>';
         }).join('');
       }else{
         box.className='';
-        box.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px">'+(mode==='fav'?'还没有收藏的帖子，点帖子封面右上角的 收藏感兴趣的内容':mode==='liked'?'还没有点赞的帖子，点帖子上的 🤍 点赞':'还没有帖子，点「发帖」发布第一个吧')+'</div>';
+        box.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px">'+(mode==='fav'?'还没有收藏的帖子，点帖子封面右上角的 收藏感兴趣的内容':mode==='liked'?'还没有点赞的帖子，点帖子上的点赞按钮':'还没有帖子，点「发帖」发布第一个吧')+'</div>';
       }
       var pages=Math.max(1,Math.ceil(total/PAGE)),cur=Math.floor(off/PAGE)+1;
       document.getElementById('commPager').innerHTML=total>PAGE?'<button class="btn btn-s btn-xs" '+(off<=0?'disabled':'')+' onclick="commPage(-1)">‹ 上一页</button><span>第 '+cur+' / '+pages+' 页</span><button class="btn btn-s btn-xs" '+(off+PAGE>=total?'disabled':'')+' onclick="commPage(1)">下一页 ›</button>':'';
@@ -533,17 +533,17 @@
       var j=await r.json();var p=j.post||{};var cs=j.comments||[];
       commState[p.id]={liked:!!p.liked_by_me,like_count:p.like_count||0,faved:!!p.faved_by_me,fav_count:p.fav_count||0};
       var atts=p.attachments||[];
-      var attHtml=atts.length?('<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px">📎 附件（点击下载）</div>'+atts.map(function(a){return'<a href="'+esc(a.url)+'" target="_blank" rel="noopener" download style="display:inline-flex;align-items:center;gap:6px;margin:3px 8px 3px 0;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--navy);text-decoration:none;background:#F8FAFC">📄 '+esc(a.name)+' <span style="color:var(--muted)">('+fmtSize(a.size)+')</span></a>'}).join('')+'</div>'):'';
+      var attHtml=atts.length?('<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px">附件（点击下载）</div>'+atts.map(function(a){return'<a href="'+esc(a.url)+'" target="_blank" rel="noopener" download style="display:inline-flex;align-items:center;gap:6px;margin:3px 8px 3px 0;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--navy);text-decoration:none;background:#F8FAFC"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> '+esc(a.name)+' <span style="color:var(--muted)">('+fmtSize(a.size)+')</span></a>'}).join('')+'</div>'):'';
       box.innerHTML='<button class="btn btn-s btn-sm" onclick="commShow(\'list\')">‹ 返回社区</button>'+
         '<div class="e-tbl-wrap" style="margin-top:10px"><div style="padding:16px">'+
-          '<div style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px">'+(p.pinned?'📌 ':'')+esc(p.title)+'</div>'+
-          '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">👤 '+who(p.author_email,p.author_name)+' · '+fmt(p.created_at)+'</div>'+
+          '<div style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px">'+(p.pinned?'<span style="display:inline-block;background:#EFF5FF;color:var(--accent);font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;margin-right:6px;vertical-align:2px">置顶</span>':'')+esc(p.title)+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">'+who(p.author_email,p.author_name)+' · '+fmt(p.created_at)+'</div>'+
           '<div style="font-size:14px;line-height:1.7;color:#1e293b">'+nl2br(p.body)+'</div>'+attHtml+
           '<div style="display:flex;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">'+likeBtnHtml(p.id,'detail')+favBtnHtml(p.id,'detail')+'</div>'+
         '</div></div>'+
-        '<div class="e-tbl-wrap" style="margin-top:12px"><div class="e-tbl-head"><div class="e-tbl-title">💬 评论 ('+cs.length+')</div></div>'+
+        '<div class="e-tbl-wrap" style="margin-top:12px"><div class="e-tbl-head"><div class="e-tbl-title">评论 ('+cs.length+')</div></div>'+
           '<div style="padding:12px 16px">'+
-            (cs.length?cs.map(function(c){return'<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;color:var(--muted);margin-bottom:3px">👤 '+who(c.author_email,c.author_name)+' · '+fmt(c.created_at)+'</div><div style="font-size:13px;line-height:1.6">'+nl2br(c.body)+'</div></div>'}).join(''):'<div style="color:var(--muted);font-size:13px;padding:8px 0">还没有评论</div>')+
+            (cs.length?cs.map(function(c){return'<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;color:var(--muted);margin-bottom:3px">'+who(c.author_email,c.author_name)+' · '+fmt(c.created_at)+'</div><div style="font-size:13px;line-height:1.6">'+nl2br(c.body)+'</div></div>'}).join(''):'<div style="color:var(--muted);font-size:13px;padding:8px 0">还没有评论</div>')+
             '<div style="margin-top:12px;display:flex;gap:8px;align-items:flex-end"><textarea class="fi" id="commCmt" style="flex:1;min-height:60px;resize:vertical" placeholder="写下你的评论…"></textarea><button class="btn btn-p btn-sm" onclick="commAddComment(\''+esc(id)+'\')">发送</button></div>'+
           '</div>'+
         '</div>';
@@ -561,10 +561,12 @@
   };
   // ── 点赞 / 收藏 ────────────────────────────────────────────
   function rcount(id){return commState[id]||{liked:false,like_count:0,faved:false,fav_count:0}}
-  function avatarHtml(nm,em){var raw=(nm||(em||'').split('@')[0]||'匿名');var ch=(raw.trim().slice(0,1)||'·').toUpperCase();var cs=['#F87171','#FB923C','#FBBF24','#34D399','#60A5FA','#818CF8','#A78BFA','#F472B6'];var h=0,t=String(raw);for(var k=0;k<t.length;k++)h=(h*31+t.charCodeAt(k))>>>0;return '<span class="xhs-ava" style="background:'+cs[h%cs.length]+'">'+esc(ch)+'</span>'}
-  function coverFor(p){var img=(p.attachments||[]).filter(function(a){return /^image\//.test(a.type||'')})[0];if(img)return '<img class="xhs-cover-img" src="'+esc(img.url)+'" alt="" loading="lazy">';var grads=['linear-gradient(135deg,#667EEA,#764BA2)','linear-gradient(135deg,#F093FB,#F5576C)','linear-gradient(135deg,#4FACFE,#00F2FE)','linear-gradient(135deg,#43E97B,#38F9D7)','linear-gradient(135deg,#FA709A,#FEE140)','linear-gradient(135deg,#30CFD0,#330867)'];var h=0,t=String(p.id);for(var k=0;k<t.length;k++)h=(h*31+t.charCodeAt(k))>>>0;var g=grads[h%grads.length],ht=128+(h%5)*22;return '<div class="xhs-ph" style="height:'+ht+'px;background:'+g+'"><span class="em">'+((p.attachments&&p.attachments.length)?'📎':'📝')+'</span></div>'}
-  function likeBtnHtml(id,ctx){var s=rcount(id);if(ctx==='xhs')return '<button id="lk-xhs-'+id+'" class="xhs-act'+(s.liked?' on-like':'')+'" onclick="commLike(event,\''+id+'\')" title="'+(s.liked?'取消点赞':'点赞')+'"><span>'+(s.liked?'❤️':'🤍')+'</span><b>'+(s.like_count||0)+'</b></button>';var big=ctx==='detail';return '<button id="lk-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.liked?' on-like':'')+'" onclick="commLike(event,\''+id+'\')" title="'+(s.liked?'取消点赞':'点赞')+'"><span>'+(s.liked?'❤️':'🤍')+'</span>'+(big?'<span>'+(s.liked?'已赞':'点赞')+'</span>':'')+'<b>'+(s.like_count||0)+'</b></button>'}
-  function favBtnHtml(id,ctx){var s=rcount(id);if(ctx==='xhs')return '<button id="fv-xhs-'+id+'" class="xhs-collect'+(s.faved?' on-fav':'')+'" onclick="commFav(event,\''+id+'\')" title="'+(s.faved?'取消收藏':'收藏')+'">'+(s.faved?'⭐':'☆')+'</button>';var big=ctx==='detail';return '<button id="fv-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.faved?' on-fav':'')+'" onclick="commFav(event,\''+id+'\')" title="'+(s.faved?'取消收藏':'收藏')+'"><span>'+(s.faved?'⭐':'☆')+'</span>'+(big?'<span>'+(s.faved?'已收藏':'收藏')+'</span>':'')+'<b>'+(s.fav_count||0)+'</b></button>'}
+  function avatarHtml(nm,em){var raw=(nm||(em||'').split('@')[0]||'匿名');var ch=(raw.trim().slice(0,1)||'·').toUpperCase();var cs=['#1677FF','#00875A','#FA8C16','#6F5EF9','#0E9DBE','#945FB9','#5D7092','#D9534F'];var h=0,t=String(raw);for(var k=0;k<t.length;k++)h=(h*31+t.charCodeAt(k))>>>0;return '<span class="xhs-ava" style="background:'+cs[h%cs.length]+'">'+esc(ch)+'</span>'}
+  function coverFor(p){var img=(p.attachments||[]).filter(function(a){return /^image\//.test(a.type||'')})[0];if(img)return '<img class="xhs-cover-img" src="'+esc(img.url)+'" alt="" loading="lazy">';var h=0,t=String(p.id);for(var k=0;k<t.length;k++)h=(h*31+t.charCodeAt(k))>>>0;var ht=104+(h%4)*16;var hasFile=p.attachments&&p.attachments.length;var icon=hasFile?'<svg class="svgi" style="width:26px;height:26px;stroke-width:1.4" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>':'<svg class="svgi" style="width:26px;height:26px;stroke-width:1.4" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';return '<div class="xhs-ph" style="height:'+ht+'px;background:#F2F3F5;color:#C0C4CC">'+icon+'</div>'}
+  function heartSVG(on){return '<svg class="svgi" style="width:15px;height:15px" viewBox="0 0 24 24"'+(on?' fill="currentColor" stroke="none"':'')+'><path d="M12 21l-1.45-1.32C5.4 14.96 2 11.88 2 8.1 2 5.42 4.12 3.3 6.8 3.3c1.52 0 2.98.71 3.94 1.83l1.26 1.47 1.26-1.47A5.23 5.23 0 0 1 17.2 3.3C19.88 3.3 22 5.42 22 8.1c0 3.78-3.4 6.86-8.55 11.59z"/></svg>'}
+  function bookmarkSVG(on){return '<svg class="svgi" style="width:15px;height:15px" viewBox="0 0 24 24"'+(on?' fill="currentColor" stroke="none"':'')+'><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>'}
+  function likeBtnHtml(id,ctx){var s=rcount(id);var hk=heartSVG(s.liked);if(ctx==='xhs')return '<button id="lk-xhs-'+id+'" class="xhs-act'+(s.liked?' on-like':'')+'" onclick="commLike(event,\''+id+'\')" title="'+(s.liked?'取消点赞':'点赞')+'"><span>'+hk+'</span><b>'+(s.like_count||0)+'</b></button>';var big=ctx==='detail';return '<button id="lk-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.liked?' on-like':'')+'" onclick="commLike(event,\''+id+'\')" title="'+(s.liked?'取消点赞':'点赞')+'"><span>'+hk+'</span>'+(big?'<span>'+(s.liked?'已赞':'点赞')+'</span>':'')+'<b>'+(s.like_count||0)+'</b></button>'}
+  function favBtnHtml(id,ctx){var s=rcount(id);var bk=bookmarkSVG(s.faved);if(ctx==='xhs')return '<button id="fv-xhs-'+id+'" class="xhs-collect'+(s.faved?' on-fav':'')+'" onclick="commFav(event,\''+id+'\')" title="'+(s.faved?'取消收藏':'收藏')+'">'+bk+'</button>';var big=ctx==='detail';return '<button id="fv-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.faved?' on-fav':'')+'" onclick="commFav(event,\''+id+'\')" title="'+(s.faved?'取消收藏':'收藏')+'"><span>'+bk+'</span>'+(big?'<span>'+(s.faved?'已收藏':'收藏')+'</span>':'')+'<b>'+(s.fav_count||0)+'</b></button>'}
   function syncBtns(id){['xhs','detail'].forEach(function(ctx){var l=document.getElementById('lk-'+ctx+'-'+id);if(l)l.outerHTML=likeBtnHtml(id,ctx);var f=document.getElementById('fv-'+ctx+'-'+id);if(f)f.outerHTML=favBtnHtml(id,ctx)})}
   function pulse(prefix,id){['xhs','detail'].forEach(function(ctx){var e=document.getElementById(prefix+'-'+ctx+'-'+id);if(e){e.classList.add('pop');setTimeout(function(){e.classList.remove('pop')},320)}})}
   function setTabUI(){[['commTabAll','all'],['commTabLiked','liked'],['commTabFav','fav']].forEach(function(pp){var b=document.getElementById(pp[0]);if(b){var on=mode===pp[1];b.style.background=on?'var(--navy)':'';b.style.color=on?'#fff':'';}})}
@@ -702,7 +704,7 @@
 <div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title"><svg class="svgi" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>创意洞察发布趋势</div></div><div style="padding:14px" id="cvTrend"></div></div>
 </div>
 <!-- Heatmap -->
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title"><svg class="svgi" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>团队标注活跃度（近12周）</div></div><div style="padding:14px" id="ovHeatmap"></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title"><svg class="svgi" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>团队标注活跃度（近半年）</div></div><div style="padding:14px" id="ovHeatmap"></div></div>
 </div>
 
 <!-- Tab: Content -->
@@ -1847,13 +1849,21 @@ if(catEl&&_stat&&_stat.insights&&_stat.insights.by_category){
   catEl.innerHTML=cats.length?cats.map(function(b){var pct=Math.round(b.count/cMx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:110px;text-align:right;color:var(--muted);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+b.bucket+'</div><div style="flex:1;height:18px;background:#F2F3F5;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#E8F0FE;border:1px solid #B6D0F5;box-sizing:border-box;border-radius:3px"></div></div><div style="width:24px;font-weight:600;color:var(--navy);text-align:right">'+b.count+'</div></div>'}).join(''):'<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">暂无数据</div>';
 }
 var hEl=document.getElementById('ovHeatmap');if(hEl){
-var weeks=12,days=7,today=new Date(),dNames=['日','一','二','三','四','五','六'];
+var weeks=26,today=new Date();
 var colAnno={};col.forEach(function(c){if(c.did){var d=c.did.split('-').slice(0,3).join('-');colAnno[d]=(colAnno[d]||0)+1}});
 var dailyAnno={};dailyKeys.forEach(function(k){var d=k.replace('jh_daily_','');dailyAnno[d]=(dailyAnno[d]||0)+1});
-var grid=[];for(var w=weeks-1;w>=0;w--){for(var dd=0;dd<days;dd++){var dt=new Date(today);dt.setDate(dt.getDate()-w*7-(today.getDay()-dd));if(dt>today){grid.push({d:'',v:0});continue}var ds=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');var v=(colAnno[ds]||0)+(dailyAnno[ds]||0);grid.push({d:ds,v:v})}}
-var hMax=1;grid.forEach(function(g){if(g.v>hMax)hMax=g.v});
-var wLabels=[];for(var ww=weeks-1;ww>=0;ww--){var wd=new Date(today);wd.setDate(wd.getDate()-ww*7);var wm=(wd.getMonth()+1)+'/'+wd.getDate();wLabels.push(wm)}
-hEl.innerHTML='<div style="display:grid;grid-template-columns:28px repeat('+weeks+',1fr);gap:3px;font-size:10px"><div></div>'+wLabels.map(function(l){return'<div style="text-align:center;color:var(--muted);font-weight:500;font-size:9px">'+l+'</div>'}).join('')+dNames.map(function(dn,di){return'<div style="text-align:right;padding-right:4px;color:var(--muted);font-weight:500;line-height:20px">'+dn+'</div>'+Array.from({length:weeks},function(_,wi){var cell=grid[wi*7+di];if(!cell||!cell.d)return'<div style="width:100%;height:20px;border-radius:3px;background:#F1F5F9"></div>';var op=cell.v===0?0:Math.min(0.2+cell.v/hMax*0.8,1);return'<div style="width:100%;height:20px;border-radius:3px;background:rgba(22,119,255,'+op+');cursor:pointer" title="'+cell.d+': '+cell.v+'条标注"></div>'}).join('')}).join('')+'</div><div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:flex-end;font-size:10px;color:var(--muted)"><span>少</span><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.15)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.4)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.65)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.9)"></div><span>多</span></div>'
+var startSun=new Date(today);startSun.setDate(today.getDate()-(weeks-1)*7-today.getDay());
+var cells=[],monthOfWeek=[];
+for(var w=0;w<weeks;w++){var weekStart=new Date(startSun);weekStart.setDate(startSun.getDate()+w*7);monthOfWeek.push(weekStart.getMonth());for(var dd=0;dd<7;dd++){var dt=new Date(weekStart);dt.setDate(weekStart.getDate()+dd);if(dt>today){cells.push({d:'',v:0,future:true});continue}var ds=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');cells.push({d:ds,v:(colAnno[ds]||0)+(dailyAnno[ds]||0)})}}
+var hMax=1;cells.forEach(function(g){if(g.v>hMax)hMax=g.v});
+var CLR=['#EBEDF0','#C2D9F5','#8FBAF0','#4F94E8','#1677FF'];
+function lvl(v){if(v<=0)return 0;var r=v/hMax;if(r<=0.25)return 1;if(r<=0.5)return 2;if(r<=0.75)return 3;return 4}
+var MN=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+var monthRow='',prevM=-1;for(var w2=0;w2<weeks;w2++){var lbl='';if(monthOfWeek[w2]!==prevM){lbl=MN[monthOfWeek[w2]];prevM=monthOfWeek[w2]}monthRow+='<div style="width:11px;white-space:nowrap;overflow:visible">'+lbl+'</div>'}
+var dayLbls=['','一','','三','','五',''],dayCol='';for(var di=0;di<7;di++){dayCol+='<div style="height:11px;line-height:11px">'+dayLbls[di]+'</div>'}
+var cellsHtml=cells.map(function(g){var bg=g.future?'transparent':CLR[lvl(g.v)];return '<div title="'+(g.d?g.d+' · '+g.v+' 条标注':'')+'" style="width:11px;height:11px;border-radius:2px;background:'+bg+'"></div>'}).join('');
+var legend='<div style="display:flex;align-items:center;gap:3px;justify-content:flex-end;margin-top:10px;font-size:9px;color:var(--muted)"><span style="margin-right:2px">少</span>'+CLR.map(function(c){return '<div style="width:11px;height:11px;border-radius:2px;background:'+c+'"></div>'}).join('')+'<span style="margin-left:2px">多</span></div>';
+hEl.innerHTML='<div style="overflow-x:auto"><div style="display:inline-block;min-width:100%"><div style="display:flex;gap:3px;padding-left:23px;font-size:9px;color:var(--muted);margin-bottom:4px">'+monthRow+'</div><div style="display:flex;gap:3px"><div style="display:grid;grid-template-rows:repeat(7,11px);row-gap:3px;font-size:9px;color:var(--muted);width:20px;text-align:right;padding-right:3px">'+dayCol+'</div><div style="display:grid;grid-template-rows:repeat(7,11px);grid-auto-flow:column;grid-auto-columns:11px;gap:3px">'+cellsHtml+'</div></div>'+legend+'</div></div>';
 }}
 
 var labels={interest:'收藏',used:'已使用',deal:'促进销售'};

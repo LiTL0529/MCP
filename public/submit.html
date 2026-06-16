@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>JA Insight Hub · 录入 / Submit</title>
 <style>
-  :root{--navy:#0F2A4A;--accent:#1E6FB8;--green:#16a34a;--red:#dc2626;--border:#E2E8F0;--muted:#64748B;--bg:#F8FAFC}
+  :root{--navy:#1D2129;--ink:#1D2129;--accent:#1677ff;--accent2:#0E5FD9;--green:#00875A;--red:#D9534F;--border:#E5E6EB;--muted:#646A73;--bg:#F5F7FA}
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:#1e293b;font-size:14px}
   .wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px}
   h1{font-size:20px;color:var(--navy);margin:0 0 4px}
   .sub{color:var(--muted);font-size:12px;margin-bottom:20px}
-  .card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px}
-  .card h2{font-size:13px;color:var(--accent);margin:0 0 12px;text-transform:uppercase;letter-spacing:.04em}
+  .card{background:#fff;border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .card h2{font-size:13px;color:var(--ink);margin:0 0 12px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
   label{display:block;font-size:12px;font-weight:600;color:#334155;margin:0 0 4px}
   .hint{font-weight:400;color:var(--muted);font-size:11px}
   input,textarea,select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;background:#fff}
@@ -247,14 +247,14 @@ function mdCmd(ta,cmd){
   else if(cmd==='quote')mdPrefixLines(ta,'> ');
 }
 // Toolbar button sets: [label, tooltip, cmd, extraClass]
-var MD_BTNS_BLOCK=[['H1','大标题','h1'],['H2','标题','h2'],['H3','小标题','h3'],['SEP'],['B','加粗 (Ctrl+B)','bold','b'],['I','斜体 (Ctrl+I)','italic','i'],['S','删除线','strike'],['SEP'],['•','无序列表','ul'],['1.','有序列表','ol'],['❝','引用','quote'],['SEP'],['🔗','链接','link'],['</>','行内代码','code']];
-var MD_BTNS_LINES=[['B','加粗 (Ctrl+B)','bold','b'],['I','斜体 (Ctrl+I)','italic','i'],['🔗','链接','link'],['</>','行内代码','code']];
+var MD_BTNS_BLOCK=[['H1','大标题','h1'],['H2','标题','h2'],['H3','小标题','h3'],['SEP'],['B','加粗 (Ctrl+B)','bold','b'],['I','斜体 (Ctrl+I)','italic','i'],['S','删除线','strike'],['SEP'],['•','无序列表','ul'],['1.','有序列表','ol'],['❝','引用','quote'],['SEP'],['<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>','链接','link'],['</>','行内代码','code']];
+var MD_BTNS_LINES=[['B','加粗 (Ctrl+B)','bold','b'],['I','斜体 (Ctrl+I)','italic','i'],['<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>','链接','link'],['</>','行内代码','code']];
 function buildMdBar(ta,mode){
   var bar=document.createElement('div');bar.className='md-bar';
   (mode==='lines'?MD_BTNS_LINES:MD_BTNS_BLOCK).forEach(function(b){
     if(b[0]==='SEP'){var sp=document.createElement('span');sp.className='md-bar-sep';bar.appendChild(sp);return;}
     var btn=document.createElement('button');btn.type='button';btn.className='md-b'+(b[3]?' '+b[3]:'');
-    btn.title=b[1];btn.textContent=b[0];
+    btn.title=b[1];if(/^<svg/.test(b[0])){btn.innerHTML=b[0];}else{btn.textContent=b[0];}
     btn.addEventListener('mousedown',function(ev){ev.preventDefault();}); // keep textarea selection
     btn.addEventListener('click',function(ev){ev.preventDefault();mdCmd(ta,b[2]);});
     bar.appendChild(btn);
@@ -381,11 +381,11 @@ async function submitForm(){
     var res = await fetch('api/insights', { method:'POST', headers: headers, body: JSON.stringify(payload) });
     var data = await res.json();
     if(res.ok){
-      msg.className='ok'; msg.textContent='✅ 已发布并向量化 · id=' + data.insight.id;
+      msg.className='ok'; msg.textContent='已发布并向量化 · id=' + data.insight.id;
       if(EMBED){ try{ parent.postMessage({type:'ja-insight-created', insight:data.insight}, '*'); }catch(e){} }
     }
-    else { msg.className='err'; msg.textContent='❌ ' + (data.error || res.status) + (data.details?(' · '+JSON.stringify(data.details.fieldErrors)):''); }
-  }catch(e){ msg.className='err'; msg.textContent='❌ ' + e.message; }
+    else { msg.className='err'; msg.textContent=(data.error || res.status) + (data.details?(' · '+JSON.stringify(data.details.fieldErrors)):''); }
+  }catch(e){ msg.className='err'; msg.textContent=e.message; }
   finally{ btn.disabled = false; postHeight(); }
 }
 
