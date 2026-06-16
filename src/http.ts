@@ -104,6 +104,23 @@ async function requireIngestAuth(req: Request, res: Response, next: NextFunction
   res.status(403).json({ error: "仅管理员可录入洞察" });
 }
 
+// Lightweight in-memory fixed-window rate limiter for the public API. Single
+// process (systemd node), so a Map is sufficient; keyed by the caller's user id
+// (service account). Defence-in-depth against bulk extraction / runaway loops.
+const DAILY_API_LIMIT = 120; // requests per window per key-owner
+const DAILY_API_WINDOW_MS = 60_000;
+const dailyApiHits = new Map<string, { count: number; resetAt: number }>();
+function dailyApiRateOk(ownerId: string, now: number): boolean {
+  const e = dailyApiHits.get(ownerId);
+  if (!e || now >= e.resetAt) {
+    dailyApiHits.set(ownerId, { count: 1, resetAt: now + DAILY_API_WINDOW_MS });
+    return true;
+  }
+  if (e.count >= DAILY_API_LIMIT) return false;
+  e.count++;
+  return true;
+}
+
 // API-key-ONLY auth for the public daily-insights API (server-to-server). The
 // key must be an admin key OR carry the `query:daily` scope. Portal-cookie
 // callers are intentionally NOT accepted here.
@@ -116,6 +133,11 @@ async function requireDailyApi(req: Request, res: Response, next: NextFunction) 
   }
   if (!user.isAdmin && !(user.scopes ?? []).includes("query:daily")) {
     res.status(403).json({ error: "此 API Key 无权调用（需要 query:daily 权限或管理员 Key）" });
+    return;
+  }
+  if (!dailyApiRateOk(user.userId, Date.now())) {
+    res.setHeader("Retry-After", "60");
+    res.status(429).json({ error: `请求过于频繁（每分钟上限 ${DAILY_API_LIMIT} 次），请稍后再试` });
     return;
   }
   req.user = user;

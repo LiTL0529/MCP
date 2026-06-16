@@ -74,10 +74,13 @@ export async function resolveApiKey(raw: string): Promise<UserContext | null> {
 export async function resolveTargetUser(email: string): Promise<UserContext | null> {
   const e = (email || "").trim();
   if (!e) return null;
+  // Case-insensitive EXACT match: escape LIKE metacharacters (\ % _) so caller
+  // input can never act as a wildcard (no user enumeration via `admin%` etc.).
+  const literal = e.replace(/[\\%_]/g, (m) => "\\" + m);
   const { data, error } = await supabase
     .from("ja_users")
     .select("id, email, name, access_groups, is_admin, is_active")
-    .ilike("email", e) // case-insensitive exact match (no wildcards)
+    .ilike("email", literal)
     .maybeSingle();
   if (error || !data || !data.is_active) return null;
   // Deliberately NON-escalating: the public read API only ever exposes a target
