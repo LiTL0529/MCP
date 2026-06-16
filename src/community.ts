@@ -169,6 +169,32 @@ export async function updatePost(
   return { ok: true };
 }
 
+/**
+ * Delete a post. Only the original author (matched by email/id) or an admin may
+ * delete. Comments, likes and favorites cascade via their FK (on delete
+ * cascade); any uploaded attachment files in storage are left as-is (orphaned).
+ */
+export async function deletePost(
+  user: UserContext,
+  id: string,
+): Promise<{ ok: boolean; reason?: "not_found" | "forbidden" }> {
+  const { data: post, error: fErr } = await supabase
+    .from("ja_community_posts")
+    .select("id, author_email, author_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (fErr) throw new Error(`deletePost lookup failed: ${fErr.message}`);
+  if (!post) return { ok: false, reason: "not_found" };
+  const row = post as { author_email: string | null; author_id: string | null };
+  const isOwner =
+    (!!row.author_email && row.author_email === user.email) ||
+    (!!row.author_id && row.author_id === user.userId);
+  if (!isOwner && !user.isAdmin) return { ok: false, reason: "forbidden" };
+  const { error } = await supabase.from("ja_community_posts").delete().eq("id", id);
+  if (error) throw new Error(`deletePost failed: ${error.message}`);
+  return { ok: true };
+}
+
 export async function getPost(user: UserContext, id: string) {
   const { data: post, error } = await supabase
     .from("ja_community_posts")

@@ -23,7 +23,7 @@ import { createInsight, getDailyCards, getDailyInsights, getInsight, listInsight
 import { createApiKey, deleteApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
-import { addPostComment, createPost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike, updatePost } from "./community.js";
+import { addPostComment, createPost, deletePost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike, updatePost } from "./community.js";
 import { createSuggestion, listSuggestions, setSuggestionStatus } from "./suggestions.js";
 import { getUserState, setUserState, STATE_KEYS } from "./state.js";
 import { getInsightCategories, setSetting } from "./settings.js";
@@ -773,6 +773,20 @@ export function buildApp() {
       const r = await updatePost(req.user!, req.params.id, { title: parsed.data.title, body: parsed.data.body });
       if (!r.ok) {
         res.status(r.reason === "forbidden" ? 403 : 404).json({ error: r.reason === "forbidden" ? "只能编辑自己的帖子" : "帖子不存在" });
+        return;
+      }
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // 删除自己的帖子（仅作者或管理员；评论/点赞/收藏级联删除）
+  app.delete("/api/community/posts/:id", requireUser, async (req, res) => {
+    try {
+      const r = await deletePost(req.user!, req.params.id);
+      if (!r.ok) {
+        res.status(r.reason === "forbidden" ? 403 : 404).json({ error: r.reason === "forbidden" ? "只能删除自己的帖子" : "帖子不存在" });
         return;
       }
       res.json({ ok: true });

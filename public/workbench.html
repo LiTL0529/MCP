@@ -547,6 +547,16 @@
       editingId=id;setFormMode('edit');updateMdPrev();show('form');
     }catch(e){if(window.toast)toast('加载失败：'+e.message);}
   };
+  window.commDelete=async function(id){
+    if(!confirm('确定删除这个帖子？删除后无法恢复，评论和点赞也会一并删除。'))return;
+    try{
+      var r=await window.JA.api('/api/community/posts/'+encodeURIComponent(id),{method:'DELETE'});
+      var j=await r.json().catch(function(){return{}});
+      if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
+      if(window.toast)toast('已删除');
+      show('list');commLoad(0);
+    }catch(e){if(window.toast)toast('删除失败：'+e.message);}
+  };
   window.commLoad=async function(o){
     if(typeof o==='number')off=o;
     var box=document.getElementById('commPosts');if(!box)return;
@@ -620,7 +630,7 @@
       commState[p.id]={liked:!!p.liked_by_me,like_count:p.like_count||0,faved:!!p.faved_by_me,fav_count:p.fav_count||0};
       var atts=p.attachments||[];
       var attHtml=atts.length?('<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px">附件（点击下载）</div>'+atts.map(function(a){return'<a href="'+esc(a.url)+'" target="_blank" rel="noopener" download style="display:inline-flex;align-items:center;gap:6px;margin:3px 8px 3px 0;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--navy);text-decoration:none;background:#F8FAFC"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> '+esc(a.name)+' <span style="color:var(--muted)">('+fmtSize(a.size)+')</span></a>'}).join('')+'</div>'):'';
-      box.innerHTML='<button class="btn btn-s btn-sm" onclick="commShow(\'list\')">‹ 返回社区</button>'+((isMine(p)||amAdmin())?'<button class="btn btn-s btn-sm" style="margin-left:8px" onclick="commEdit(\''+esc(p.id)+'\')"><svg class="svgi" style="width:13px;height:13px;margin-right:3px" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>编辑</button>':'')+
+      box.innerHTML='<button class="btn btn-s btn-sm" onclick="commShow(\'list\')">‹ 返回社区</button>'+((isMine(p)||amAdmin())?'<button class="btn btn-s btn-sm" style="margin-left:8px" onclick="commEdit(\''+esc(p.id)+'\')"><svg class="svgi" style="width:13px;height:13px;margin-right:3px" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>编辑</button><button class="btn btn-s btn-sm" style="margin-left:8px;color:var(--red);border-color:#FECACA" onclick="commDelete(\''+esc(p.id)+'\')"><svg class="svgi" style="width:13px;height:13px;margin-right:3px" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>删除</button>':'')+
         '<div class="e-tbl-wrap" style="margin-top:10px"><div style="padding:16px">'+
           '<div style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px">'+(p.pinned?'<span style="display:inline-block;background:#EFF5FF;color:var(--accent);font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;margin-right:6px;vertical-align:2px">置顶</span>':'')+esc(p.title)+'</div>'+
           '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">'+who(p.author_email,p.author_name)+' · '+fmt(p.created_at)+'</div>'+
