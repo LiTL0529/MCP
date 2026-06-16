@@ -23,7 +23,7 @@ import { createInsight, getDailyCards, getInsight, listInsights, searchInsights 
 import { createApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
-import { addPostComment, createPost, getPost, listPosts } from "./community.js";
+import { addPostComment, createPost, getPost, listFavorites, listPosts, toggleFavorite, toggleLike } from "./community.js";
 import { uploadFile } from "./storage.js";
 import { parseBilingualMd } from "./markdown.js";
 import type { Lang, UserContext } from "./types.js";
@@ -610,7 +610,16 @@ export function buildApp() {
   // ── 需求社区 (community: posts + comments) ───────────────
   app.get("/api/community/posts", requireUser, async (req, res) => {
     try {
-      res.json(await listPosts({ limit: num(req.query.limit, 10), offset: num(req.query.offset, 0) }));
+      res.json(await listPosts(req.user!, { limit: num(req.query.limit, 10), offset: num(req.query.offset, 0) }));
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // 我收藏的帖子 (current user's favorited posts, newest-favorited first)
+  app.get("/api/community/favorites", requireUser, async (req, res) => {
+    try {
+      res.json(await listFavorites(req.user!, { limit: num(req.query.limit, 10), offset: num(req.query.offset, 0) }));
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }
@@ -653,7 +662,7 @@ export function buildApp() {
 
   app.get("/api/community/posts/:id", requireUser, async (req, res) => {
     try {
-      const result = await getPost(req.params.id);
+      const result = await getPost(req.user!, req.params.id);
       if (!result) {
         res.status(404).json({ error: "帖子不存在" });
         return;
@@ -662,6 +671,36 @@ export function buildApp() {
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }
+  });
+
+  // ── 点赞 / 收藏 (toggle via POST=on / DELETE=off; idempotent) ──
+  app.post("/api/community/posts/:id/like", requireUser, async (req, res) => {
+    try {
+      const r = await toggleLike(req.user!, req.params.id, true);
+      if (!r) { res.status(404).json({ error: "帖子不存在" }); return; }
+      res.json(r);
+    } catch (e) { res.status(500).json({ error: (e as Error).message }); }
+  });
+  app.delete("/api/community/posts/:id/like", requireUser, async (req, res) => {
+    try {
+      const r = await toggleLike(req.user!, req.params.id, false);
+      if (!r) { res.status(404).json({ error: "帖子不存在" }); return; }
+      res.json(r);
+    } catch (e) { res.status(500).json({ error: (e as Error).message }); }
+  });
+  app.post("/api/community/posts/:id/favorite", requireUser, async (req, res) => {
+    try {
+      const r = await toggleFavorite(req.user!, req.params.id, true);
+      if (!r) { res.status(404).json({ error: "帖子不存在" }); return; }
+      res.json(r);
+    } catch (e) { res.status(500).json({ error: (e as Error).message }); }
+  });
+  app.delete("/api/community/posts/:id/favorite", requireUser, async (req, res) => {
+    try {
+      const r = await toggleFavorite(req.user!, req.params.id, false);
+      if (!r) { res.status(404).json({ error: "帖子不存在" }); return; }
+      res.json(r);
+    } catch (e) { res.status(500).json({ error: (e as Error).message }); }
   });
 
   const postCommentSchema = z.object({ body: z.string().min(1).max(5000) });

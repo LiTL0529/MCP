@@ -377,10 +377,29 @@
 <!-- 需求社区 (community: posts + comments) -->
 <div class="ct page" id="p-community">
 <div style="max-width:880px;margin:0 auto">
+  <style>
+  #p-community .comm-card{transition:transform .18s ease,box-shadow .18s ease}
+  #p-community .comm-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  #p-community .crbtn{display:inline-flex;align-items:center;gap:5px;cursor:pointer;border:1px solid var(--border);background:#fff;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);line-height:1.7;transition:transform .15s ease,background .15s ease,border-color .15s ease,color .15s ease}
+  #p-community .crbtn b{font-weight:700}
+  #p-community .crbtn:hover{transform:translateY(-1px);border-color:#CBD5E1}
+  #p-community .crbtn.on-like{color:var(--red);border-color:#FECACA;background:#FEF2F2}
+  #p-community .crbtn.on-fav{color:var(--gold);border-color:#FDE68A;background:#FFFBEB}
+  #p-community .crbtn.big{padding:7px 16px;font-size:13px;gap:7px}
+  #p-community .crbtn.pop{animation:crpop .3s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes crpop{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
+  @media (prefers-reduced-motion: reduce){#p-community .crbtn,#p-community .comm-card{transition:none}#p-community .crbtn.pop{animation:none}}
+  </style>
   <div id="commList">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div style="font-size:13px;color:var(--muted)" id="commCnt">加载中…</div>
-      <button class="btn btn-p btn-sm" onclick="commNew()">✏️ 发帖</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap">
+      <div style="display:flex;gap:6px">
+        <button id="commTabAll" class="btn btn-s btn-xs" onclick="commTab('all')">📋 全部帖子</button>
+        <button id="commTabFav" class="btn btn-s btn-xs" onclick="commTab('fav')">⭐ 我的收藏</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:13px;color:var(--muted)" id="commCnt">加载中…</div>
+        <button class="btn btn-p btn-sm" onclick="commNew()">✏️ 发帖</button>
+      </div>
     </div>
     <div id="commPosts"></div>
     <div id="commPager" style="display:flex;justify-content:center;align-items:center;gap:12px;margin:16px 0;font-size:12px;color:var(--muted)"></div>
@@ -401,7 +420,7 @@
 </div>
 <script>
 (function(){
-  var PAGE=10,off=0,total=0;
+  var PAGE=10,off=0,total=0,mode='all',commState={},commBusy={};
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function nl2br(s){return esc(s).replace(/\n/g,'<br>')}
   function fmt(t){if(!t)return'';var d=new Date(t);if(isNaN(d.getTime()))return t;var p=function(x){return(x<10?'0':'')+x};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())}
@@ -410,24 +429,26 @@
   function readFileB64(file){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res({data:fr.result,name:file.name})};fr.onerror=function(){rej(new Error('读取文件失败'))};fr.readAsDataURL(file)})}
   function show(v){['List','Form','Detail'].forEach(function(k){var el=document.getElementById('comm'+k);if(el)el.style.display=(k.toLowerCase()===v?'':'none')})}
   window.commShow=show;
-  window.renderCommunity=function(){show('list');commLoad(0)};
+  window.renderCommunity=function(){mode='all';off=0;setTabUI();show('list');commLoad(0)};
   window.commNew=function(){var t=document.getElementById('commTitle'),b=document.getElementById('commBody');if(t)t.value='';if(b)b.value='';show('form')};
   window.commLoad=async function(o){
     if(typeof o==='number')off=o;
     var box=document.getElementById('commPosts');if(!box)return;
     box.innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">加载中…</div>';
     try{
-      var r=await window.JA.api('/api/community/posts?limit='+PAGE+'&offset='+off);
+      var base=mode==='fav'?'/api/community/favorites':'/api/community/posts';
+      var r=await window.JA.api(base+'?limit='+PAGE+'&offset='+off);
       if(!r.ok)throw new Error('HTTP '+r.status);
       var j=await r.json();total=j.total||0;var items=j.items||[];
-      document.getElementById('commCnt').textContent='共 '+total+' 个帖子';
+      document.getElementById('commCnt').textContent=(mode==='fav'?'收藏了 ':'共 ')+total+' 个帖子';
       box.innerHTML=items.length?items.map(function(p){
-        return '<div onclick="commOpen(\''+p.id+'\')" style="cursor:pointer;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px" onmouseover="this.style.boxShadow=\'0 2px 10px rgba(0,0,0,.06)\'" onmouseout="this.style.boxShadow=\'\'">'+
+        commState[p.id]={liked:!!p.liked_by_me,like_count:p.like_count||0,faved:!!p.faved_by_me,fav_count:p.fav_count||0};
+        return '<div class="comm-card" onclick="commOpen(\''+p.id+'\')" style="cursor:pointer;background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px">'+
           '<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px">'+(p.pinned?'📌 ':'')+esc(p.title)+'</div>'+
-          '<div style="font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.5;max-height:42px;overflow:hidden">'+esc(p.excerpt)+'</div>'+
-          '<div style="display:flex;gap:12px;font-size:11px;color:var(--muted)"><span>👤 '+who(p.author_email,p.author_name)+'</span><span>🕐 '+fmt(p.created_at)+'</span><span>💬 '+(p.comment_count||0)+'</span>'+(p.attachments&&p.attachments.length?'<span>📎 '+p.attachments.length+'</span>':'')+'</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5;max-height:42px;overflow:hidden">'+esc(p.excerpt)+'</div>'+
+          '<div style="display:flex;align-items:center;gap:12px;font-size:11px;color:var(--muted);flex-wrap:wrap"><span>👤 '+who(p.author_email,p.author_name)+'</span><span>🕐 '+fmt(p.created_at)+'</span><span>💬 '+(p.comment_count||0)+'</span>'+(p.attachments&&p.attachments.length?'<span>📎 '+p.attachments.length+'</span>':'')+'<span style="flex:1 1 auto"></span>'+likeBtnHtml(p.id,'list')+favBtnHtml(p.id,'list')+'</div>'+
         '</div>';
-      }).join(''):'<div style="text-align:center;color:var(--muted);padding:40px">还没有帖子，点「发帖」发布第一个吧</div>';
+      }).join(''):'<div style="text-align:center;color:var(--muted);padding:40px">'+(mode==='fav'?'还没有收藏的帖子，点帖子里的 ☆ 收藏感兴趣的内容':'还没有帖子，点「发帖」发布第一个吧')+'</div>';
       var pages=Math.max(1,Math.ceil(total/PAGE)),cur=Math.floor(off/PAGE)+1;
       document.getElementById('commPager').innerHTML=total>PAGE?'<button class="btn btn-s btn-xs" '+(off<=0?'disabled':'')+' onclick="commPage(-1)">‹ 上一页</button><span>第 '+cur+' / '+pages+' 页</span><button class="btn btn-s btn-xs" '+(off+PAGE>=total?'disabled':'')+' onclick="commPage(1)">下一页 ›</button>':'';
     }catch(e){box.innerHTML='<div style="text-align:center;color:var(--red);padding:24px">加载失败：'+esc(e.message)+'</div>';}
@@ -460,6 +481,7 @@
       var r=await window.JA.api('/api/community/posts/'+encodeURIComponent(id));
       if(!r.ok)throw new Error('HTTP '+r.status);
       var j=await r.json();var p=j.post||{};var cs=j.comments||[];
+      commState[p.id]={liked:!!p.liked_by_me,like_count:p.like_count||0,faved:!!p.faved_by_me,fav_count:p.fav_count||0};
       var atts=p.attachments||[];
       var attHtml=atts.length?('<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px">📎 附件（点击下载）</div>'+atts.map(function(a){return'<a href="'+esc(a.url)+'" target="_blank" rel="noopener" download style="display:inline-flex;align-items:center;gap:6px;margin:3px 8px 3px 0;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--navy);text-decoration:none;background:#F8FAFC">📄 '+esc(a.name)+' <span style="color:var(--muted)">('+fmtSize(a.size)+')</span></a>'}).join('')+'</div>'):'';
       box.innerHTML='<button class="btn btn-s btn-sm" onclick="commShow(\'list\')">‹ 返回社区</button>'+
@@ -467,6 +489,7 @@
           '<div style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px">'+(p.pinned?'📌 ':'')+esc(p.title)+'</div>'+
           '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">👤 '+who(p.author_email,p.author_name)+' · '+fmt(p.created_at)+'</div>'+
           '<div style="font-size:14px;line-height:1.7;color:#1e293b">'+nl2br(p.body)+'</div>'+attHtml+
+          '<div style="display:flex;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">'+likeBtnHtml(p.id,'detail')+favBtnHtml(p.id,'detail')+'</div>'+
         '</div></div>'+
         '<div class="e-tbl-wrap" style="margin-top:12px"><div class="e-tbl-head"><div class="e-tbl-title">💬 评论 ('+cs.length+')</div></div>'+
           '<div style="padding:12px 16px">'+
@@ -485,6 +508,45 @@
       if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
       commOpen(id);
     }catch(e){if(window.toast)toast('评论失败：'+e.message);}
+  };
+  // ── 点赞 / 收藏 ────────────────────────────────────────────
+  function rcount(id){return commState[id]||{liked:false,like_count:0,faved:false,fav_count:0}}
+  function likeBtnHtml(id,ctx){var s=rcount(id),big=ctx==='detail';return '<button id="lk-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.liked?' on-like':'')+'" onclick="commLike(event,\''+id+'\')" title="'+(s.liked?'取消点赞':'点赞')+'"><span>'+(s.liked?'❤️':'🤍')+'</span>'+(big?'<span>'+(s.liked?'已赞':'点赞')+'</span>':'')+'<b>'+(s.like_count||0)+'</b></button>'}
+  function favBtnHtml(id,ctx){var s=rcount(id),big=ctx==='detail';return '<button id="fv-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.faved?' on-fav':'')+'" onclick="commFav(event,\''+id+'\')" title="'+(s.faved?'取消收藏':'收藏')+'"><span>'+(s.faved?'⭐':'☆')+'</span>'+(big?'<span>'+(s.faved?'已收藏':'收藏')+'</span>':'')+'<b>'+(s.fav_count||0)+'</b></button>'}
+  function syncBtns(id){['list','detail'].forEach(function(ctx){var l=document.getElementById('lk-'+ctx+'-'+id);if(l)l.outerHTML=likeBtnHtml(id,ctx);var f=document.getElementById('fv-'+ctx+'-'+id);if(f)f.outerHTML=favBtnHtml(id,ctx)})}
+  function pulse(prefix,id){['list','detail'].forEach(function(ctx){var e=document.getElementById(prefix+'-'+ctx+'-'+id);if(e){e.classList.add('pop');setTimeout(function(){e.classList.remove('pop')},320)}})}
+  function setTabUI(){var a=document.getElementById('commTabAll'),f=document.getElementById('commTabFav');if(a){a.style.background=mode==='all'?'var(--navy)':'';a.style.color=mode==='all'?'#fff':'';}if(f){f.style.background=mode==='fav'?'var(--navy)':'';f.style.color=mode==='fav'?'#fff':'';}}
+  window.commTab=function(m){if(m===mode)return;mode=m;off=0;setTabUI();commLoad(0)};
+  window.commLike=async function(ev,id){
+    if(ev){if(ev.stopPropagation)ev.stopPropagation();if(ev.preventDefault)ev.preventDefault();}
+    if(commBusy['lk'+id])return;commBusy['lk'+id]=1;
+    var s=rcount(id),want=!s.liked;
+    s.liked=want;s.like_count=Math.max(0,(s.like_count||0)+(want?1:-1));commState[id]=s;syncBtns(id);pulse('lk',id);
+    try{
+      var r=await window.JA.api('/api/community/posts/'+encodeURIComponent(id)+'/like',{method:want?'POST':'DELETE'});
+      var j=await r.json().catch(function(){return{}});
+      if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
+      s.liked=!!j.liked;if(typeof j.like_count==='number')s.like_count=j.like_count;commState[id]=s;syncBtns(id);
+    }catch(e){
+      s.liked=!want;s.like_count=Math.max(0,(s.like_count||0)+(want?-1:1));commState[id]=s;syncBtns(id);
+      if(window.toast)toast('操作失败：'+e.message);
+    }finally{delete commBusy['lk'+id];}
+  };
+  window.commFav=async function(ev,id){
+    if(ev){if(ev.stopPropagation)ev.stopPropagation();if(ev.preventDefault)ev.preventDefault();}
+    if(commBusy['fv'+id])return;commBusy['fv'+id]=1;
+    var s=rcount(id),want=!s.faved;
+    s.faved=want;s.fav_count=Math.max(0,(s.fav_count||0)+(want?1:-1));commState[id]=s;syncBtns(id);pulse('fv',id);
+    try{
+      var r=await window.JA.api('/api/community/posts/'+encodeURIComponent(id)+'/favorite',{method:want?'POST':'DELETE'});
+      var j=await r.json().catch(function(){return{}});
+      if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
+      s.faved=!!j.faved;if(typeof j.fav_count==='number')s.fav_count=j.fav_count;commState[id]=s;syncBtns(id);
+      if(!s.faved&&mode==='fav')commLoad(off);
+    }catch(e){
+      s.faved=!want;s.fav_count=Math.max(0,(s.fav_count||0)+(want?-1:1));commState[id]=s;syncBtns(id);
+      if(window.toast)toast('操作失败：'+e.message);
+    }finally{delete commBusy['fv'+id];}
   };
 })();
 </script>
