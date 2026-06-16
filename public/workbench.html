@@ -1955,7 +1955,8 @@ function renderCVPage(){
     var thumbHtml=v.imgs&&v.imgs.length?'<img src="'+v.imgs[0]+'" style="width:100%;height:100%;object-fit:cover">':'<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;flex-direction:column;gap:4px"><div style="font-size:28px;opacity:.6">'+cvPlatIcon(v.plat)+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">'+v.plat+'</div></div>';
     var d=new Date(v.date);var dateStr=d.getFullYear()+'年'+(d.getMonth()+1)+'月';
     var methodTags=v.methods.slice(0,3).map(function(m){return'<span style="display:inline-block;padding:1px 5px;border-radius:3px;background:#F1F5F9;color:#475569;font-size:9px;white-space:nowrap">'+m+'</span>'}).join('');
-    return'<div class="cv-card" onclick="openCVD('+v.id+')">'+
+    return'<div class="cv-card" style="position:relative" onclick="openCVD('+v.id+')">'+
+      '<button onclick="event.stopPropagation();cvFav('+v.id+',event)" title="收藏" style="position:absolute;top:8px;right:8px;z-index:2;width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(0,0,0,.18);line-height:1;display:flex;align-items:center;justify-content:center;transition:transform .15s ease;color:'+(isCvFav(v.id)?'var(--gold)':'#94A3B8')+'" onmouseover="this.style.transform=\'scale(1.12)\'" onmouseout="this.style.transform=\'\'">'+(isCvFav(v.id)?'<svg class="svgi" style="width:16px;height:16px" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>':'<svg class="svgi" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>')+'</button>'+
       '<div class="cv-thumb">'+thumbHtml+'</div>'+
       '<div class="cv-bd" style="padding:8px 10px">'+
         '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'+
@@ -2303,6 +2304,16 @@ function libFav(id,ev){if(ev){if(ev.stopPropagation)ev.stopPropagation();if(ev.p
   var pane=document.getElementById('favPaneLib');if(pane&&pane.style.display!=='none')renderFavLib();
 }
 function updateLibModalBtn(){var b=document.getElementById('mFavB');if(!b||!cI)return;var on=isLibFav(cI.id);b.textContent=on?'已收藏':'收藏';b.style.cssText=on?'border-color:var(--gold);background:#FEF3C7;color:#B45309':''}
+// 创意洞察卡片收藏（复用 cvCol 的 interest 标记，与详情页「收藏」一致）
+function isCvFav(id){return cvCol.some(function(x){return x.vid===id&&x.tp==='interest'})}
+function cvFav(id,ev){if(ev){if(ev.stopPropagation)ev.stopPropagation();if(ev.preventDefault)ev.preventDefault();}
+  var idx=cvCol.findIndex(function(x){return x.vid===id&&x.tp==='interest'});
+  if(idx>=0){cvCol.splice(idx,1);if(window.toast)toast('已取消收藏')}
+  else{cvCol.push({vid:id,tp:'interest',tm:new Date().toISOString()});if(window.toast)toast('已收藏')}
+  lsSave('jh_cvcol',cvCol);
+  if(typeof renderCVPage==='function')renderCVPage();
+  var pane=document.getElementById('favPaneCv');if(pane&&pane.style.display!=='none'&&typeof renderFavCv==='function')renderFavCv();
+}
 function renderFavLib(){
   var grid=document.getElementById('favLibGrid');if(!grid)return;
   var ids=libCol.map(function(x){return x.id});
