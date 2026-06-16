@@ -44,13 +44,20 @@ export function buildFieldInputs(input: {
   if (date) parts.push(`Date: ${date}`);
   const type = pick(input.type, "type");
   if (type) parts.push(`Type: ${type}`);
-  const category = pick(input.category, "category_en", "category");
+  // Embed the ENGLISH attribute values only — input.category/clients/tracks may
+  // carry the zh display value, so prefer the *_en keys and fall back to the
+  // passed column (for the direct JSON API, which has no *_en attributes).
+  const enAttr = (k: string, col?: string | null) => {
+    const v = attr[k];
+    return typeof v === "string" && v.trim() ? v.trim() : (col ?? "");
+  };
+  const category = enAttr("category_en", input.category);
   if (category) parts.push(`Category: ${category}`);
   const status = pick(input.status, "status");
   if (status) parts.push(`Status: ${status}`);
-  const clients = pick(input.clients, "clients_en", "clients");
+  const clients = enAttr("clients_en", input.clients);
   if (clients) parts.push(`Relevant clients: ${clients}`);
-  const tracks = pick(input.tracks, "tracks_en", "tracks");
+  const tracks = enAttr("tracks_en", input.tracks);
   if (tracks) parts.push(`Applicable tracks: ${tracks}`);
   if (input.access && input.access.length) parts.push(`Access: ${input.access.join(", ")}`);
 

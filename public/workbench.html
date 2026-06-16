@@ -727,20 +727,64 @@
 </div></div></div></div>
 </div>
 <div class="adm-sub active" id="sub-daily">
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📡 实时洞察上传</div></div>
-<iframe id="submitFrame" src="about:blank" data-src="/submit.html" title="实时洞察录入" style="width:100%;height:600px;border:0;display:block;background:#fff"></iframe>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📡 实时洞察上传（.md 文件）</div></div>
+<div style="padding:16px">
+  <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:12px">直接上传 JA-Research 双语 <b>.md</b> 文件 —— 每条洞察为「中文块 + 英文块」，以 <code style="background:#F1F5F9;padding:1px 5px;border-radius:4px">## 日期 / 编号　标题</code> 开头，含 摘要/洞察/建议/来源/推荐服务 等小节。系统自动解析入库（一个文件可含多条）。<br><b style="color:var(--navy)">向量化仅使用英文的标题、属性与摘要。</b></div>
+  <div id="mdDrop" onclick="document.getElementById('mdFileInput').click()" style="border:2px dashed var(--border);border-radius:12px;padding:34px 20px;text-align:center;cursor:pointer;transition:.15s;background:#F8FAFC">
+    <div style="font-size:34px;margin-bottom:8px">📄</div>
+    <div style="font-size:13px;font-weight:600;color:var(--navy)">点击选择，或拖拽 .md 文件到这里</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">支持 .md / .markdown · 可一次包含多条洞察</div>
+    <input type="file" id="mdFileInput" accept=".md,.markdown,text/markdown,text/plain" style="display:none">
+  </div>
+  <div id="mdFileName" style="font-size:12px;color:var(--navy);margin-top:10px;display:none"></div>
+  <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+    <button class="btn btn-p" id="mdUploadBtn" onclick="mdUpload()" disabled>上传并入库</button>
+    <button class="btn btn-s btn-sm" onclick="mdReset()">清空</button>
+  </div>
+  <div id="mdResult" style="margin-top:14px"></div>
+</div>
 <script>(function(){
-  var f=document.getElementById('submitFrame');if(!f)return;
-  // Same-origin: measure the embedded form directly and fit the iframe to it,
-  // so there's no fixed-height blank gap (belt-and-suspenders with the child's
-  // postMessage height events handled elsewhere).
-  // Measure BODY scrollHeight (content), NOT documentElement — the <html>
-  // element stretches to the iframe height, which would feed back into unbounded
-  // growth. No continuous parent observer; the child's postMessage handles
-  // dynamic changes.
-  function fit(){try{var h=f.contentWindow.document.body.scrollHeight;if(h>40)f.style.height=(h+24)+'px';}catch(e){}}
-  f.addEventListener('load',function(){fit();setTimeout(fit,400);setTimeout(fit,1200);});
-  f.src=(window.JA_BASE||'')+f.getAttribute('data-src');
+  var fileText='',fileName='';
+  var input=document.getElementById('mdFileInput'),drop=document.getElementById('mdDrop'),btn=document.getElementById('mdUploadBtn');
+  function esc2(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+  function setFile(file){
+    if(!file)return;
+    if(!/\.(md|markdown|txt)$/i.test(file.name)){if(window.toast)toast('请选择 .md 文件');return;}
+    var fr=new FileReader();
+    fr.onload=function(){fileText=fr.result||'';fileName=file.name;var fn=document.getElementById('mdFileName');if(fn){fn.style.display='';fn.textContent='已选择：'+fileName+'（'+(file.size/1024).toFixed(1)+'KB）';}if(btn)btn.disabled=!String(fileText).trim();};
+    fr.onerror=function(){if(window.toast)toast('读取文件失败')};
+    fr.readAsText(file);
+  }
+  if(input)input.addEventListener('change',function(){setFile(this.files&&this.files[0])});
+  if(drop){
+    ['dragover','dragenter'].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.style.borderColor='var(--accent)';drop.style.background='#EFF4FF';})});
+    ['dragleave'].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.style.borderColor='var(--border)';drop.style.background='#F8FAFC';})});
+    drop.addEventListener('drop',function(e){e.preventDefault();drop.style.borderColor='var(--border)';drop.style.background='#F8FAFC';var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];setFile(f);});
+  }
+  window.mdReset=function(){fileText='';fileName='';if(input)input.value='';var fn=document.getElementById('mdFileName');if(fn){fn.style.display='none';fn.textContent='';}if(btn)btn.disabled=true;var r=document.getElementById('mdResult');if(r)r.innerHTML='';};
+  window.mdUpload=async function(){
+    if(!String(fileText).trim()){if(window.toast)toast('请先选择 .md 文件');return;}
+    var r=document.getElementById('mdResult'),old=btn?btn.textContent:'';
+    if(btn){btn.disabled=true;btn.textContent='上传中…';}
+    if(r)r.innerHTML='<div style="font-size:12px;color:var(--muted)">⏳ 解析并入库中…</div>';
+    try{
+      var resp=await window.JA.api('/api/insights/from-md',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({md:fileText})});
+      var j=await resp.json().catch(function(){return{}});
+      if(!resp.ok)throw new Error(j.error||('HTTP '+resp.status));
+      var created=j.created||[],failed=j.failed||[];
+      var html='<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;font-size:12px">'+
+        '<div style="font-weight:700;color:var(--green);margin-bottom:6px">✅ 解析 '+(j.parsed||0)+' 条 · 入库成功 '+created.length+' 条'+(failed.length?(' · 失败 '+failed.length+' 条'):'')+'</div>';
+      if(created.length)html+='<div style="color:var(--muted)">成功：'+created.map(function(c){return '#'+esc2(c.report_id||c.id||'?')}).join('、')+'</div>';
+      if(failed.length)html+='<div style="color:var(--red);margin-top:4px">失败：'+failed.map(function(f){return '#'+esc2(f.report_id||'?')+'（'+esc2(f.error||'')+'）'}).join('；')+'</div>';
+      html+='</div>';
+      if(r)r.innerHTML=html;
+      if(window.toast)toast('已入库 '+created.length+' 条');
+      fileText='';fileName='';if(input)input.value='';var fn=document.getElementById('mdFileName');if(fn){fn.style.display='none';fn.textContent='';}
+      if(window.JA&&JA.loadDates)JA.loadDates().then(function(){if(window.loadDaily)loadDaily();}).catch(function(){});
+    }catch(e){
+      if(r)r.innerHTML='<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px;font-size:12px;color:var(--red)">❌ '+esc2(e.message)+'</div>';
+    }finally{if(btn){btn.textContent=old;btn.disabled=!String(fileText).trim();}}
+  };
 })();</script>
 </div>
 </div>
