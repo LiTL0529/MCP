@@ -14,6 +14,12 @@ export interface CreateKeyInput {
   label?: string | null;
   expiresAt?: string | null; // ISO timestamp, or null for no expiry
   scopes?: string[];         // per-key capabilities, e.g. ["query:daily"]
+  /**
+   * When true, refuse to mint unless the email is already a registered user
+   * (no implicit create). Used by the developer center so daily-API keys can
+   * only be issued to existing users. Throws Error with code "user_not_found".
+   */
+  requireExisting?: boolean;
 }
 
 /**
@@ -25,15 +31,37 @@ export async function createApiKey(input: CreateKeyInput) {
   if (!email) throw new Error("email is required");
   const groups = (input.groups ?? []).map((s) => s.trim()).filter(Boolean);
 
-  const { data: user, error: userErr } = await supabase
-    .from("ja_users")
-    .upsert(
-      { email, name: input.name ?? null, access_groups: groups, is_admin: Boolean(input.isAdmin) },
-      { onConflict: "email" },
-    )
-    .select("id, email, name, access_groups, is_admin")
-    .single();
-  if (userErr || !user) throw new Error(`upsert user failed: ${userErr?.message}`);
+  let user: { id: string; email: string; name: string | null; access_groups: string[] | null; is_admin: boolean };
+  if (input.requireExisting) {
+    // Must already be registered — look up case-insensitively (escape LIKE
+    // metachars so an email can't act as a wildcard); never create implicitly.
+    const literal = email.replace(/[\\%_]/g, (m) => "\\" + m);
+    const { data, error } = await supabase
+      .from("ja_users")
+      .select("id, email, name, access_groups, is_admin")
+      .ilike("email", literal)
+      .maybeSingle();
+    if (error) throw new Error(`lookup user failed: ${error.message}`);
+    if (!data) {
+      const e = new Error("user_not_found") as Error & { code?: string };
+      e.code = "user_not_found";
+      throw e;
+    }
+    // Mint for the existing user as-is; the key inherits their registered
+    // access groups — we don't overwrite them from the request.
+    user = data as typeof user;
+  } else {
+    const { data, error: userErr } = await supabase
+      .from("ja_users")
+      .upsert(
+        { email, name: input.name ?? null, access_groups: groups, is_admin: Boolean(input.isAdmin) },
+        { onConflict: "email" },
+      )
+      .select("id, email, name, access_groups, is_admin")
+      .single();
+    if (userErr || !data) throw new Error(`upsert user failed: ${userErr?.message}`);
+    user = data as typeof user;
+  }
 
   const { raw, hash, prefix } = generateApiKey();
   const { data: key, error: keyErr } = await supabase

@@ -462,6 +462,8 @@ export function buildApp() {
     // Accept a date (YYYY-MM-DD) or full ISO timestamp; empty/absent = no expiry.
     expires_at: z.string().nullish(),
     scopes: z.array(z.string()).optional(),
+    // 开发者中心: 要求邮箱必须是已登记用户，不隐式创建。
+    require_existing: z.boolean().optional(),
   });
 
   app.post("/api/keys", requireUser, async (req, res) => {
@@ -481,10 +483,15 @@ export function buildApp() {
         label: parsed.data.label ?? null,
         expiresAt,
         scopes: parsed.data.scopes ?? [],
+        requireExisting: parsed.data.require_existing ?? false,
       });
       // raw key is returned exactly once.
       res.status(201).json({ ok: true, api_key: result.raw, key: result.key, user: result.user });
     } catch (e) {
+      if ((e as { code?: string }).code === "user_not_found") {
+        res.status(404).json({ error: "该邮箱尚未注册，请先在「用户与客户」中登记该用户后再生成 Key" });
+        return;
+      }
       res.status(500).json({ error: (e as Error).message });
     }
   });

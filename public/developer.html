@@ -78,7 +78,7 @@ a{color:var(--accent)}
         <label class="chk"><input type="checkbox" id="kQueryDaily" checked> 每日洞察查询权限（query:daily）</label>
         <label class="chk"><input type="checkbox" id="kAdmin"> 管理员 Key（全权限）</label>
       </div>
-      <div class="muted" style="margin-bottom:12px">用于「每日洞察 API」对接时，勾选 <b>query:daily</b> 即可（最小权限，只能读每日洞察，不能录入/管理）。</div>
+      <div class="muted" style="margin-bottom:12px">用于「每日洞察 API」对接时，勾选 <b>query:daily</b> 即可（最小权限，只能读每日洞察，不能录入/管理）。<br><b>邮箱必须是已登记用户</b>，否则无法生成（请先在后台「用户与客户」中登记）。</div>
       <button class="btn btn-p" id="genBtn" onclick="genKey()">生成 Token</button>
 
       <div id="reveal" class="reveal hide">
@@ -251,7 +251,8 @@ async function getDaily(user, date, lang="both"){
       groups: document.getElementById("kGroups").value.split(",").map(function(s){return s.trim();}).filter(Boolean),
       is_admin: document.getElementById("kAdmin").checked,
       expires_at: document.getElementById("kExpiry").value || null,
-      scopes: scoped ? ["query:daily"] : []
+      scopes: scoped ? ["query:daily"] : [],
+      require_existing: true
     };
     var btn = document.getElementById("genBtn"), old = btn.textContent;
     btn.disabled = true; btn.textContent = "生成中…";
