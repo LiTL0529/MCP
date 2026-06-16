@@ -24,6 +24,7 @@ import { createApiKey, deleteApiKey, listApiKeys, revokeApiKey, setKeyExpiry } f
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
 import { addPostComment, createPost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike, updatePost } from "./community.js";
+import { createSuggestion, listSuggestions, setSuggestionStatus } from "./suggestions.js";
 import { getUserState, setUserState, STATE_KEYS } from "./state.js";
 import { getInsightCategories, setSetting } from "./settings.js";
 import { uploadFile } from "./storage.js";
@@ -837,6 +838,53 @@ export function buildApp() {
         return;
       }
       res.status(201).json({ ok: true, comment: created });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // ── 需求意见箱 (suggestions: submit by any user, triage by admins) ──
+  const suggestionSchema = z.object({
+    category: z.string().max(60).nullish(),
+    body: z.string().min(1).max(5000),
+  });
+  app.post("/api/suggestions", requireUser, async (req, res) => {
+    const parsed = suggestionSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "请填写建议内容" });
+      return;
+    }
+    try {
+      const s = await createSuggestion(req.user!, parsed.data.category ?? null, parsed.data.body);
+      res.status(201).json({ ok: true, suggestion: s });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+  app.get("/api/suggestions", requireUser, async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const status = typeof req.query.status === "string" ? req.query.status : null;
+      res.json(await listSuggestions({ status, limit: num(req.query.limit, 100), offset: num(req.query.offset, 0) }));
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+  const suggestionStatusSchema = z.object({ status: z.enum(["unread", "adopted"]) });
+  app.patch("/api/suggestions/:id", requireUser, async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const parsed = suggestionStatusSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "状态无效" });
+      return;
+    }
+    try {
+      const ok = await setSuggestionStatus(req.params.id, parsed.data.status);
+      if (!ok) {
+        res.status(404).json({ error: "记录不存在" });
+        return;
+      }
+      res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }

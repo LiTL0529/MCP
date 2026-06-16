@@ -257,6 +257,7 @@
 <div class="sb-sec">我的</div>
 <div class="ni" onclick="nav('fav',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>我的收藏</div>
 <div class="ni" onclick="nav('feedback',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>我的反馈</div>
+<div class="ni" onclick="nav('demandbox',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg></span>意见反馈</div>
 <div class="ni" onclick="nav('mydata',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg></span>整体数据</div>
 <div class="sb-sec">管理</div>
 <div class="ni" onclick="nav('admin',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>管理后台</div>
@@ -717,9 +718,13 @@
 </div>
 
 <!-- 建议概述（自适应铺满） -->
-<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px">
+<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px 22px;box-shadow:var(--shadow)">
+<div class="frm" style="margin-bottom:12px;max-width:260px">
+<label class="fl" style="font-size:13px;font-weight:700;color:var(--ink)">建议类型</label>
+<select class="fi" id="dbCat"><option value="洞察选题建议">洞察选题建议</option><option value="新栏目/新方向建议">新栏目 / 新方向建议</option><option value="平台优化建议">平台优化建议</option><option value="使用问题反馈">使用问题反馈</option><option value="其他">其他</option></select>
+</div>
 <div class="frm" style="margin-bottom:14px">
-<label class="fl" style="font-size:13px;font-weight:700;color:var(--navy)">建议概述</label>
+<label class="fl" style="font-size:13px;font-weight:700;color:var(--ink)">建议概述</label>
 <textarea class="fi fta" id="dbText" style="width:100%;min-height:200px;font-size:13px;line-height:1.6" placeholder="用一句话说明背景和诉求，以及希望达到的结果 / 交付形式…"></textarea>
 </div>
 <div style="display:flex;gap:12px;align-items:center">
@@ -758,7 +763,7 @@
 <button class="adm-tab a" onclick="admT('overview',this)"><svg class="svgi" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>数据总览</button>
 <button class="adm-tab" onclick="admT('content',this)"><svg class="svgi" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>内容管理</button>
 <button class="adm-tab" onclick="admT('users',this)"><svg class="svgi" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>用户与客户</button>
-<button class="adm-tab" onclick="admT('inbox',this)"><svg class="svgi" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg>需求意见箱 <span style="background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:6px" id="sugBadge">3</span></button>
+<button class="adm-tab" onclick="admT('inbox',this)"><svg class="svgi" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg>需求意见箱 <span style="background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:6px;display:none" id="sugBadge"></span></button>
 <button class="adm-tab" onclick="admT('archive',this)"><svg class="svgi" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/></svg>归档管理</button>
 <button class="adm-tab" onclick="admT('settings',this)"><svg class="svgi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 0 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>系统设置</button>
 <button class="adm-tab" onclick="admT('audit',this);auditLoad(0)"><svg class="svgi" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.5" y2="6"/><line x1="3" y1="12" x2="3.5" y2="12"/><line x1="3" y1="18" x2="3.5" y2="18"/></svg>调用日志</button>
@@ -1861,11 +1866,53 @@ function saveClient(){var name=document.getElementById('cmName').value.trim(),ow
 
 // === Inbox ===
 /* ========== INBOX ========== */
-var SUGS=[{av:'王',name:'王缘',cat:'洞察选题建议',text:'希望增加医疗科技行业的洞察，NUS Medicine客户最近问得多',time:'2026-04-21 14:32',status:'unread'},{av:'袁',name:'袁梦',cat:'洞察选题建议',text:'能不能加新加坡vs香港教育竞争力对比专题？',time:'2026-04-20 10:15',status:'adopted'},{av:'嘉',name:'嘉懿',cat:'洞察样式建议',text:'卡片希望能加客户标签，方便快速对应到具体客户',time:'2026-04-18 16:48',status:'unread'}];
-function renderInbox(filter){var f=filter==='all'?SUGS:SUGS.filter(function(s){return s.status===filter});var sc={unread:['#FEF3C7','#B45309','未读'],adopted:['#D1FAE5','#047857','已采纳']};document.getElementById('inboxList').innerHTML=f.length?f.map(function(s,i){var st=sc[s.status];return'<div class="sug-item"><div class="sug-avatar">'+s.av+'</div><div class="sug-body"><div class="sug-text">'+s.text+'</div><div class="sug-meta">'+s.name+' · '+s.time+'</div></div><span class="role-tag" style="background:'+st[0]+';color:'+st[1]+';cursor:pointer" onclick="toggleSugStatus('+i+')">'+st[2]+'</span></div>'}).join(''):'<div style="text-align:center;padding:30px;color:var(--muted);font-size:12px">暂无记录</div>';document.getElementById('sugBadge').textContent=SUGS.filter(function(s){return s.status==='unread'}).length||''}
-function filterInbox(f,el){document.querySelectorAll('#ap-inbox .fb').forEach(function(b){b.classList.remove('a')});el.classList.add('a');renderInbox(f)}
-function toggleSugStatus(i){SUGS[i].status=SUGS[i].status==='unread'?'adopted':'unread';renderInbox('all');document.querySelectorAll('#ap-inbox .fb').forEach(function(b){b.classList.remove('a')});document.querySelector('#ap-inbox .fb').classList.add('a');toast(SUGS[i].status==='adopted'?'已采纳':'标记为未读')}
-function submitDemand(){var catEl=document.getElementById('dbCat'),tEl=document.getElementById('dbText');if(!tEl)return;var t=tEl.value.trim();if(!t){toast('请填写详细说明');return}var cat=catEl?catEl.value:'';var now=new Date();var pad=function(n){return(n<10?'0':'')+n};var time=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());SUGS.unshift({av:'王',name:'王缘',cat:cat,text:t,time:time,status:'unread'});tEl.value='';if(typeof renderInbox==='function')renderInbox('all');toast('📨 已提交，感谢你的建议！')}
+var inboxFilter='all';
+function escSug(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function fmtSugTime(t){if(!t)return'';var d=new Date(t);if(isNaN(d.getTime()))return t;var p=function(n){return(n<10?'0':'')+n};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())}
+async function renderInbox(filter){
+  if(typeof filter==='string')inboxFilter=filter;
+  var box=document.getElementById('inboxList');if(!box)return;
+  box.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">加载中…</div>';
+  try{
+    var qs=inboxFilter&&inboxFilter!=='all'?('?status='+encodeURIComponent(inboxFilter)):'';
+    var r=await window.JA.api('/api/suggestions'+qs);
+    if(r.status===403){box.innerHTML='<div style="text-align:center;padding:24px;color:var(--red);font-size:12px">需要管理员权限</div>';return;}
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var j=await r.json();var items=j.items||[];
+    var sc={unread:['#FEF3C7','#B45309','未读'],adopted:['#D1FAE5','#047857','已采纳']};
+    box.innerHTML=items.length?items.map(function(s){
+      var st=sc[s.status]||sc.unread;
+      var who=s.author_name||(s.author_email||'').split('@')[0]||'匿名';
+      var av=(String(who).trim().slice(0,1)||'·').toUpperCase();
+      var cat=s.category?'<span style="display:inline-block;background:#F2F3F5;color:#4E5969;border-radius:4px;padding:0 6px;font-size:10px;margin-right:6px;vertical-align:1px">'+escSug(s.category)+'</span>':'';
+      var next=s.status==='unread'?'adopted':'unread';
+      return '<div class="sug-item"><div class="sug-avatar">'+escSug(av)+'</div><div class="sug-body"><div class="sug-text">'+cat+escSug(s.body)+'</div><div class="sug-meta">'+escSug(who)+' · '+fmtSugTime(s.created_at)+'</div></div><span class="role-tag" style="background:'+st[0]+';color:'+st[1]+';cursor:pointer" title="点击切换状态" onclick="toggleSug(\''+s.id+'\',\''+next+'\')">'+st[2]+'</span></div>';
+    }).join(''):'<div style="text-align:center;padding:30px;color:var(--muted);font-size:12px">暂无记录</div>';
+    var badge=document.getElementById('sugBadge');if(badge){badge.textContent=(j.unread||'')+'';badge.style.display=j.unread?'':'none';}
+  }catch(e){box.innerHTML='<div style="text-align:center;padding:24px;color:var(--red);font-size:12px">加载失败：'+escSug(e.message)+'</div>';}
+}
+function filterInbox(f,el){document.querySelectorAll('#ap-inbox .fb').forEach(function(b){b.classList.remove('a')});if(el)el.classList.add('a');renderInbox(f)}
+async function toggleSug(id,status){
+  try{
+    var r=await window.JA.api('/api/suggestions/'+encodeURIComponent(id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status})});
+    if(!r.ok){var j=await r.json().catch(function(){return{}});throw new Error(j.error||('HTTP '+r.status));}
+    if(window.toast)toast(status==='adopted'?'已采纳':'标记为未读');
+    renderInbox(inboxFilter);
+  }catch(e){if(window.toast)toast('操作失败：'+e.message);}
+}
+async function submitDemand(){
+  var catEl=document.getElementById('dbCat'),tEl=document.getElementById('dbText');if(!tEl)return;
+  var t=tEl.value.trim();if(!t){toast('请填写详细说明');return}
+  var cat=catEl?catEl.value:'';
+  try{
+    var r=await window.JA.api('/api/suggestions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category:cat,body:t})});
+    var j=await r.json().catch(function(){return{}});
+    if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
+    tEl.value='';
+    toast('已提交，感谢你的建议！');
+    if(typeof renderInbox==='function')renderInbox(inboxFilter);
+  }catch(e){toast('提交失败：'+e.message);}
+}
 
 
 // === Archive PPT ===
