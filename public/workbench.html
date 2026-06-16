@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jeffery Insight Hub · Demo V1</title>
 <style>
-:root{--navy:#0B1D3A;--blue:#1B3A5C;--accent:#3B82F6;--accent2:#2563EB;--gold:#F59E0B;--green:#10B981;--red:#EF4444;--purple:#8B5CF6;--bg:#F3F6FB;--card:#FFF;--text:#1E293B;--muted:#64748B;--border:#E2E8F0;--shadow:0 1px 3px rgba(0,0,0,.08);--shadow-lg:0 8px 24px rgba(0,0,0,.1);--r:8px;--orange:#F97316}
+:root{--navy:#1D2129;--blue:#1677ff;--accent:#1677ff;--accent2:#0E5FD9;--gold:#FA8C16;--green:#00875A;--red:#D9534F;--purple:#6E59C7;--bg:#F5F7FA;--card:#FFF;--text:#1D2129;--muted:#646A73;--border:#E5E6EB;--shadow:0 1px 3px rgba(0,0,0,.05);--shadow-lg:0 4px 14px rgba(0,0,0,.08);--r:6px;--orange:#FA8C16;--ink:#1D2129;--sidebar:#1D2129;--mod-month:#1677ff;--mod-daily:#00875A;--mod-creative:#FA8C16}
+.svgi{width:16px;height:16px;flex-shrink:0;display:inline-block;vertical-align:-3px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;letter-spacing:-.2px}a{color:var(--accent);text-decoration:none}button{cursor:pointer;border:none;font-family:inherit}
 
 /* LOGIN */
-.login-wrap{position:fixed;inset:0;background:linear-gradient(135deg,#0B1D3A,#1B3A5C);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-wrap{position:fixed;inset:0;background:var(--sidebar);display:flex;align-items:center;justify-content:center;z-index:9999}
 .login-card{background:#fff;border-radius:16px;padding:44px 40px;width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .login-logo{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:2px}.login-sub{font-size:11px;color:var(--muted);margin-bottom:28px;letter-spacing:.5px}
 .login-btn{width:100%;padding:12px;border-radius:8px;background:#07C160;color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;margin-top:16px}.login-btn:hover{background:#06AD56}
@@ -20,22 +21,22 @@
 .sb{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--navy);color:#fff;display:flex;flex-direction:column;z-index:100}
 .sb-hd{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.06)}.sb-logo{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.3px}.sb-sub{font-size:9px;color:rgba(255,255,255,.3);margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
 .sb-nav{flex:1;padding:12px 8px;overflow-y:auto}.sb-sec{font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:1.2px;padding:14px 12px 4px;font-weight:600}
-.ni{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer;transition:.12s;margin-bottom:1px;font-weight:500}.ni:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.85)}.ni.a{background:rgba(59,130,246,.18);color:#93C5FD}.ni .ic{width:16px;text-align:center;font-size:14px;flex-shrink:0}.ni .badge{margin-left:auto;background:var(--accent);color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700;min-width:18px;text-align:center}
-.sb-user{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px}.sb-avatar{width:30px;height:30px;border-radius:6px;background:rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#93C5FD;flex-shrink:0}.sb-uname{font-size:12px;font-weight:600;color:rgba(255,255,255,.75)}.sb-urole{font-size:10px;color:rgba(255,255,255,.25)}
+.ni{position:relative;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:0;color:rgba(255,255,255,.62);font-size:13px;cursor:pointer;transition:.12s;margin-bottom:1px;font-weight:500}.ni:hover{background:rgba(255,255,255,.05);color:#fff}.ni.a{background:transparent;color:#4d9bff;font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}.ni .ic{width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit}.ni .ic .svgi{vertical-align:0}.ni .badge{margin-left:auto;background:var(--accent);color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700;min-width:18px;text-align:center}
+.sb-user{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px}.sb-avatar{width:30px;height:30px;border-radius:6px;background:rgba(22,119,255,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#93C5FD;flex-shrink:0}.sb-uname{font-size:12px;font-weight:600;color:rgba(255,255,255,.75)}.sb-urole{font-size:10px;color:rgba(255,255,255,.25)}
 .sb-ft{padding:6px 16px 12px;font-size:9px;color:rgba(255,255,255,.12)}
 
 /* MAIN */
 .mn{margin-left:220px;min-height:100vh}
 .tb{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
-.tb-t{font-size:15px;font-weight:700;color:var(--navy)}.tb-r{display:flex;align-items:center;gap:12px}
+.tb-t{font-size:16px;font-weight:600;color:var(--ink)}.tb-r{display:flex;align-items:center;gap:12px}
 .ct{padding:20px 24px}.page{display:none}.page.active{display:block}
 
 /* COMMON */
 .kg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .kc{background:var(--card);border-radius:var(--r);padding:16px 18px;border:1px solid var(--border)}.kc .kl{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:4px}.kc .kv{font-size:24px;font-weight:800;color:var(--navy)}.kc .kd{font-size:11px;margin-top:4px;font-weight:500}.kd.up{color:var(--green)}
-.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.st{font-size:15px;font-weight:700;color:var(--navy)}.sa{font-size:12px;color:var(--accent);cursor:pointer;font-weight:500}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.st{font-size:14px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:7px}.sa{font-size:12px;color:var(--accent);cursor:pointer;font-weight:500}
 .ig{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.ic-card{background:var(--card);border-radius:var(--r);overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:.15s}.ic-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}.ic-img{width:100%;aspect-ratio:16/9;object-fit:contain;display:block;background:#F1F5F9}.ic-bd{padding:12px 14px}.ic-tgs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}.tg{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600}.t-edu{background:#DBEAFE;color:#1D4ED8}.t-xhs{background:#FEE2E2;color:#B91C1C}.t-ai{background:#EDE9FE;color:#6D28D9}.t-brand{background:#FEF3C7;color:#B45309}.t-p{background:#D1FAE5;color:#047857}.t-m{background:#F1F5F9;color:#475569}.ic-tt{font-size:13px;font-weight:600;color:var(--navy);line-height:1.4;margin-bottom:6px}.ic-mt{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}.ic-dl{padding:2px 8px;border-radius:4px;background:#F1F5F9;color:var(--blue);font-size:10px;font-weight:600;cursor:pointer}.ic-dl:hover{background:#E2E8F0}
+.ic-card{background:var(--card);border-radius:var(--r);overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:.15s}.ic-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}.ic-img{width:100%;aspect-ratio:16/9;object-fit:contain;display:block;background:#F1F5F9}.ic-bd{padding:12px 14px}.ic-tgs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}.tg{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600}.t-edu,.t-xhs,.t-ai,.t-brand,.t-p,.t-m{background:#F2F3F5;color:#4E5969}.ic-tt{font-size:13px;font-weight:600;color:var(--navy);line-height:1.4;margin-bottom:6px}.ic-mt{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}.ic-dl{padding:2px 8px;border-radius:4px;background:#F1F5F9;color:var(--blue);font-size:10px;font-weight:600;cursor:pointer}.ic-dl:hover{background:#E2E8F0}
 .flt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}.fb{padding:4px 12px;border-radius:14px;font-size:12px;font-weight:500;background:var(--card);border:1px solid var(--border);color:var(--muted);transition:.12s}.fb:hover{border-color:var(--accent);color:var(--accent)}.fb.a{background:var(--accent);color:#fff;border-color:var(--accent)}
 
 /* BUTTONS */
@@ -47,10 +48,16 @@
 .btn-sm{padding:4px 10px;font-size:11px}
 .btn-xs{padding:2px 8px;font-size:10px;border-radius:4px}
 
+/* REPORT CARDS (overview) */
+.rep-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;cursor:pointer;transition:.15s;box-shadow:var(--shadow)}
+.rep-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.rep-ic{width:32px;height:32px;border-radius:6px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;color:#4E5969;flex-shrink:0}
+.rep-act{font-size:12px;color:var(--accent);font-weight:500;display:flex;align-items:center;gap:5px}
+
 /* ENTERPRISE TABLE */
 .e-tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
 .e-tbl-head{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:#FAFBFC}
-.e-tbl-title{font-size:13px;font-weight:600;color:var(--navy)}.e-tbl-count{font-size:11px;color:var(--muted)}
+.e-tbl-title{font-size:14px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:7px}.e-tbl-title .svgi{color:var(--muted)}.e-tbl-count{font-size:11px;color:var(--muted)}
 .e-tbl{width:100%;border-collapse:collapse;font-size:13px}
 .e-tbl th{padding:10px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;background:#FAFBFC;border-bottom:1px solid var(--border);white-space:nowrap}
 .e-tbl td{padding:10px 16px;border-bottom:1px solid #F1F5F9;color:var(--text);vertical-align:middle}
@@ -85,7 +92,7 @@
 
 /* FORM */
 .frm{margin-bottom:14px}.fl{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:4px}
-.fi{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;transition:.12s;font-family:inherit;background:#fff}.fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.08)}.fta{min-height:60px;resize:vertical}
+.fi{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;transition:.12s;font-family:inherit;background:#fff}.fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(22,119,255,.08)}.fta{min-height:60px;resize:vertical}
 .fi-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .rating{display:flex;gap:5px;flex-wrap:wrap}.r-opt{padding:7px 12px;border-radius:6px;font-size:12px;font-weight:500;background:#FAFBFC;border:1.5px solid var(--border);cursor:pointer;transition:.12s}.r-opt:hover{border-color:var(--accent)}.r-opt.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
 .ft-tags{display:flex;gap:5px;flex-wrap:wrap}.ft-tag{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:500;background:#FAFBFC;border:1.5px solid var(--border);cursor:pointer;transition:.12s}.ft-tag:hover{border-color:var(--accent)}.ft-tag.sel{background:#DBEAFE;color:#1D4ED8;border-color:#93C5FD}
@@ -101,17 +108,12 @@
 /* DAILY INSIGHT CARDS */
 .di-datebar{display:flex;gap:6px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
 .di-datebar .di-day{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;text-align:center;transition:.15s;min-width:72px;font-size:12px;font-weight:600;color:var(--muted)}.di-datebar .di-day:hover{border-color:#C87941;color:#C87941}.di-datebar .di-day.a{background:#C87941;color:#fff;border-color:#C87941;font-weight:700}.di-datebar .di-day .di-weekday{font-size:9px;font-weight:500;display:block;margin-bottom:1px}.di-datebar .di-day.a .di-weekday{color:rgba(255,255,255,.7)}
-.di-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:1.15rem 1.4rem;margin-bottom:16px;scroll-margin-top:80px;transition:.12s}.di-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.di-card.di-radar{border-left:3px solid #EF9F27;border-radius:0 10px 10px 0}
+.di-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:14px;scroll-margin-top:80px;transition:.12s}.di-card:hover{box-shadow:var(--shadow)}
+.di-card.di-radar{border-left:3px solid #E0A23C;border-radius:0 var(--r) var(--r) 0}
 .di-card .di-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
 .di-card .di-num{font-size:12px;font-weight:700;color:#9ca3af;min-width:24px}
 .di-card .di-cat{font-size:11.5px;font-weight:500;padding:3px 9px;border-radius:4px;white-space:nowrap}
-.di-cat.di-cat-edu{background:#E6F1FB;color:#185FA5}
-.di-cat.di-cat-mkt{background:#E1F5EE;color:#0F6E56}
-.di-cat.di-cat-fin{background:#EEEDFE;color:#3C3489}
-.di-cat.di-cat-local{background:#F1EFE8;color:#444}
-.di-cat.di-cat-tech{background:#E6F1FB;color:#185FA5}
-.di-cat.di-cat-default{background:#F1EFE8;color:#444}
+.di-cat.di-cat-edu,.di-cat.di-cat-mkt,.di-cat.di-cat-fin,.di-cat.di-cat-local,.di-cat.di-cat-tech,.di-cat.di-cat-default{background:#F2F3F5;color:#4E5969}
 .di-card .di-status{font-size:11px;padding:3px 8px;border-radius:4px;font-weight:500}
 .di-card .di-status-radar{background:#FAEEDA;color:#854F0B}
 .di-card .di-status-headline{background:#E6F4D7;color:#27500A}
@@ -153,13 +155,14 @@
 .di-card .di-imgs .di-fig img{width:100%;border-radius:8px;border:1px solid #e5e7eb;display:block;cursor:zoom-in}
 .di-card .di-imgs .di-fig figcaption{font-size:11px;color:#6b7280;margin-top:4px;line-height:1.4}
 .di-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:10px;border-top:1px solid #e5e7eb}
+.di-empty{text-align:center;color:var(--muted);padding:44px 20px;font-size:13px}
 
 /* TRAINING */
 .tr-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}.tr-video{background:#1E293B;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:13px;flex-direction:column;gap:6px;cursor:pointer}.tr-video:hover{background:#0F172A}.tr-body{padding:18px}.tr-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px}.tr-meta{font-size:11px;color:var(--muted);margin-bottom:10px}.tr-summary{padding:12px;background:#F8FAFC;border-radius:6px;font-size:12px;color:var(--muted);line-height:1.7}.tr-summary strong{color:var(--navy)}
 
 /* ADMIN TABS */
 .adm-tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;background:var(--card);margin:-20px -24px 20px;padding:0 24px}
-.adm-tab{padding:12px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.12s;background:none}.adm-tab:hover{color:var(--navy)}.adm-tab.a{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.adm-tab{display:inline-flex;align-items:center;gap:6px;padding:12px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.12s;background:none}.adm-tab .svgi{width:15px;height:15px}.adm-tab:hover{color:var(--ink)}.adm-tab.a{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
 .adm-pane{display:none}.adm-pane.active{display:block}
 .adm-sub{display:none}.adm-sub.active{display:block}
 
@@ -170,7 +173,7 @@
 /* LIBRARY CATALOG */
 .lib-layout{display:grid;grid-template-columns:200px 1fr;gap:16px}
 .lib-cat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px;position:sticky;top:72px;max-height:calc(100vh - 92px);overflow-y:auto}
-.lib-cat-item{padding:7px 10px;border-radius:5px;font-size:12px;color:var(--muted);cursor:pointer;transition:.12s;font-weight:500;display:flex;justify-content:space-between}.lib-cat-item:hover{background:#F1F5F9;color:var(--navy)}.lib-cat-item.a{background:rgba(59,130,246,.08);color:var(--accent);font-weight:600}.lib-cat-cnt{font-size:10px;background:#F1F5F9;padding:1px 6px;border-radius:8px}
+.lib-cat-item{padding:7px 10px;border-radius:5px;font-size:12px;color:var(--muted);cursor:pointer;transition:.12s;font-weight:500;display:flex;justify-content:space-between}.lib-cat-item:hover{background:#F1F5F9;color:var(--navy)}.lib-cat-item.a{background:rgba(22,119,255,.08);color:var(--accent);font-weight:600}.lib-cat-cnt{font-size:10px;background:#F1F5F9;padding:1px 6px;border-radius:8px}
 
 .daily-frame{width:100%;border:1px solid var(--border);border-radius:var(--r);background:#fff;min-height:600px}
 .sug-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:6px}.sug-avatar{width:30px;height:30px;border-radius:6px;background:#E2E8F0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--navy);flex-shrink:0}.sug-body{flex:1}.sug-text{font-size:13px;line-height:1.5;margin-bottom:3px}.sug-meta{font-size:11px;color:var(--muted)}
@@ -247,16 +250,16 @@
 <nav class="sb" id="mainApp" style="display:none">
 <div class="sb-hd"><div class="sb-logo">Jeffery Insight Hub</div><div class="sb-sub">Sales Enablement</div></div>
 <div class="sb-nav">
-<div class="ni a" onclick="nav('daily',this)"><span class="ic">📡</span>实时洞察</div>
-<div class="ni" onclick="nav('creative',this)"><span class="ic">🎬</span>创意洞察</div>
-<div class="ni" onclick="nav('library',this)"><span class="ic">📚</span>月度洞察</div>
-<div class="ni" onclick="nav('community',this)"><span class="ic">🏛️</span>需求社区</div>
+<div class="ni a" onclick="nav('daily',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>实时洞察</div>
+<div class="ni" onclick="nav('creative',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/></svg></span>创意洞察</div>
+<div class="ni" onclick="nav('library',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/></svg></span>月度洞察</div>
+<div class="ni" onclick="nav('community',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.3 9 9 0 0 1-3.8-.8L3 21l1.5-4.3A8.3 8.3 0 0 1 3.5 11 8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg></span>需求社区</div>
 <div class="sb-sec">我的</div>
-<div class="ni" onclick="nav('fav',this)"><span class="ic">📌</span>我的收藏</div>
-<div class="ni" onclick="nav('feedback',this)"><span class="ic">📝</span>我的反馈</div>
-<div class="ni" onclick="nav('mydata',this)"><span class="ic">📊</span>整体数据</div>
+<div class="ni" onclick="nav('fav',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>我的收藏</div>
+<div class="ni" onclick="nav('feedback',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>我的反馈</div>
+<div class="ni" onclick="nav('mydata',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg></span>整体数据</div>
 <div class="sb-sec">管理</div>
-<div class="ni" onclick="nav('admin',this)"><span class="ic">⚙️</span>管理后台</div>
+<div class="ni" onclick="nav('admin',this)"><span class="ic"><svg class="svgi" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>管理后台</div>
 </div>
 <div class="sb-user"><div class="sb-avatar">王</div><div><div class="sb-uname">王缘</div><div class="sb-urole">AE · 客户执行</div></div></div>
 <div class="sb-ft">v3.5 · May 2026</div>
@@ -275,12 +278,12 @@
 <span style="font-size:12px;color:var(--muted)" id="rCnt"></span>
 </div>
 <div style="display:flex;gap:8px;align-items:center">
-<a href="https://www.canva.cn/design/DAHCT31m1gM/dQMMFNxZKhmLpzm09feAfQ/edit" target="_blank" class="btn btn-s" style="background:#7B2FF2;color:#fff;border:none;font-size:11px">🎨 Canva 母版 PPT</a>
+<a href="https://www.canva.cn/design/DAHCT31m1gM/dQMMFNxZKhmLpzm09feAfQ/edit" target="_blank" class="btn btn-s" style="font-size:11px">Canva 母版 PPT</a>
 </div>
 </div>
-<div style="font-size:10px;color:var(--gold);margin-bottom:14px;background:#FFFBEB;padding:6px 10px;border-radius:4px;display:inline-block">⚠️ 请在 Canva 中「创建副本」后编辑，勿修改母版原文件</div>
+<div style="font-size:10px;color:#8A6D3B;margin-bottom:14px;background:#FBF5E9;border:1px solid #F0E2C4;padding:5px 10px;border-radius:4px;display:inline-flex;align-items:center;gap:5px"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>请在 Canva 中「创建副本」后编辑，勿修改母版原文件</div>
 <div class="lib-layout">
-<div class="lib-cat"><div style="font-size:11px;font-weight:700;color:var(--navy);padding:4px 10px;margin-bottom:6px">📂 分类目录</div><div id="libCatList"></div></div>
+<div class="lib-cat"><div style="font-size:11px;font-weight:700;color:var(--ink);padding:4px 10px;margin-bottom:6px">分类目录</div><div id="libCatList"></div></div>
 <div class="ig" id="libG"></div>
 </div>
 </div>
@@ -297,11 +300,11 @@
 </div>
 <!-- 顶栏 row2: 搜索 + EN + 下载 -->
 <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
-<input type="text" class="fi" style="flex:1;padding:9px 14px;font-size:12px;margin:0" placeholder="🔍 输入关键词搜索洞察…" oninput="diSearch=this.value.toLowerCase();renderDailyCards()">
+<input type="text" class="fi" style="flex:1;padding:9px 14px;font-size:12px;margin:0" placeholder="输入关键词搜索洞察…" oninput="diSearch=this.value.toLowerCase();renderDailyCards()">
 <button class="fb" onclick="toggleDiLang(this)" style="padding:8px 18px;font-size:12px">EN</button>
-<button class="btn btn-p btn-sm" onclick="downloadDailyMD()" style="font-size:12px;padding:8px 16px">📥 下载.md</button>
+<button class="btn btn-p btn-sm" onclick="downloadDailyMD()" style="font-size:12px;padding:8px 16px"><svg class="svgi" style="width:14px;height:14px;margin-right:4px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>下载.md</button>
 </div>
-<div id="diList"><div class="di-empty">📡 请选择日期加载洞察，或在管理后台上传 HTML 文件</div></div>
+<div id="diList"><div class="di-empty">请选择日期加载洞察，或在管理后台上传 .md 文件</div></div>
 </div>
 
 <div class="ct page" id="p-creative">
@@ -322,9 +325,9 @@
 <div class="ct page" id="p-fav">
 <!-- 子tab切换：实时洞察 / 创意洞察 -->
 <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px">
-<button class="fb a" id="favTabDaily" onclick="favTab('daily',this)">📡 实时洞察</button>
-<button class="fb" id="favTabCv" onclick="favTab('cv',this)">🎬 创意洞察</button>
-<button class="fb" id="favTabLib" onclick="favTab('lib',this)">📅 月度洞察</button>
+<button class="fb a" id="favTabDaily" onclick="favTab('daily',this)">实时洞察</button>
+<button class="fb" id="favTabCv" onclick="favTab('cv',this)">创意洞察</button>
+<button class="fb" id="favTabLib" onclick="favTab('lib',this)">月度洞察</button>
 </div>
 
 <!-- 实时洞察收藏 -->
@@ -339,10 +342,10 @@
 <div style="font-size:13px;color:var(--muted)" id="favCntTotal">0 条</div>
 <div style="display:flex;gap:6px;align-items:center">
 <input type="text" class="fi" style="width:140px;padding:4px 8px;font-size:11px" placeholder="搜索收藏..." id="favSearchInput" oninput="renderFav()">
-<button class="btn btn-p btn-sm" onclick="exportFav()">⬇️ 导出</button>
+<button class="btn btn-p btn-sm" onclick="exportFav()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>导出</button>
 </div>
 </div>
-<div id="favList"><div class="di-empty">📌 暂无收藏，在实时洞察中点击⭐收藏按钮即可添加</div></div>
+<div id="favList"><div class="di-empty">暂无收藏，在实时洞察中点击⭐收藏按钮即可添加</div></div>
 </div>
 
 <!-- 创意洞察收藏 -->
@@ -357,10 +360,10 @@
 <div style="font-size:13px;color:var(--muted)" id="favCvCntTotal">0 条</div>
 <div style="display:flex;gap:6px;align-items:center">
 <input type="text" class="fi" style="width:140px;padding:4px 8px;font-size:11px" placeholder="搜索收藏..." id="favCvSearchInput" oninput="renderFavCv()">
-<button class="btn btn-p btn-sm" onclick="exportFavCv()">⬇️ 导出</button>
+<button class="btn btn-p btn-sm" onclick="exportFavCv()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>导出</button>
 </div>
 </div>
-<div class="ig" id="favCvGrid"><div class="di-empty">📌 暂无创意洞察收藏，在创意洞察中点击⭐收藏按钮即可添加</div></div>
+<div class="ig" id="favCvGrid"><div class="di-empty">暂无创意洞察收藏，在创意洞察中点击⭐收藏按钮即可添加</div></div>
 </div>
 
 <!-- 月度洞察收藏 -->
@@ -371,14 +374,14 @@
 <input type="text" class="fi" style="width:140px;padding:4px 8px;font-size:11px" placeholder="搜索收藏..." id="favLibSearchInput" oninput="renderFavLib()">
 </div>
 </div>
-<div class="ig" id="favLibGrid"><div class="di-empty">📌 暂无月度洞察收藏，在月度洞察中点击 ☆ 收藏按钮即可添加</div></div>
+<div class="ig" id="favLibGrid"><div class="di-empty">暂无月度洞察收藏，在月度洞察中点击 ☆ 收藏按钮即可添加</div></div>
 </div>
 </div>
 
 <!-- FEEDBACK -->
 <div class="ct page" id="p-feedback">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-<div class="st">📝 我的洞察反馈</div>
+<div class="st">我的洞察反馈</div>
 <div style="display:flex;gap:6px;align-items:center"><select class="fi" style="width:120px;padding:4px 8px;font-size:11px"><option>2026年4月</option><option>2026年3月</option></select><div id="fbStats"></div></div></div>
 <div style="font-size:11px;color:var(--muted);margin-bottom:14px">每条洞察必须反馈（已使用或未使用）</div>
 <div class="mf-list" id="fbList"></div>
@@ -603,24 +606,24 @@
 
 <div class="ct page" id="p-demandbox">
 <!-- 简要说明栏（横幅，自适应铺满） -->
-<div style="background:linear-gradient(135deg,#EFF4FF,#F5F0FF);border:1px solid #DBE3FF;border-radius:12px;padding:18px 22px;margin-bottom:16px">
-<div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:6px">📮 告诉我们你的想法，让洞察平台越用越顺手</div>
-<div style="font-size:12px;color:#5B6478;line-height:1.6;margin-bottom:14px">平台还在持续迭代中，无论是想看的选题、希望新增的栏目、用着不顺手的功能，还是遇到的问题，都欢迎反馈。每条建议都会进入团队待办。</div>
+<div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--r);padding:18px 22px;margin-bottom:16px;box-shadow:var(--shadow)">
+<div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px">告诉我们你的想法，让洞察平台越用越顺手</div>
+<div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">平台还在持续迭代中，无论是想看的选题、希望新增的栏目、用着不顺手的功能，还是遇到的问题，都欢迎反馈。每条建议都会进入团队待办。</div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
-<div style="background:rgba(255,255,255,.75);border:1px solid #E3E9F7;border-radius:8px;padding:11px 13px">
-<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">💡 洞察选题建议</div>
+<div style="background:#F7F8FA;border:1px solid var(--border);border-radius:var(--r);padding:11px 13px">
+<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px">洞察选题建议</div>
 <div style="font-size:11px;color:var(--muted);line-height:1.5">想看哪些行业 / 话题 / 客户方向的洞察</div>
 </div>
-<div style="background:rgba(255,255,255,.75);border:1px solid #E3E9F7;border-radius:8px;padding:11px 13px">
-<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">📌 新栏目 / 新方向建议</div>
+<div style="background:#F7F8FA;border:1px solid var(--border);border-radius:var(--r);padding:11px 13px">
+<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px">新栏目 / 新方向建议</div>
 <div style="font-size:11px;color:var(--muted);line-height:1.5">希望平台新增的板块，如竞品分析、专题 / 深度洞察等</div>
 </div>
-<div style="background:rgba(255,255,255,.75);border:1px solid #E3E9F7;border-radius:8px;padding:11px 13px">
-<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">🛠️ 平台优化建议</div>
+<div style="background:#F7F8FA;border:1px solid var(--border);border-radius:var(--r);padding:11px 13px">
+<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px">平台优化建议</div>
 <div style="font-size:11px;color:var(--muted);line-height:1.5">功能、流程、交互，以及卡片排版 / 配图 / 导出格式等体验改进</div>
 </div>
-<div style="background:rgba(255,255,255,.75);border:1px solid #E3E9F7;border-radius:8px;padding:11px 13px">
-<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">🐞 使用问题反馈</div>
+<div style="background:#F7F8FA;border:1px solid var(--border);border-radius:var(--r);padding:11px 13px">
+<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px">使用问题反馈</div>
 <div style="font-size:11px;color:var(--muted);line-height:1.5">bug、加载异常、操作疑问等</div>
 </div>
 </div>
@@ -633,8 +636,8 @@
 <textarea class="fi fta" id="dbText" style="width:100%;min-height:200px;font-size:13px;line-height:1.6" placeholder="用一句话说明背景和诉求，以及希望达到的结果 / 交付形式…"></textarea>
 </div>
 <div style="display:flex;gap:12px;align-items:center">
-<button class="btn btn-p" onclick="submitDemand()" style="padding:9px 22px">📨 提交建议</button>
-<span style="font-size:11px;color:var(--muted)">感谢你的反馈，我们会持续优化 🙌</span>
+<button class="btn btn-p" onclick="submitDemand()" style="padding:9px 22px">提交建议</button>
+<span style="font-size:11px;color:var(--muted)">感谢你的反馈，我们会持续优化</span>
 </div>
 </div>
 </div>
@@ -653,7 +656,7 @@
 <select class="fi" style="width:90px;padding:4px 8px;font-size:11px" id="fbRptStatus" onchange="renderFbRpt()"><option value="all">全部状态</option><option value="done">已反馈</option><option value="pending">待反馈</option></select>
 <select class="fi" style="width:90px;padding:4px 8px;font-size:11px" id="fbRptUser" onchange="renderFbRpt()"><option value="all">全部成员</option></select>
 <select class="fi" style="width:90px;padding:4px 8px;font-size:11px" id="fbRptSort" onchange="renderFbRpt()"><option value="user">按成员</option><option value="num">按编号</option><option value="status">按状态</option></select>
-<button class="btn btn-p btn-sm" onclick="exportFbRpt()">⬇️ 导出报表</button>
+<button class="btn btn-p btn-sm" onclick="exportFbRpt()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>导出报表</button>
 </div></div>
 <div class="e-tbl-wrap"><div style="padding:0;overflow-x:auto"><table class="e-tbl" style="min-width:900px"><thead><tr><th style="width:42px;padding:10px 6px">编号</th><th style="min-width:150px;padding:10px 6px">洞察标题</th><th style="width:72px;padding:10px 6px">分类</th><th style="width:72px;padding:10px 6px">归属月份</th><th style="width:56px;padding:10px 6px">反馈人</th><th style="width:64px;padding:10px 6px;text-align:center">是否使用</th><th style="width:80px;padding:10px 6px">使用方式</th><th style="width:80px;padding:10px 6px">对应客户</th><th style="width:80px;padding:10px 6px">客户反应</th><th style="width:100px;padding:10px 6px">反馈标签</th><th style="min-width:90px;padding:10px 6px">备注</th></tr></thead><tbody id="fbRptBody"></tbody></table></div></div>
 <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
@@ -665,60 +668,60 @@
 <!-- ADMIN -->
 <div class="ct page" id="p-admin">
 <div class="adm-tabs">
-<button class="adm-tab a" onclick="admT('overview',this)">📊 数据总览</button>
-<button class="adm-tab" onclick="admT('content',this)">📤 内容管理</button>
-<button class="adm-tab" onclick="admT('users',this)">👥 用户与客户</button>
-<button class="adm-tab" onclick="admT('inbox',this)">💡 需求意见箱 <span style="background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:6px" id="sugBadge">3</span></button>
-<button class="adm-tab" onclick="admT('archive',this)">🗂️ 归档管理</button>
-<button class="adm-tab" onclick="admT('settings',this)">⚙️ 系统设置</button>
-<button class="adm-tab" onclick="admT('audit',this);auditLoad(0)">🔍 调用日志</button>
-<button class="adm-tab" onclick="admT('tokens',this);keysLoad()">🔑 Token 管理</button>
+<button class="adm-tab a" onclick="admT('overview',this)"><svg class="svgi" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>数据总览</button>
+<button class="adm-tab" onclick="admT('content',this)"><svg class="svgi" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>内容管理</button>
+<button class="adm-tab" onclick="admT('users',this)"><svg class="svgi" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>用户与客户</button>
+<button class="adm-tab" onclick="admT('inbox',this)"><svg class="svgi" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg>需求意见箱 <span style="background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:6px" id="sugBadge">3</span></button>
+<button class="adm-tab" onclick="admT('archive',this)"><svg class="svgi" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/></svg>归档管理</button>
+<button class="adm-tab" onclick="admT('settings',this)"><svg class="svgi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 0 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>系统设置</button>
+<button class="adm-tab" onclick="admT('audit',this);auditLoad(0)"><svg class="svgi" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.5" y2="6"/><line x1="3" y1="12" x2="3.5" y2="12"/><line x1="3" y1="18" x2="3.5" y2="18"/></svg>调用日志</button>
+<button class="adm-tab" onclick="admT('tokens',this);keysLoad()"><svg class="svgi" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.8 12.2 20 3"/><path d="m16 7 3 3"/><path d="m18 5 3 3"/></svg>Token 管理</button>
 </div>
 
 <!-- Tab: Overview -->
 <div class="adm-pane active" id="ap-overview">
 <!-- 3 report export cards -->
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px">
-<div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1px solid #BFDBFE;border-radius:10px;padding:16px 20px;cursor:pointer;transition:.15s" onclick="toast('月度洞察反馈报表导出中...')" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(59,130,246,.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#3B82F6,#2563EB);display:flex;align-items:center;justify-content:center;font-size:16px">📋</div><div><div style="font-size:13px;font-weight:700;color:#1E40AF">月度洞察反馈报表</div><div style="font-size:10px;color:#3B82F6">Sheet1 反馈明细 · Sheet2 AM汇总</div></div></div>
-<div style="font-size:11px;color:#60A5FA;font-weight:500">⬇️ 点击导出 Excel</div>
+<div class="rep-card" style="border-left:3px solid var(--mod-month)" onclick="toast('月度洞察反馈报表导出中...')">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="rep-ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2.5" width="6" height="4" rx="1"/><path d="M8.5 11h7M8.5 15h5"/></svg></span><div><div style="font-size:14px;font-weight:600;color:var(--ink)">月度洞察反馈报表</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Sheet1 反馈明细 · Sheet2 AM汇总</div></div></div>
+<div class="rep-act"><svg class="svgi" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>点击导出 Excel</div>
 </div>
-<div style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1px solid #A7F3D0;border-radius:10px;padding:16px 20px;cursor:pointer;transition:.15s" onclick="toast('实时洞察标注报表导出中...')" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(16,185,129,.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;font-size:16px">📡</div><div><div style="font-size:13px;font-weight:700;color:#065F46">实时洞察标注报表</div><div style="font-size:10px;color:#10B981">Sheet1 标注明细 · Sheet2 标注率 · Sheet3 栏目频率</div></div></div>
-<div style="font-size:11px;color:#34D399;font-weight:500">⬇️ 点击导出 Excel</div>
+<div class="rep-card" style="border-left:3px solid var(--mod-daily)" onclick="toast('实时洞察标注报表导出中...')">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="rep-ic"><svg class="svgi" viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span><div><div style="font-size:14px;font-weight:600;color:var(--ink)">实时洞察标注报表</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Sheet1 标注明细 · Sheet2 标注率 · Sheet3 栏目频率</div></div></div>
+<div class="rep-act"><svg class="svgi" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>点击导出 Excel</div>
 </div>
-<div style="background:linear-gradient(135deg,#FFF7ED,#FFEDD5);border:1px solid #FED7AA;border-radius:10px;padding:16px 20px;cursor:pointer;transition:.15s" onclick="exportCVRpt()" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(249,115,22,.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#F97316,#EA580C);display:flex;align-items:center;justify-content:center;font-size:16px">🎬</div><div><div style="font-size:13px;font-weight:700;color:#9A3412">创意洞察标注报表</div><div style="font-size:10px;color:#F97316">Sheet1 标注明细 · Sheet2 分类统计 · Sheet3 方法论汇总</div></div></div>
-<div style="font-size:11px;color:#FB923C;font-weight:500">⬇️ 点击导出 Excel</div>
+<div class="rep-card" style="border-left:3px solid var(--mod-creative)" onclick="exportCVRpt()">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="rep-ic"><svg class="svgi" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/></svg></span><div><div style="font-size:14px;font-weight:600;color:var(--ink)">创意洞察标注报表</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Sheet1 标注明细 · Sheet2 分类统计 · Sheet3 方法论汇总</div></div></div>
+<div class="rep-act"><svg class="svgi" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>点击导出 Excel</div>
 </div>
 </div>
 <!-- 3 charts -->
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:16px">
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📚 月度洞察栏目分布</div></div><div style="padding:14px" id="catChart"></div></div>
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📡 实时洞察发布趋势</div></div><div style="padding:14px" id="monthTrend"></div></div>
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">🎬 创意洞察发布趋势</div></div><div style="padding:14px" id="cvTrend"></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title"><svg class="svgi" viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg>月度洞察栏目分布</div></div><div style="padding:14px" id="catChart"></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title"><svg class="svgi" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>实时洞察发布趋势</div></div><div style="padding:14px" id="monthTrend"></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title"><svg class="svgi" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>创意洞察发布趋势</div></div><div style="padding:14px" id="cvTrend"></div></div>
 </div>
 <!-- Heatmap -->
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📊 团队标注活跃度（近12周）</div></div><div style="padding:14px" id="ovHeatmap"></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title"><svg class="svgi" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>团队标注活跃度（近12周）</div></div><div style="padding:14px" id="ovHeatmap"></div></div>
 </div>
 
 <!-- Tab: Content -->
 <div class="adm-pane" id="ap-content">
 <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:8px">
-<button class="fb a" onclick="admSub('daily',this)" id="subBtn-daily">📡 实时洞察上传</button>
-<button class="fb" onclick="admSub('cvideo',this)" id="subBtn-cvideo">🎬 创意洞察上传</button>
-<button class="fb" onclick="admSub('pub',this)" id="subBtn-pub">📚 月度洞察发布</button>
+<button class="fb a" onclick="admSub('daily',this)" id="subBtn-daily">实时洞察上传</button>
+<button class="fb" onclick="admSub('cvideo',this)" id="subBtn-cvideo">创意洞察上传</button>
+<button class="fb" onclick="admSub('pub',this)" id="subBtn-pub">月度洞察发布</button>
 </div>
 <div class="adm-sub" id="sub-pub" style="display:none">
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📚 月度洞察发布</div></div><div style="padding:16px">
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">月度洞察发布</div></div><div style="padding:16px">
 <div style="display:grid;grid-template-columns:180px 1fr;gap:16px">
-<div class="up-area" style="padding:20px" onclick="document.getElementById('pptFileInput').click()"><div style="font-size:24px;margin-bottom:4px">📤</div><div style="font-size:11px;font-weight:600;color:var(--navy)">PPT 图片</div><div style="font-size:10px">≤1MB · 单张上传 · 常见图片格式</div><input type="file" id="pptFileInput" accept=".png,.jpg,.jpeg,.webp,.gif,.bmp,.svg" style="display:none" onchange="var f=this.files[0];if(f.size>1024*1024){alert('图片不能超过 1MB，请压缩后上传（当前: '+(f.size/1024).toFixed(0)+'KB）');this.value='';return}this.parentElement.innerHTML='<div style=font-size:24px;margin-bottom:4px>✅</div><div style=font-size:11px;font-weight:600;color:var(--green)>'+f.name+'</div><div style=font-size:9px;color:var(--muted)>'+(f.size/1024).toFixed(0)+'KB</div>'"></div>
+<div class="up-area" style="padding:20px" onclick="document.getElementById('pptFileInput').click()"><div style="margin-bottom:6px;color:var(--muted)"><svg class="svgi" style="width:24px;height:24px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></div><div style="font-size:11px;font-weight:600;color:var(--navy)">PPT 图片</div><div style="font-size:10px">≤1MB · 单张上传 · 常见图片格式</div><input type="file" id="pptFileInput" accept=".png,.jpg,.jpeg,.webp,.gif,.bmp,.svg" style="display:none" onchange="var f=this.files[0];if(f.size>1024*1024){alert('图片不能超过 1MB，请压缩后上传（当前: '+(f.size/1024).toFixed(0)+'KB）');this.value='';return}this.parentElement.innerHTML='<div style=font-size:24px;margin-bottom:4px>✅</div><div style=font-size:11px;font-weight:600;color:var(--green)>'+f.name+'</div><div style=font-size:9px;color:var(--muted)>'+(f.size/1024).toFixed(0)+'KB</div>'"></div>
 <div>
 <div class="fi-row" style="margin-bottom:10px"><div class="frm" style="margin:0"><label class="fl">编号</label><input type="text" class="fi" placeholder="09" style="width:60px"></div><div class="frm" style="margin:0"><label class="fl">标题</label><input type="text" class="fi" placeholder="洞察标题"></div></div>
 <div class="fi-row" style="margin-bottom:10px"><div class="frm" style="margin:0"><label class="fl">分类</label><select class="fi"><option>中国教育</option><option>新加坡院校</option><option>小红书</option><option>AEO/GEO</option><option>AI&科技</option><option>品牌营销</option><option>全球竞争</option><option>SG本地</option><option>印度市场</option><option>跨境金融</option></select></div><div class="frm" style="margin:0"><label class="fl">归属月份</label><input type="month" class="fi" value="2026-04"></div></div>
 <div class="frm" style="margin:0 0 10px"><label class="fl">信源（Source）</label><input type="text" class="fi" placeholder="如：教育部《2026年高校毕业生就业报告》或链接URL"></div>
 <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px">
-<div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px">📋 沟通指南</div>
+<div style="font-size:11px;font-weight:700;color:var(--ink);margin-bottom:8px">沟通指南</div>
 <div class="frm" style="margin:0 0 8px"><label class="fl" style="font-size:11px">沟通要点（3-5 个关键论点）</label><textarea class="fi fta" style="min-height:50px" placeholder="跟客户聊时必须提到的数据/论点，每行一个"></textarea></div>
 <div class="frm" style="margin:0 0 8px"><label class="fl" style="font-size:11px">沟通话术（推荐话术模板）</label><textarea class="fi fta" style="min-height:50px" placeholder="如何跟客户介绍这条洞察，建议话术示例"></textarea></div>
 <div class="frm" style="margin:0 0 8px"><label class="fl" style="font-size:11px">推荐产品</label><input type="text" class="fi" placeholder="可推荐的产品/课程名称，多个用逗号分隔"></div>
@@ -727,12 +730,12 @@
 </div></div></div></div>
 </div>
 <div class="adm-sub active" id="sub-daily">
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📡 实时洞察上传（.md 文件）</div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">实时洞察上传（.md 文件）</div></div>
 <div style="padding:16px">
   <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:12px">直接上传 JA-Research 双语 <b>.md</b> 文件 —— 每条洞察为「中文块 + 英文块」，以 <code style="background:#F1F5F9;padding:1px 5px;border-radius:4px">## 日期 / 编号　标题</code> 开头，含 摘要/洞察/建议/来源/推荐服务 等小节。系统自动解析入库（一个文件可含多条）。<br><b style="color:var(--navy)">向量化仅使用英文的标题、属性与摘要。</b></div>
   <div id="mdDrop" onclick="document.getElementById('mdFileInput').click()" style="border:2px dashed var(--border);border-radius:12px;padding:34px 20px;text-align:center;cursor:pointer;transition:.15s;background:#F8FAFC">
-    <div style="font-size:34px;margin-bottom:8px">📄</div>
-    <div style="font-size:13px;font-weight:600;color:var(--navy)">点击选择，或拖拽 .md 文件到这里</div>
+    <div style="margin-bottom:8px;color:var(--muted)"><svg class="svgi" style="width:32px;height:32px" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg></div>
+    <div style="font-size:13px;font-weight:600;color:var(--ink)">点击选择，或拖拽 .md 文件到这里</div>
     <div style="font-size:11px;color:var(--muted);margin-top:4px">支持 .md / .markdown · 可一次包含多条洞察</div>
     <input type="file" id="mdFileInput" accept=".md,.markdown,text/markdown,text/plain" style="display:none">
   </div>
@@ -766,7 +769,7 @@
     if(!String(fileText).trim()){if(window.toast)toast('请先选择 .md 文件');return;}
     var r=document.getElementById('mdResult'),old=btn?btn.textContent:'';
     if(btn){btn.disabled=true;btn.textContent='上传中…';}
-    if(r)r.innerHTML='<div style="font-size:12px;color:var(--muted)">⏳ 解析并入库中…</div>';
+    if(r)r.innerHTML='<div style="font-size:12px;color:var(--muted)">解析并入库中…</div>';
     try{
       var resp=await window.JA.api('/api/insights/from-md',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({md:fileText})});
       var j=await resp.json().catch(function(){return{}});
@@ -791,10 +794,10 @@
 
 
 <div class="adm-sub" id="sub-cvideo" style="display:none">
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">🎬 创意洞察上传</div></div><div style="padding:16px">
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">创意洞察上传</div></div><div style="padding:16px">
 <div style="display:grid;grid-template-columns:180px 1fr;gap:16px">
 <div style="display:flex;flex-direction:column;gap:8px">
-<div class="up-area" style="padding:16px" onclick="document.getElementById('cvCoverInput').click()"><div style="font-size:24px;margin-bottom:4px">🖼️</div><div style="font-size:11px;font-weight:600;color:var(--navy)">上传图片</div><div style="font-size:10px">可选多张，第一张为封面</div><input type="file" id="cvCoverInput" accept=".png,.jpg,.jpeg,.webp,.gif" multiple style="display:none" onchange="var fs=this.files;for(var i=0;i<fs.length;i++){if(fs[i].size>2*1024*1024){alert(fs[i].name+' 超过2MB');this.value='';return}}this.parentElement.innerHTML='<div style=font-size:24px;margin-bottom:4px>✅</div><div style=font-size:11px;font-weight:600;color:var(--green)>已选 '+fs.length+' 张图片</div><div style=font-size:9px;color:var(--muted)>第一张作为卡片封面</div>'"></div>
+<div class="up-area" style="padding:16px" onclick="document.getElementById('cvCoverInput').click()"><div style="margin-bottom:6px;color:var(--muted)"><svg class="svgi" style="width:24px;height:24px" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div style="font-size:11px;font-weight:600;color:var(--navy)">上传图片</div><div style="font-size:10px">可选多张，第一张为封面</div><input type="file" id="cvCoverInput" accept=".png,.jpg,.jpeg,.webp,.gif" multiple style="display:none" onchange="var fs=this.files;for(var i=0;i<fs.length;i++){if(fs[i].size>2*1024*1024){alert(fs[i].name+' 超过2MB');this.value='';return}}this.parentElement.innerHTML='<div style=font-size:24px;margin-bottom:4px>✅</div><div style=font-size:11px;font-weight:600;color:var(--green)>已选 '+fs.length+' 张图片</div><div style=font-size:9px;color:var(--muted)>第一张作为卡片封面</div>'"></div>
 <div style="font-size:10px;color:var(--muted);text-align:center">截图保存后上传</div>
 </div>
 <div>
@@ -821,19 +824,19 @@
 <!-- Tab: Users -->
 <div class="adm-pane" id="ap-users">
 <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px">
-<button class="fb a" onclick="admSub2('ap-users','sub-user-list',this)">👥 用户管理</button>
-<button class="fb" onclick="admSub2('ap-users','sub-client-list',this)">🏢 客户管理</button>
+<button class="fb a" onclick="admSub2('ap-users','sub-user-list',this)">用户管理</button>
+<button class="fb" onclick="admSub2('ap-users','sub-client-list',this)">客户管理</button>
 </div>
 <div class="adm-sub active" id="sub-user-list">
 <div class="e-tbl-wrap">
-<div class="e-tbl-head"><div class="e-tbl-title">👥 用户管理</div><button class="btn btn-p btn-sm" onclick="openUserModal(null)">+ 新增用户</button></div>
+<div class="e-tbl-head"><div class="e-tbl-title">用户管理</div><button class="btn btn-p btn-sm" onclick="openUserModal(null)">+ 新增用户</button></div>
 <table class="e-tbl"><thead><tr><th>姓名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody id="userTbl"></tbody></table>
 <div class="e-tbl-ft"><span id="userFtTotal">共 15 名用户</span><span id="userFtDetail">活跃 15 · 停用 0</span></div>
 </div>
 </div>
 <div class="adm-sub" id="sub-client-list" style="display:none">
 <div class="e-tbl-wrap">
-<div class="e-tbl-head"><div class="e-tbl-title">🏢 客户管理</div><button class="btn btn-p btn-sm" onclick="openClientModal(null)">+ 新增客户</button></div>
+<div class="e-tbl-head"><div class="e-tbl-title">客户管理</div><button class="btn btn-p btn-sm" onclick="openClientModal(null)">+ 新增客户</button></div>
 <table class="e-tbl"><thead><tr><th>客户名称</th><th>负责人</th><th>状态</th><th>操作</th></tr></thead><tbody id="clientTbl"></tbody></table>
 <div class="e-tbl-ft"><span id="clientFtTotal">共 34 个客户</span><span>活跃 34 · 停用 0</span></div>
 </div>
@@ -843,7 +846,7 @@
 <!-- Tab: Inbox -->
 <div class="adm-pane" id="ap-inbox">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-<div class="e-tbl-title">💡 需求意见箱</div>
+<div class="e-tbl-title">需求意见箱</div>
 <div style="display:flex;gap:4px"><button class="fb a" onclick="filterInbox('all',this)">全部</button><button class="fb" onclick="filterInbox('unread',this)">未读</button><button class="fb" onclick="filterInbox('adopted',this)">已采纳</button></div></div>
 <div id="inboxList"></div>
 </div>
@@ -851,13 +854,13 @@
 <!-- Tab: Archive -->
 <div class="adm-pane" id="ap-archive">
 <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px">
-<button class="fb a" onclick="admSub2('ap-archive','sub-arch-daily',this)">📡 实时洞察归档</button>
-<button class="fb" onclick="admSub2('ap-archive','sub-arch-cv',this)">🎬 创意洞察归档</button>
-<button class="fb" onclick="admSub2('ap-archive','sub-arch-ppt',this)">📚 月度洞察归档</button>
+<button class="fb a" onclick="admSub2('ap-archive','sub-arch-daily',this)">实时洞察归档</button>
+<button class="fb" onclick="admSub2('ap-archive','sub-arch-cv',this)">创意洞察归档</button>
+<button class="fb" onclick="admSub2('ap-archive','sub-arch-ppt',this)">月度洞察归档</button>
 </div>
 <div class="adm-sub active" id="sub-arch-daily">
 <div class="e-tbl-wrap">
-<div class="e-tbl-head"><div class="e-tbl-title">📡 实时洞察归档（按月）</div><select class="fi" style="width:100px;padding:4px 8px;font-size:11px"><option>2026年4月</option><option>2026年3月</option></select></div>
+<div class="e-tbl-head"><div class="e-tbl-title">实时洞察归档（按月）</div><select class="fi" style="width:100px;padding:4px 8px;font-size:11px"><option>2026年4月</option><option>2026年3月</option></select></div>
 <table class="e-tbl"><thead><tr><th>日期</th><th>文件名</th><th>洞察数</th><th>标注数</th><th>操作</th></tr></thead><tbody>
 <tr><td>2026-04-21</td><td>daily/2026-04-21.html</td><td>10</td><td>47</td><td><button class="btn btn-s btn-xs" onclick="archiveView('daily/2026-04-21.html')">查看</button> <button class="btn btn-s btn-xs" onclick="archiveReplace('2026-04-21')">替换</button></td></tr>
 <tr><td>2026-04-18</td><td>daily/2026-04-18.html</td><td>10</td><td>38</td><td><button class="btn btn-s btn-xs" onclick="archiveView('daily/2026-04-18.html')">查看</button> <button class="btn btn-s btn-xs" onclick="archiveReplace('2026-04-18')">替换</button></td></tr>
@@ -868,14 +871,14 @@
 </div>
 <div class="adm-sub" id="sub-arch-ppt" style="display:none">
 <div class="e-tbl-wrap">
-<div class="e-tbl-head"><div class="e-tbl-title">📚 月度洞察归档（PPT管理）</div><select class="fi" style="width:100px;padding:4px 8px;font-size:11px" id="archMonSel" onchange="renderArchivePPT()"><option value="all">全部</option><option value="2026年4月">2026年4月</option><option value="2026年3月">2026年3月</option></select></div>
+<div class="e-tbl-head"><div class="e-tbl-title">月度洞察归档（PPT管理）</div><select class="fi" style="width:100px;padding:4px 8px;font-size:11px" id="archMonSel" onchange="renderArchivePPT()"><option value="all">全部</option><option value="2026年4月">2026年4月</option><option value="2026年3月">2026年3月</option></select></div>
 <table class="e-tbl"><thead><tr><th>编号</th><th>标题</th><th>分类</th><th>操作</th></tr></thead><tbody id="archPptTbl"></tbody></table>
 <div class="e-tbl-ft"><span id="archPptFt">共 0 条洞察</span><span></span></div>
 </div>
 </div>
 <div class="adm-sub" id="sub-arch-cv" style="display:none">
 <div class="e-tbl-wrap">
-<div class="e-tbl-head"><div class="e-tbl-title">🎬 创意洞察归档</div><select class="fi" style="width:100px;padding:4px 8px;font-size:11px" id="archCvMonSel" onchange="renderArchiveCV()"><option value="all">全部</option><option value="2026年5月">2026年5月</option></select></div>
+<div class="e-tbl-head"><div class="e-tbl-title">创意洞察归档</div><select class="fi" style="width:100px;padding:4px 8px;font-size:11px" id="archCvMonSel" onchange="renderArchiveCV()"><option value="all">全部</option><option value="2026年5月">2026年5月</option></select></div>
 <table class="e-tbl"><thead><tr><th>日期</th><th>标题</th><th>分类</th><th>方法论</th><th>标注数</th><th>操作</th></tr></thead><tbody id="archCvTbl"></tbody></table>
 <div class="e-tbl-ft"><span id="archCvFt">共 0 条</span><span></span></div>
 </div>
@@ -886,19 +889,19 @@
 <!-- Tab: Settings -->
 <div class="adm-pane" id="ap-settings">
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">🏷️ 洞察栏目分类</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="catTags"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新栏目" id="newCatInput" onkeydown="if(event.key==='Enter')addTag('cat',this)"><button class="btn btn-p btn-sm" onclick="addTag('cat',document.getElementById('newCatInput'))">添加</button></div></div></div>
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">🏷️ 反馈标签</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="fbTagsAdmin"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新标签" id="newFbInput" onkeydown="if(event.key==='Enter')addTag('fb',this)"><button class="btn btn-p btn-sm" onclick="addTag('fb',document.getElementById('newFbInput'))">添加</button></div></div></div>
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">📑 使用方式</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="sceneTags"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新场景" id="newSceneInput" onkeydown="if(event.key==='Enter')addTag('scene',this)"><button class="btn btn-p btn-sm" onclick="addTag('scene',document.getElementById('newSceneInput'))">添加</button></div></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">洞察栏目分类</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="catTags"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新栏目" id="newCatInput" onkeydown="if(event.key==='Enter')addTag('cat',this)"><button class="btn btn-p btn-sm" onclick="addTag('cat',document.getElementById('newCatInput'))">添加</button></div></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">反馈标签</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="fbTagsAdmin"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新标签" id="newFbInput" onkeydown="if(event.key==='Enter')addTag('fb',this)"><button class="btn btn-p btn-sm" onclick="addTag('fb',document.getElementById('newFbInput'))">添加</button></div></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">使用方式</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="sceneTags"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新场景" id="newSceneInput" onkeydown="if(event.key==='Enter')addTag('scene',this)"><button class="btn btn-p btn-sm" onclick="addTag('scene',document.getElementById('newSceneInput'))">添加</button></div></div></div>
 
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">🎬 视频分类标签</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="cvCatTags"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新分类" id="newCvCatInput" onkeydown="if(event.key==='Enter')addTag('cvcat',this)"><button class="btn btn-p btn-sm" onclick="addTag('cvcat',document.getElementById('newCvCatInput'))">添加</button></div></div></div>
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">🎬 来源平台</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="cvPlatTags"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新平台" id="newCvPlatInput" onkeydown="if(event.key==='Enter')addTag('cvplat',this)"><button class="btn btn-p btn-sm" onclick="addTag('cvplat',document.getElementById('newCvPlatInput'))">添加</button></div></div></div>
-<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">🔐 登录设置</div></div><div style="padding:14px"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">用户通过账号+密码登录，勾选「记住我」后7天免登录</div><div style="font-size:11px;color:var(--green);font-weight:600">✅ 账号密码认证</div></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">视频分类标签</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="cvCatTags"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新分类" id="newCvCatInput" onkeydown="if(event.key==='Enter')addTag('cvcat',this)"><button class="btn btn-p btn-sm" onclick="addTag('cvcat',document.getElementById('newCvCatInput'))">添加</button></div></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">来源平台</div></div><div style="padding:14px"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="cvPlatTags"></div><div style="display:flex;gap:6px"><input type="text" class="fi" style="width:140px;margin:0;font-size:12px" placeholder="新平台" id="newCvPlatInput" onkeydown="if(event.key==='Enter')addTag('cvplat',this)"><button class="btn btn-p btn-sm" onclick="addTag('cvplat',document.getElementById('newCvPlatInput'))">添加</button></div></div></div>
+<div class="e-tbl-wrap"><div class="e-tbl-head"><div class="e-tbl-title">登录设置</div></div><div style="padding:14px"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">用户通过账号+密码登录，勾选「记住我」后7天免登录</div><div style="font-size:11px;color:var(--green);font-weight:600">账号密码认证（已启用）</div></div></div>
 </div></div>
 
 <!-- Tab: Audit log (admin-only audit of agent⇄server tool calls) -->
 <div class="adm-pane" id="ap-audit">
 <div class="e-tbl-wrap">
-<div class="e-tbl-head"><div class="e-tbl-title">🔍 调用日志 · Agent ⇄ Server 对话审计</div><button class="btn btn-s btn-sm" onclick="auditLoad(0)">↻ 刷新</button></div>
+<div class="e-tbl-head"><div class="e-tbl-title">调用日志 · Agent ⇄ Server 对话审计</div><button class="btn btn-s btn-sm" onclick="auditLoad(0)"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10"/><path d="M20.5 15a9 9 0 0 1-14.9 3.4L1 14"/></svg>刷新</button></div>
 <div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;border-bottom:1px solid var(--border)">
 <div class="frm" style="margin:0"><label class="fl">工具</label><select class="fi" id="auTool" style="width:150px"><option value="">全部</option><option>search_insights</option><option>list_insights</option><option>aggregate_insights</option><option>get_insight</option><option>run_sql</option><option>whoami</option><option>list_tool_calls</option></select></div>
 <div class="frm" style="margin:0"><label class="fl">用户邮箱</label><input type="text" class="fi" id="auEmail" placeholder="全部" style="width:170px"></div>
@@ -976,12 +979,12 @@
 
 <!-- Tab: Token management (admin-only API-key management) -->
 <div class="adm-pane" id="ap-tokens">
-<div style="background:linear-gradient(135deg,#EFF4FF,#F5F0FF);border:1px solid #DBE3FF;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-<div><div style="font-size:13px;font-weight:700;color:var(--navy)">🔌 对外 API · 开发者中心</div><div style="font-size:12px;color:#5B6478">独立页面：生成「每日洞察查询」服务 Key，并查看接口文档（给其他项目对接用）</div></div>
-<button class="btn btn-p btn-sm" onclick="window.open((window.JA_BASE||'')+'/developer.html','_blank')">打开开发者中心 ↗</button>
+<div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)">
+<div><div style="font-size:14px;font-weight:600;color:var(--ink)">对外 API · 开发者中心</div><div style="font-size:12px;color:var(--muted);margin-top:2px">独立页面：生成「每日洞察查询」服务 Key，并查看接口文档（给其他项目对接用）</div></div>
+<button class="btn btn-p btn-sm" onclick="window.open((window.JA_BASE||'')+'/developer.html','_blank')">打开开发者中心<svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></button>
 </div>
 <div class="e-tbl-wrap" style="margin-bottom:14px">
-<div class="e-tbl-head"><div class="e-tbl-title">🔑 生成新 Token · 静态 API Key（给 Codex / 脚本 / Agent 用）</div></div>
+<div class="e-tbl-head"><div class="e-tbl-title">生成新 Token · 静态 API Key（给 Codex / 脚本 / Agent 用）</div></div>
 <div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
 <div class="frm" style="margin:0"><label class="fl">用户邮箱 *</label><input type="email" class="fi" id="kEmail" placeholder="agent@example.com" style="width:200px"></div>
 <div class="frm" style="margin:0"><label class="fl">名称</label><input type="text" class="fi" id="kName" placeholder="可选" style="width:130px"></div>
@@ -994,11 +997,11 @@
 </div>
 <div id="kNewBox" style="display:none;padding:12px 14px;border-top:1px solid var(--border);background:#FFFBEB">
 <div style="font-size:12px;color:#92400E;font-weight:600;margin-bottom:6px">⚠️ 这是明文 Token，只显示这一次，请立即复制保存：</div>
-<div style="display:flex;gap:8px;align-items:center"><code id="kNewVal" style="flex:1;font-size:12px;background:#fff;border:1px solid #FDE68A;border-radius:6px;padding:8px 10px;word-break:break-all"></code><button class="btn btn-s btn-sm" onclick="keyCopy()">📋 复制</button></div>
+<div style="display:flex;gap:8px;align-items:center"><code id="kNewVal" style="flex:1;font-size:12px;background:#fff;border:1px solid #FDE68A;border-radius:6px;padding:8px 10px;word-break:break-all"></code><button class="btn btn-s btn-sm" onclick="keyCopy()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>复制</button></div>
 </div>
 </div>
 <div class="e-tbl-wrap">
-<div class="e-tbl-head"><div class="e-tbl-title">已有 Token 列表</div><button class="btn btn-s btn-sm" onclick="keysLoad()">↻ 刷新</button></div>
+<div class="e-tbl-head"><div class="e-tbl-title">已有 Token 列表</div><button class="btn btn-s btn-sm" onclick="keysLoad()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10"/><path d="M20.5 15a9 9 0 0 1-14.9 3.4L1 14"/></svg>刷新</button></div>
 <table class="e-tbl"><thead><tr><th style="width:96px">前缀</th><th>用户 / 标签</th><th style="width:54px">管理员</th><th style="width:120px">访问组</th><th style="width:96px">创建</th><th style="width:120px">最近使用</th><th style="width:120px">过期</th><th style="width:64px">状态</th><th style="width:140px">操作</th></tr></thead><tbody id="kTbl"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">点击「🔑 Token 管理」加载</td></tr></tbody></table>
 </div>
 </div>
@@ -1025,9 +1028,9 @@
         var st = k.status==='active'?'<span style="color:var(--green);font-weight:600">● 有效</span>'
                : k.status==='revoked'?'<span style="color:var(--red);font-weight:600">● 已吊销</span>'
                : '<span style="color:#D97706;font-weight:600">● 已过期</span>';
-        var copyBtn = k.key_plain ? '<button class="btn btn-s btn-xs" data-key="'+esc(k.key_plain)+'" onclick="keyCopyRow(this)">📋 复制</button>' : '<span style="font-size:10px;color:var(--muted)" title="此 key 在启用明文存储前创建，原文无法恢复，请重新生成">旧·不可复制</span>';
+        var copyBtn = k.key_plain ? '<button class="btn btn-s btn-xs" data-key="'+esc(k.key_plain)+'" onclick="keyCopyRow(this)"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>复制</button>' : '<span style="font-size:10px;color:var(--muted)" title="此 key 在启用明文存储前创建，原文无法恢复，请重新生成">旧·不可复制</span>';
         var revBtn = k.status==='active'? ' <button class="btn btn-s btn-xs" onclick="keyRevoke(\''+k.id+'\')">吊销</button>' : '';
-        var delBtn = k.status!=='active'? ' <button class="btn btn-s btn-xs" style="color:var(--red);border-color:#FECACA" onclick="keyDelete(\''+k.id+'\')">🗑 删除</button>' : '';
+        var delBtn = k.status!=='active'? ' <button class="btn btn-s btn-xs" style="color:var(--red);border-color:#FECACA" onclick="keyDelete(\''+k.id+'\')"><svg class="svgi" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>删除</button>' : '';
         var act = copyBtn + revBtn + delBtn;
         var grp = (k.access_groups&&k.access_groups.length)? esc(k.access_groups.join(',')) : '<span style="color:var(--muted)">公开</span>';
         return '<tr>'+
@@ -1096,7 +1099,7 @@
 
 <!-- FEEDBACK SUBMIT MODAL -->
 <div class="ovm" id="fbSubmitM" onclick="if(event.target===this)this.classList.remove('open')"><div class="ovb">
-<div class="ov-t">📝 提交洞察反馈</div><div class="ov-s" id="fbSubmitSub"></div>
+<div class="ov-t">提交洞察反馈</div><div class="ov-s" id="fbSubmitSub"></div>
 <div class="frm"><label class="fl">是否使用了这条洞察？</label><div class="rating" id="useToggle"><div class="r-opt" onclick="toggleUse(this,'yes')" style="flex:1;text-align:center">✅ 已使用</div><div class="r-opt" onclick="toggleUse(this,'no')" style="flex:1;text-align:center">⏭️ 未使用</div></div></div>
 <div id="usedSection" style="display:none">
 <div class="frm"><label class="fl">使用方式</label><div class="sc-opts"><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">📑</div><div class="sc-lb">客户提案</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">🤝</div><div class="sc-lb">客户会议</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">📊</div><div class="sc-lb">月报引用</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">🎓</div><div class="sc-lb">内部培训</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">📱</div><div class="sc-lb">朋友圈</div></div><div class="sc-opt" onclick="this.classList.toggle('sel')"><div class="sc-ic">📧</div><div class="sc-lb">邮件/微信</div></div></div></div>
@@ -1399,7 +1402,7 @@ function toast(m){var t=document.getElementById('ts');t.textContent=m;t.classLis
 <script>
 // === js/library.js ===
 /* ========== INSIGHT CARDS ========== */
-function mk(i){return'<div class="ic-card" style="position:relative" onclick="openD('+i.id+')"><button onclick="event.stopPropagation();libFav('+i.id+',event)" title="收藏" style="position:absolute;top:8px;right:8px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(0,0,0,.18);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;transition:transform .15s ease;color:'+(isLibFav(i.id)?'var(--gold)':'#94A3B8')+'" onmouseover="this.style.transform=\'scale(1.12)\'" onmouseout="this.style.transform=\'\'">'+(isLibFav(i.id)?'⭐':'☆')+'</button><img class="ic-img" src="'+i.img+'" alt="" onerror="this.style.background=\'linear-gradient(135deg,#E2E8F0,#CBD5E1)\'"><div class="ic-bd"><div class="ic-tgs"><span class="tg" style="background:var(--navy);color:#fff;font-size:9px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span></div><div class="ic-tt">'+i.tz+'</div><div class="ic-mt"><span>'+i.mon+'</span><span class="ic-dl" onclick="event.stopPropagation();toast(\'下载中\')">⬇️</span></div></div></div>'}
+function mk(i){return'<div class="ic-card" style="position:relative" onclick="openD('+i.id+')"><button onclick="event.stopPropagation();libFav('+i.id+',event)" title="收藏" style="position:absolute;top:8px;right:8px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(0,0,0,.18);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;transition:transform .15s ease;color:'+(isLibFav(i.id)?'var(--gold)':'#94A3B8')+'" onmouseover="this.style.transform=\'scale(1.12)\'" onmouseout="this.style.transform=\'\'">'+(isLibFav(i.id)?'<svg class="svgi" style="width:15px;height:15px" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>':'<svg class="svgi" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>')+'</button><img class="ic-img" src="'+i.img+'" alt="" onerror="this.style.background=\'linear-gradient(135deg,#E2E8F0,#CBD5E1)\'"><div class="ic-bd"><div class="ic-tgs"><span class="tg" style="background:var(--navy);color:#fff;font-size:9px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span></div><div class="ic-tt">'+i.tz+'</div><div class="ic-mt"><span>'+i.mon+'</span><span class="ic-dl" onclick="event.stopPropagation();toast(\'下载中\')"><svg class="svgi" style="width:12px;height:12px;vertical-align:-2px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></span></div></div></div>'}
 function rL(){document.getElementById('latG').innerHTML=D.slice().reverse().slice(0,4).map(mk).join('')}
 var libPage=0,_libKey='';var LIB_PAGE_SIZE=5;
 function rB(){
@@ -1655,7 +1658,7 @@ function renderDailyCards(){
   var _dp=document.getElementById('diPager');if(_dp)_dp.innerHTML=''; // clear pager; main path repopulates
 
   if(!diCards.length){
-    list.innerHTML='<div class="di-empty">📡 请选择日期加载洞察，或在管理后台上传 HTML 文件</div>';
+    list.innerHTML='<div class="di-empty">请选择日期加载洞察，或在管理后台上传 .md 文件</div>';
     return;
   }
 
@@ -1702,7 +1705,8 @@ function renderDailyCards(){
     h+='<span class="di-num">'+c.num+'</span>';
     h+='<span class="di-cat '+catCls+'">'+label+'</span>';
     if(c.status){
-      h+='<span class="di-status '+statusCls+'">'+c.status+'</span>';
+      var stTxt=String(c.status).replace(/[←-⇿⌀-➿⬀-⯿️\u{1F000}-\u{1FAFF}]/gu,'').replace(/\s+/g,' ').trim();
+      h+='<span class="di-status '+statusCls+'">'+stTxt+'</span>';
     }
     h+='</div>';
     h+='<div class="di-hook">'+hook+'</div>';
@@ -1727,9 +1731,9 @@ function renderDailyCards(){
       h+='<div class="di-rec">'+rec+'</div>';
     }
     h+='<div class="di-actions">';
-    h+='<button class="da-btn'+(isI?' clicked':'')+'" onclick="togDA(this,\'interest\',\''+did+'\')" title="收藏">⭐ '+(en?'Favorite':'收藏')+'</button>';
-    h+='<button class="da-btn'+(isU?' clicked':'')+'" onclick="togDA(this,\'used\',\''+did+'\')" title="已使用">✅ '+(en?'Used':'已使用')+'</button>';
-    h+='<button class="da-btn'+(isD?' clicked-deal':'')+'" onclick="togDA(this,\'deal\',\''+did+'\')" title="促成销售">🎯 '+(en?'Deal':'促成销售')+'</button>';
+    h+='<button class="da-btn'+(isI?' clicked':'')+'" onclick="togDA(this,\'interest\',\''+did+'\')" title="收藏"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> '+(en?'Favorite':'收藏')+'</button>';
+    h+='<button class="da-btn'+(isU?' clicked':'')+'" onclick="togDA(this,\'used\',\''+did+'\')" title="已使用"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.1l-3-3"/></svg> '+(en?'Used':'已使用')+'</button>';
+    h+='<button class="da-btn'+(isD?' clicked-deal':'')+'" onclick="togDA(this,\'deal\',\''+did+'\')" title="促成销售"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg> '+(en?'Deal':'促成销售')+'</button>';
     h+='</div>';
     h+='</div>';
     return h;
@@ -1757,7 +1761,7 @@ function renderTags(){
   var cvp=document.getElementById('cvPlatTags');if(cvp)cvp.innerHTML=CVPLATS.map(function(p,i){return'<span style="padding:3px 10px;border-radius:12px;background:#EDE9FE;color:#6D28D9;font-size:10px;font-weight:500;cursor:pointer">'+p+' <span onclick="event.stopPropagation();if(confirm(\'删除平台「'+p+'」？\')){CVPLATS.splice('+i+',1);renderTags();toast(\'已删除\')}" style="cursor:pointer;opacity:.7;margin-left:2px">✕</span></span>'}).join('');
 }
 function addTag(type,inputEl){var v=inputEl.value.trim();if(!v)return;if(type==='cat'){if(CATS.indexOf(v)>=0){toast('已存在');return}CATS.push(v);saveCats()}else if(type==='fb'){if(FBTAGS.indexOf(v)>=0){toast('已存在');return}FBTAGS.push(v)}else if(type==='cvcat'){if(CVCATS.indexOf(v)>=0){toast('已存在');return}CVCATS.push(v)}else if(type==='cvplat'){if(CVPLATS.indexOf(v)>=0){toast('已存在');return}CVPLATS.push(v)}else{if(SCENES.indexOf(v)>=0){toast('已存在');return}SCENES.push(v)}inputEl.value='';renderTags();renderCVAdminDropdowns();loadDaily(curDate);toast('已添加「'+v+'」')}
-function renderChart(){var data=[{c:'SG院校',v:142,p:88},{c:'中国教育',v:131,p:82},{c:'小红书',v:114,p:71},{c:'AEO/GEO',v:85,p:55},{c:'AI&科技',v:88,p:55},{c:'全球竞争',v:77,p:48},{c:'品牌营销',v:56,p:35},{c:'SG本地',v:48,p:30},{c:'跨境金融',v:40,p:25},{c:'印度市场',v:19,p:12}],colors=['#3B82F6','#8B5CF6','#EF4444','#10B981','#10B981','#F59E0B','#F97316','#6366F1','#EC4899','#78716C'];document.getElementById('catChart').innerHTML=data.map(function(d,i){return'<div style="display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:6px"><div style="width:60px;text-align:right;color:var(--muted);font-weight:500">'+d.c+'</div><div style="flex:1;height:20px;background:#F1F5F9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+d.p+'%;background:'+colors[i]+';border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:9px;color:#fff;font-weight:600">'+d.p+'%</div></div><div style="width:30px;font-weight:600;color:var(--navy);font-size:11px">'+d.v+'</div></div>'}).join('')}
+function renderChart(){var data=[{c:'SG院校',v:142,p:88},{c:'中国教育',v:131,p:82},{c:'小红书',v:114,p:71},{c:'AEO/GEO',v:85,p:55},{c:'AI&科技',v:88,p:55},{c:'全球竞争',v:77,p:48},{c:'品牌营销',v:56,p:35},{c:'SG本地',v:48,p:30},{c:'跨境金融',v:40,p:25},{c:'印度市场',v:19,p:12}];document.getElementById('catChart').innerHTML=data.map(function(d){return'<div style="display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:6px"><div style="width:60px;text-align:right;color:var(--muted);font-weight:500">'+d.c+'</div><div style="flex:1;height:18px;background:#F2F3F5;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+d.p+'%;background:#E8F0FE;border:1px solid #B6D0F5;box-sizing:border-box;border-radius:3px;display:flex;align-items:center;padding-left:6px;font-size:9px;color:#1F5FBF;font-weight:600">'+d.p+'%</div></div><div style="width:30px;font-weight:600;color:var(--ink);font-size:11px">'+d.v+'</div></div>'}).join('')}
 
 /* ========== USER/CLIENT MODALS ========== */
 var editUserIdx=null;
@@ -1831,16 +1835,16 @@ var dailyTotal=0;var monData={};
 if(_stat&&_stat.insights&&_stat.insights.by_month){_stat.insights.by_month.forEach(function(b){var m=parseInt(String(b.bucket).split('-')[1]);if(m){monData[m]=(monData[m]||0)+b.count;dailyTotal+=b.count;}});}
 else{dailyKeys.forEach(function(k){var dt=k.replace('jh_daily_','');var m=parseInt(dt.split('-')[1]);try{var arr=JSON.parse(localStorage.getItem(k));dailyTotal+=arr.length;monData[m]=(monData[m]||0)+arr.length}catch(e){}});}
 var mx=1;for(var mm in monData){if(monData[mm]>mx)mx=monData[mm]}
-document.getElementById('monthTrend').innerHTML=mNames.map(function(n,i){var m=i+1;var v=monData[m]||0;var pct=Math.round(v/mx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:30px;text-align:right;color:var(--muted);font-weight:500">'+n+'</div><div style="flex:1;height:18px;background:#F1F5F9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#10B981,#059669);border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:9px;color:#fff;font-weight:600">'+(v||'')+'</div></div><div style="width:24px;font-weight:600;color:var(--navy);font-size:11px">'+v+'</div></div>'}).join('')+'<div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:right">年度累计 '+dailyTotal+' 条</div>';
+document.getElementById('monthTrend').innerHTML=mNames.map(function(n,i){var m=i+1;var v=monData[m]||0;var pct=Math.round(v/mx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:30px;text-align:right;color:var(--muted);font-weight:500">'+n+'</div><div style="flex:1;height:18px;background:#F2F3F5;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#E3F2EC;border:1px solid #A7D3C1;box-sizing:border-box;border-radius:3px;display:flex;align-items:center;padding-left:6px;font-size:9px;color:#0F6E56;font-weight:600">'+(v||'')+'</div></div><div style="width:24px;font-weight:600;color:var(--navy);font-size:11px">'+v+'</div></div>'}).join('')+'<div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:right">年度累计 '+dailyTotal+' 条</div>';
 var cvMonData={};
 if(_stat&&_stat.creative&&_stat.creative.by_month){_stat.creative.by_month.forEach(function(b){var m=parseInt(String(b.bucket).split('-')[1]);if(m)cvMonData[m]=(cvMonData[m]||0)+b.count;});}
 else{(CV||[]).forEach(function(v){if(v.date){var m=parseInt(v.date.split('-')[1]);if(m)cvMonData[m]=(cvMonData[m]||0)+1}});}
 var cvTotal=(_stat&&_stat.creative)?_stat.creative.total:(CV?CV.length:0);var cvMx=1;for(var cm in cvMonData){if(cvMonData[cm]>cvMx)cvMx=cvMonData[cm]}
-document.getElementById('cvTrend').innerHTML=mNames.map(function(n,i){var m=i+1;var v=cvMonData[m]||0;var pct=Math.round(v/cvMx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:30px;text-align:right;color:var(--muted);font-weight:500">'+n+'</div><div style="flex:1;height:18px;background:#F1F5F9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#F59E0B,#D97706);border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:9px;color:#fff;font-weight:600">'+(v||'')+'</div></div><div style="width:24px;font-weight:600;color:var(--navy);font-size:11px">'+v+'</div></div>'}).join('')+'<div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:right">年度累计 '+cvTotal+' 条</div>';
+document.getElementById('cvTrend').innerHTML=mNames.map(function(n,i){var m=i+1;var v=cvMonData[m]||0;var pct=Math.round(v/cvMx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:30px;text-align:right;color:var(--muted);font-weight:500">'+n+'</div><div style="flex:1;height:18px;background:#F2F3F5;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#ECEDF0;border:1px solid #C9CDD4;box-sizing:border-box;border-radius:3px;display:flex;align-items:center;padding-left:6px;font-size:9px;color:#4E5969;font-weight:600">'+(v||'')+'</div></div><div style="width:24px;font-weight:600;color:var(--navy);font-size:11px">'+v+'</div></div>'}).join('')+'<div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:right">年度累计 '+cvTotal+' 条</div>';
 var catEl=document.getElementById('catChart');
 if(catEl&&_stat&&_stat.insights&&_stat.insights.by_category){
   var cats=_stat.insights.by_category;var cMx=1;cats.forEach(function(b){if(b.count>cMx)cMx=b.count;});
-  catEl.innerHTML=cats.length?cats.map(function(b){var pct=Math.round(b.count/cMx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:110px;text-align:right;color:var(--muted);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+b.bucket+'</div><div style="flex:1;height:18px;background:#F1F5F9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#3B82F6,#2563EB);border-radius:4px"></div></div><div style="width:24px;font-weight:600;color:var(--navy);text-align:right">'+b.count+'</div></div>'}).join(''):'<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">暂无数据</div>';
+  catEl.innerHTML=cats.length?cats.map(function(b){var pct=Math.round(b.count/cMx*100);return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px"><div style="width:110px;text-align:right;color:var(--muted);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+b.bucket+'</div><div style="flex:1;height:18px;background:#F2F3F5;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#E8F0FE;border:1px solid #B6D0F5;box-sizing:border-box;border-radius:3px"></div></div><div style="width:24px;font-weight:600;color:var(--navy);text-align:right">'+b.count+'</div></div>'}).join(''):'<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">暂无数据</div>';
 }
 var hEl=document.getElementById('ovHeatmap');if(hEl){
 var weeks=12,days=7,today=new Date(),dNames=['日','一','二','三','四','五','六'];
@@ -1849,7 +1853,7 @@ var dailyAnno={};dailyKeys.forEach(function(k){var d=k.replace('jh_daily_','');d
 var grid=[];for(var w=weeks-1;w>=0;w--){for(var dd=0;dd<days;dd++){var dt=new Date(today);dt.setDate(dt.getDate()-w*7-(today.getDay()-dd));if(dt>today){grid.push({d:'',v:0});continue}var ds=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');var v=(colAnno[ds]||0)+(dailyAnno[ds]||0);grid.push({d:ds,v:v})}}
 var hMax=1;grid.forEach(function(g){if(g.v>hMax)hMax=g.v});
 var wLabels=[];for(var ww=weeks-1;ww>=0;ww--){var wd=new Date(today);wd.setDate(wd.getDate()-ww*7);var wm=(wd.getMonth()+1)+'/'+wd.getDate();wLabels.push(wm)}
-hEl.innerHTML='<div style="display:grid;grid-template-columns:28px repeat('+weeks+',1fr);gap:3px;font-size:10px"><div></div>'+wLabels.map(function(l){return'<div style="text-align:center;color:var(--muted);font-weight:500;font-size:9px">'+l+'</div>'}).join('')+dNames.map(function(dn,di){return'<div style="text-align:right;padding-right:4px;color:var(--muted);font-weight:500;line-height:20px">'+dn+'</div>'+Array.from({length:weeks},function(_,wi){var cell=grid[wi*7+di];if(!cell||!cell.d)return'<div style="width:100%;height:20px;border-radius:3px;background:#F1F5F9"></div>';var op=cell.v===0?0:Math.min(0.2+cell.v/hMax*0.8,1);return'<div style="width:100%;height:20px;border-radius:3px;background:rgba(59,130,246,'+op+');cursor:pointer" title="'+cell.d+': '+cell.v+'条标注"></div>'}).join('')}).join('')+'</div><div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:flex-end;font-size:10px;color:var(--muted)"><span>少</span><div style="width:14px;height:14px;border-radius:2px;background:rgba(59,130,246,.15)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(59,130,246,.4)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(59,130,246,.65)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(59,130,246,.9)"></div><span>多</span></div>'
+hEl.innerHTML='<div style="display:grid;grid-template-columns:28px repeat('+weeks+',1fr);gap:3px;font-size:10px"><div></div>'+wLabels.map(function(l){return'<div style="text-align:center;color:var(--muted);font-weight:500;font-size:9px">'+l+'</div>'}).join('')+dNames.map(function(dn,di){return'<div style="text-align:right;padding-right:4px;color:var(--muted);font-weight:500;line-height:20px">'+dn+'</div>'+Array.from({length:weeks},function(_,wi){var cell=grid[wi*7+di];if(!cell||!cell.d)return'<div style="width:100%;height:20px;border-radius:3px;background:#F1F5F9"></div>';var op=cell.v===0?0:Math.min(0.2+cell.v/hMax*0.8,1);return'<div style="width:100%;height:20px;border-radius:3px;background:rgba(22,119,255,'+op+');cursor:pointer" title="'+cell.d+': '+cell.v+'条标注"></div>'}).join('')}).join('')+'</div><div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:flex-end;font-size:10px;color:var(--muted)"><span>少</span><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.15)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.4)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.65)"></div><div style="width:14px;height:14px;border-radius:2px;background:rgba(22,119,255,.9)"></div><span>多</span></div>'
 }}
 
 var labels={interest:'⭐ 收藏',used:'✅ 已使用',deal:'🎯 促进销售'};
@@ -2178,7 +2182,7 @@ function renderFav(){
   var dates=Object.keys(grouped).sort().reverse();
   var list=document.getElementById('favList');
   if(!list)return;
-  if(!dates.length){list.innerHTML='<div class="di-empty">📌 暂无收藏，在实时洞察中点击标注按钮即可添加</div>';return}
+  if(!dates.length){list.innerHTML='<div class="di-empty">暂无收藏，在实时洞察中点击标注按钮即可添加</div>';return}
   var tmp=document.createElement('div');
   list.innerHTML=dates.map(function(date){
     var rows=grouped[date];
@@ -2298,7 +2302,7 @@ function renderFavLib(){
   var q=((document.getElementById('favLibSearchInput')||{}).value||'').trim().toLowerCase();
   if(q)items=items.filter(function(d){return(d.tz+' '+d.cat+' '+d.mon).toLowerCase().indexOf(q)>=0});
   var cnt=document.getElementById('favLibCntTotal');if(cnt)cnt.textContent=items.length+' 条';
-  if(!items.length){grid.innerHTML='<div class="di-empty">'+(libCol.length?'📌 该筛选条件下暂无收藏':'📌 暂无月度洞察收藏，在月度洞察中点击 ☆ 收藏按钮即可添加')+'</div>';return}
+  if(!items.length){grid.innerHTML='<div class="di-empty">'+(libCol.length?'该筛选条件下暂无收藏':'暂无月度洞察收藏，在月度洞察中点击 ☆ 收藏按钮即可添加')+'</div>';return}
   grid.innerHTML=items.map(mk).join('');
 }
 var favCvYr=2026,favCvMo=0;
@@ -2321,7 +2325,7 @@ function renderFavCv(){
   var sq=((document.getElementById('favCvSearchInput')||{}).value||'').trim().toLowerCase();
   if(sq)items=items.filter(function(v){return(v.title+' '+v.cat+' '+v.plat+' '+(v.methods||[]).join(' ')).toLowerCase().indexOf(sq)>=0});
   var cntEl=document.getElementById('favCvCntTotal');if(cntEl)cntEl.textContent=items.length+' 条';
-  if(!items.length){grid.innerHTML='<div class="di-empty">'+(all.length?'📌 该筛选条件下暂无收藏':'📌 暂无创意洞察收藏，在创意洞察中点击⭐收藏按钮即可添加')+'</div>';return}
+  if(!items.length){grid.innerHTML='<div class="di-empty">'+(all.length?'该筛选条件下暂无收藏':'暂无创意洞察收藏，在创意洞察中点击⭐收藏按钮即可添加')+'</div>';return}
   grid.innerHTML=items.map(function(v){
     var platClr={'小红书':'#FF2442','抖音':'#111','视频号':'#07C160','B站':'#00A1D6','YouTube':'#FF0000','TikTok':'#111','Instagram':'#E1306C'}[v.plat]||'#64748B';
     var thumbHtml=v.imgs&&v.imgs.length?'<img src="'+v.imgs[0]+'" style="width:100%;height:100%;object-fit:cover">':'<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;flex-direction:column;gap:4px"><div style="font-size:28px;opacity:.6">'+cvPlatIcon(v.plat)+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">'+v.plat+'</div></div>';
@@ -2371,7 +2375,7 @@ function renderFB(){var _l=document.getElementById('fbList');if(_l)_l.innerHTML=
 function openFBSub(id){var i=D.find(function(x){return x.id===id});if(!i)return;document.getElementById('fbSubmitSub').textContent='洞察 #'+i.num+' · '+i.tz;document.getElementById('fbSubmitM').dataset.iid=id;document.getElementById('usedSection').style.display='none';document.getElementById('unusedSection').style.display='none';document.getElementById('fbClientOther').style.display='none';document.querySelectorAll('#fbSubmitM .r-opt').forEach(function(e){e.classList.remove('sel')});document.querySelectorAll('#fbSubmitM .sc-opt').forEach(function(e){e.classList.remove('sel')});document.querySelectorAll('#fbSubmitM .ft-tag').forEach(function(e){e.classList.remove('sel')});document.querySelectorAll('#fbSubmitM textarea').forEach(function(e){e.value=''});document.querySelectorAll('#fbSubmitM input[type=text]').forEach(function(e){e.value=''});var cs=document.getElementById('fbClientSel');cs.innerHTML='<option value="">请选择客户</option>';CLIENTS.forEach(function(cl){var o=document.createElement('option');o.value=cl;o.textContent=cl;cs.appendChild(o)});var o2=document.createElement('option');o2.value='other';o2.textContent='其他…';cs.appendChild(o2);document.getElementById('fbSubmitM').classList.add('open')}
 function toggleUse(el,v){sr(el);document.getElementById('usedSection').style.display=v==='yes'?'block':'none';document.getElementById('unusedSection').style.display=v==='no'?'block':'none'}
 function sr(el){el.parentElement.querySelectorAll('.r-opt').forEach(function(e){e.classList.remove('sel')});el.classList.add('sel')}
-function submitFB(){var m=document.getElementById('fbSubmitM'),id=parseInt(m.dataset.iid),ut=document.querySelector('#useToggle .r-opt.sel');if(!ut){toast('请选择是否使用');return}var used=ut.textContent.indexOf('已使用')>=0;var rec={u:used,tm:new Date().toISOString()};if(used){var ways=[];document.querySelectorAll('#usedSection .sc-opt.sel .sc-lb').forEach(function(e){ways.push(e.textContent)});rec.ways=ways;var cSel=document.getElementById('fbClientSel');rec.client=cSel.value==='other'?document.getElementById('fbClientOther').value.trim():cSel.value;var react=document.querySelector('#fbReactGroup .r-opt.sel');rec.react=react?react.textContent.replace(/^.{2}/,''):'';var tags=[];document.querySelectorAll('#usedSection .ft-tag.sel').forEach(function(e){tags.push(e.textContent)});rec.tags=tags;rec.cfb=document.getElementById('fbCfb').value.trim();var follow=document.querySelector('#fbFollowGroup .r-opt.sel');rec.follow=follow?follow.textContent.indexOf('是')>=0:false;rec.note=document.getElementById('fbNote').value.trim()}else{var reason=document.querySelector('#unusedSection .r-opt.sel');rec.reason=reason?reason.textContent:'';rec.suggest=document.getElementById('fbSuggest').value.trim()}fbD[id]=rec;lsSave('jh_fb',fbD);m.classList.remove('open');renderFB();updateKPI();toast('📝 已提交')}
+function submitFB(){var m=document.getElementById('fbSubmitM'),id=parseInt(m.dataset.iid),ut=document.querySelector('#useToggle .r-opt.sel');if(!ut){toast('请选择是否使用');return}var used=ut.textContent.indexOf('已使用')>=0;var rec={u:used,tm:new Date().toISOString()};if(used){var ways=[];document.querySelectorAll('#usedSection .sc-opt.sel .sc-lb').forEach(function(e){ways.push(e.textContent)});rec.ways=ways;var cSel=document.getElementById('fbClientSel');rec.client=cSel.value==='other'?document.getElementById('fbClientOther').value.trim():cSel.value;var react=document.querySelector('#fbReactGroup .r-opt.sel');rec.react=react?react.textContent.replace(/^.{2}/,''):'';var tags=[];document.querySelectorAll('#usedSection .ft-tag.sel').forEach(function(e){tags.push(e.textContent)});rec.tags=tags;rec.cfb=document.getElementById('fbCfb').value.trim();var follow=document.querySelector('#fbFollowGroup .r-opt.sel');rec.follow=follow?follow.textContent.indexOf('是')>=0:false;rec.note=document.getElementById('fbNote').value.trim()}else{var reason=document.querySelector('#unusedSection .r-opt.sel');rec.reason=reason?reason.textContent:'';rec.suggest=document.getElementById('fbSuggest').value.trim()}fbD[id]=rec;lsSave('jh_fb',fbD);m.classList.remove('open');renderFB();updateKPI();toast('已提交')}
 function openFBDet(id){var i=D.find(function(x){return x.id===id});if(!i)return;var fb=fbD[id];document.getElementById('fbDetT').textContent='洞察 #'+i.num+' 反馈详情';document.getElementById('fbDetS').textContent=i.tz;document.getElementById('fbDetC').innerHTML=fb?'<div style="margin-bottom:10px"><span class="mf-badge '+(fb.u?'done-used':'done-unused')+'">'+(fb.u?'已使用':'未使用')+'</span><span style="color:var(--muted);margin-left:8px;font-size:11px">'+new Date(fb.tm).toLocaleString('zh-CN')+'</span></div><div style="font-size:12px;color:var(--muted)">完整记录需后端API</div>':'';document.getElementById('fbDetailM').classList.add('open')}
 function popClients(){document.getElementById('fbClientSel').innerHTML='<option value="">请选择客户...</option>'+CLIENTS.map(function(c){return'<option>'+c+'</option>'}).join('')+'<option value="other">其他（手动填写）</option>'}
 
@@ -2555,7 +2559,7 @@ try {
     curDate = d;
     var pick = document.getElementById('dailyPick'); if(pick) pick.value = d;
     var lbl = document.getElementById('diDateLabel'); if(lbl) lbl.textContent = d;
-    var list = document.getElementById('diList'); if(list) list.innerHTML = '<div class="di-empty">⏳ 加载中…</div>';
+    var list = document.getElementById('diList'); if(list) list.innerHTML = '<div class="di-empty">加载中…</div>';
     try {
       var r = await JA.api('/api/daily?date=' + encodeURIComponent(d));
       var j = await r.json();
