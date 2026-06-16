@@ -1336,7 +1336,7 @@ try{cvCol=JSON.parse(localStorage.getItem('jh_cvcol')||'[]')}catch(e){cvCol=[]}
 var libCol=[];
 try{libCol=JSON.parse(localStorage.getItem('jh_libcol')||'[]')}catch(e){libCol=[]}
 var cvYear=2026,cvMon=5,cvCatF='全部';
-var cvPage=0,_cvKey='',CV_PAGE_SIZE=5;
+var cvPage=0,_cvKey='',CV_PAGE_SIZE=8;
 var col=[],fbD={};
 try{col=JSON.parse(localStorage.getItem('jh_col')||'[]')}catch(e){col=[]}
 /* migrate old col format {c,d,tp,t,cat} → new {did,tp,tm} */
@@ -1405,7 +1405,7 @@ function toast(m){var t=document.getElementById('ts');t.textContent=m;t.classLis
 /* ========== INSIGHT CARDS ========== */
 function mk(i){return'<div class="ic-card" style="position:relative" onclick="openD('+i.id+')"><button onclick="event.stopPropagation();libFav('+i.id+',event)" title="收藏" style="position:absolute;top:8px;right:8px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(0,0,0,.18);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;transition:transform .15s ease;color:'+(isLibFav(i.id)?'var(--gold)':'#94A3B8')+'" onmouseover="this.style.transform=\'scale(1.12)\'" onmouseout="this.style.transform=\'\'">'+(isLibFav(i.id)?'<svg class="svgi" style="width:15px;height:15px" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>':'<svg class="svgi" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>')+'</button><img class="ic-img" src="'+i.img+'" alt="" onerror="this.style.background=\'linear-gradient(135deg,#E2E8F0,#CBD5E1)\'"><div class="ic-bd"><div class="ic-tgs"><span class="tg" style="background:var(--navy);color:#fff;font-size:9px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span></div><div class="ic-tt">'+i.tz+'</div><div class="ic-mt"><span>'+i.mon+'</span><span class="ic-dl" onclick="event.stopPropagation();toast(\'下载中\')"><svg class="svgi" style="width:12px;height:12px;vertical-align:-2px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></span></div></div></div>'}
 function rL(){document.getElementById('latG').innerHTML=D.slice().reverse().slice(0,4).map(mk).join('')}
-var libPage=0,_libKey='';var LIB_PAGE_SIZE=5;
+var libPage=0,_libKey='';var LIB_PAGE_SIZE=8;
 function rB(){
   var f=cF==='全部'?D:D.filter(function(i){return i.cat===cF});
   if(curMon!=='all')f=f.filter(function(i){return i.mon===curMon});
@@ -1420,7 +1420,7 @@ function rB(){
 function renderLibPager(total,pages){
   var g=document.getElementById('libG');if(!g)return;
   var el=document.getElementById('libPager');
-  if(!el){el=document.createElement('div');el.id='libPager';el.style.cssText='display:flex;justify-content:center;align-items:center;gap:12px;margin:16px 0 4px;font-size:12px;color:var(--muted)';if(g.parentNode)g.parentNode.insertBefore(el,g.nextSibling);}
+  if(!el){el=document.createElement('div');el.id='libPager';el.style.cssText='display:flex;justify-content:center;align-items:center;gap:12px;margin:16px 0 4px;font-size:12px;color:var(--muted)';var anchor=g.closest('.lib-layout')||g;if(anchor.parentNode)anchor.parentNode.insertBefore(el,anchor.nextSibling);}
   if(total<=LIB_PAGE_SIZE){el.innerHTML='';return;}
   el.innerHTML='<button class="btn btn-s btn-xs" '+(libPage<=0?'disabled':'')+' onclick="libGo(-1)">‹ 上一页</button>'+
     '<span>第 '+(libPage+1)+' / '+pages+' 页</span>'+
