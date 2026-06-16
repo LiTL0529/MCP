@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JA 每日洞察 API · 开发者中心</title>
+<style>
+:root{--navy:#0B1D3A;--accent:#3B82F6;--accent2:#2563EB;--green:#10B981;--red:#EF4444;--gold:#F59E0B;--purple:#8B5CF6;--bg:#F3F6FB;--card:#FFF;--text:#1E293B;--muted:#64748B;--border:#E2E8F0;--shadow:0 1px 3px rgba(0,0,0,.08);--shadow-lg:0 8px 24px rgba(0,0,0,.1);--r:10px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:24px 18px 60px}
+header{margin-bottom:18px}
+h1{font-size:20px;color:var(--navy);margin:0 0 4px}
+.sub{font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:8px;margin:18px 0;border-bottom:1px solid var(--border)}
+.tab{border:none;background:none;cursor:pointer;font-size:14px;color:var(--muted);padding:8px 14px;border-bottom:2px solid transparent;font-weight:600}
+.tab.active{color:var(--navy);border-bottom-color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.card h2{font-size:15px;color:var(--navy);margin:0 0 12px}
+.banner{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px}
+.banner.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#047857}
+.banner.warn{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
+.banner.err{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
+.frm{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld label{font-size:11px;color:var(--muted);font-weight:600}
+.fi{border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;outline:none}
+.fi:focus{border-color:var(--accent)}
+.chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--navy);padding-bottom:7px}
+.btn{border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:var(--accent2)}
+.btn-p:disabled{background:#94A3B8;cursor:not-allowed}
+.btn-s{background:#fff;border:1px solid var(--border);color:var(--navy)}
+.reveal{margin-top:14px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:12px}
+.reveal .k{display:flex;gap:8px;align-items:center;margin-top:6px}
+code,.mono{font-family:"SF Mono", Menlo,Consolas,monospace}
+.key{flex:1;background:#fff;border:1px solid #FDE68A;border-radius:6px;padding:8px 10px;font-size:12px;word-break:break-all}
+pre{background:#0B1D3A;color:#E2E8F0;border-radius:8px;padding:12px 14px;overflow:auto;font-size:12px;line-height:1.6}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{border:1px solid var(--border);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:#F8FAFC;color:var(--navy);font-weight:700}
+.doc h2{font-size:16px;color:var(--navy);margin:22px 0 8px;padding-top:8px;border-top:1px solid var(--border)}
+.doc h2:first-child{border-top:none;padding-top:0}
+.doc h3{font-size:14px;color:var(--navy);margin:14px 0 6px}
+.doc p,.doc li{font-size:13px}
+.pill{display:inline-block;background:#EDE9FE;color:#6D28D9;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600}
+.muted{color:var(--muted);font-size:12px}
+.hide{display:none}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🔌 JA 每日洞察 API · 开发者中心</h1>
+    <div class="sub">为其他项目按用户拉取每日（实时）洞察 —— 在这里生成接入用的 API Key，并查看接口文档。</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-pane="gen" onclick="showPane('gen',this)">🔑 生成 API Key</button>
+    <button class="tab" data-pane="doc" onclick="showPane('doc',this)">📘 接口文档</button>
+  </div>
+
+  <!-- ============ 生成 Key ============ -->
+  <section id="pane-gen">
+    <div id="adminBanner" class="banner warn">正在检测登录状态…</div>
+
+    <div class="card">
+      <h2>生成新 API Key</h2>
+      <div class="frm">
+        <div class="fld"><label>用户邮箱 *</label><input class="fi" id="kEmail" type="email" placeholder="svc@yourapp.com" style="width:210px"></div>
+        <div class="fld"><label>名称</label><input class="fi" id="kName" type="text" placeholder="对接服务" style="width:140px"></div>
+        <div class="fld"><label>标签</label><input class="fi" id="kLabel" type="text" placeholder="daily-api" style="width:140px"></div>
+        <div class="fld"><label>访问组（逗号分隔，留空=仅公开）</label><input class="fi" id="kGroups" type="text" placeholder="NUS,SMU" style="width:170px"></div>
+        <div class="fld"><label>过期日期（留空=永不）</label><input class="fi" id="kExpiry" type="date" style="width:150px"></div>
+      </div>
+      <div style="display:flex;gap:18px;margin:12px 0 4px;flex-wrap:wrap">
+        <label class="chk"><input type="checkbox" id="kQueryDaily" checked> 每日洞察查询权限（query:daily）</label>
+        <label class="chk"><input type="checkbox" id="kAdmin"> 管理员 Key（全权限）</label>
+      </div>
+      <div class="muted" style="margin-bottom:12px">用于「每日洞察 API」对接时，勾选 <b>query:daily</b> 即可（最小权限，只能读每日洞察，不能录入/管理）。</div>
+      <button class="btn btn-p" id="genBtn" onclick="genKey()">生成 Token</button>
+
+      <div id="reveal" class="reveal hide">
+        <div style="font-size:12px;color:#92400E;font-weight:700">⚠️ 明文 Token 只显示这一次，请立即复制保存：</div>
+        <div class="k"><code class="key" id="revealKey"></code><button class="btn btn-s" onclick="copyKey()">📋 复制</button></div>
+        <div class="muted" id="revealMeta" style="margin-top:6px"></div>
+      </div>
+    </div>
+
+    <!-- 试调用（生成 query:daily key 后出现） -->
+    <div class="card hide" id="testCard">
+      <h2>🧪 用刚生成的 Key 试调用</h2>
+      <div class="frm">
+        <div class="fld"><label>目标用户邮箱</label><input class="fi" id="tUser" type="email" placeholder="user@example.com" style="width:220px"></div>
+        <div class="fld"><label>日期</label><input class="fi" id="tDate" type="date" style="width:160px"></div>
+        <button class="btn btn-p" onclick="testCall()">发起请求</button>
+      </div>
+      <pre id="testOut" class="hide" style="margin-top:12px"></pre>
+    </div>
+  </section>
+
+  <!-- ============ 接口文档 ============ -->
+  <section id="pane-doc" class="hide doc">
+    <div class="card">
+      <h2 style="border:none;padding:0;margin:0 0 10px">JA 每日洞察对外 API · 接口文档 <span class="muted">v1</span></h2>
+
+      <h2>1. 概述</h2>
+      <p>用一个 API Key，传入<b>目标用户邮箱</b> + <b>日期</b>，返回该用户<b>有权访问</b>的当日实时洞察。访问范围 = 该用户被分配的 access group + 全员公开（<code>default</code>）洞察，与站内一致。适用：其他系统给自己的用户展示「今日洞察 / 每日简报」。</p>
+      <p><b>Base URL：</b> <code id="docBase">https://insights.jefurryaxis.ai/ja</code></p>
+
+      <h2>2. 鉴权</h2>
+      <p>请求头：<code>Authorization: Bearer ja_xxxxxxxx…</code>。可用 <b>管理员 Key</b> 或带 <span class="pill">query:daily</span> 权限的<b>服务 Key（推荐，最小权限）</b>。服务 Key 只能读每日洞察，不能录入/管理。本页「生成 API Key」即可签发。Key 仅在后端服务器使用，勿放前端。</p>
+
+      <h2>3. 接口</h2>
+      <h3>3.1 <code>GET /api/v1/daily</code> — 查某用户某日的每日洞察</h3>
+      <table>
+        <tr><th>参数</th><th>必填</th><th>说明</th><th>默认</th></tr>
+        <tr><td><code>user</code></td><td>是</td><td>目标用户邮箱（须为 JA 已登记用户）</td><td>—</td></tr>
+        <tr><td><code>date</code></td><td>是</td><td>日期 <code>YYYY-MM-DD</code></td><td>—</td></tr>
+        <tr><td><code>lang</code></td><td>否</td><td><code>en</code> / <code>zh</code> / <code>both</code></td><td><code>both</code></td></tr>
+        <tr><td><code>format</code></td><td>否</td><td><code>insights</code>（结构化）/ <code>cards</code>（后台同款渲染卡片，含 HTML）</td><td><code>insights</code></td></tr>
+      </table>
+      <p class="muted">响应（format=insights）：</p>
+<pre>{
+  "date": "2026-05-25",
+  "user": { "email": "u@example.com", "name": "张三", "access_groups": ["NUS"] },
+  "count": 2,
+  "insights": [{
+    "report_id": "01", "report_date": "2026-05-25",
+    "category": "中国教育市场", "status": "RADAR", "type": "daily-insights",
+    "clients": "NUS, SMU", "tracks": "新加坡硕士项目 / 商学院 EMBA 与 MBA",
+    "title":   { "en": "…", "zh": "…" },
+    "summary": { "en": "…", "zh": "…" },
+    "insight": { "en": "…", "zh": "…" },
+    "recommendations":      { "en": ["…"], "zh": ["…"] },
+    "recommended_services": { "en": ["…"], "zh": ["…"] },
+    "sources": [{ "tier": "E", "title": "SCMP …", "url": "https://…" }],
+    "images":  [{ "url": "https://…/x.png" }]
+  }]
+}</pre>
+      <p class="muted"><code>title/summary/insight</code> 按 <code>lang</code> 含 <code>en</code>/<code>zh</code> 键（字符串）；<code>recommendations/recommended_services</code> 含 <code>en</code>/<code>zh</code> 键（字符串数组）；<code>sources</code> 为 <code>{tier,title,url}</code> 数组；<code>images</code> 含 <code>url</code>。<code>format=cards</code> 时返回 <code>cards</code>（含可直接 innerHTML 注入的 HTML 字段 hook/sum/ins/aud/rec/src/imgs 及英文版）。</p>
+
+      <h3>3.2 <code>GET /api/v1/daily/dates?user=&lt;email&gt;</code> — 该用户可见的所有日期</h3>
+<pre>{ "user": { "email": "u@example.com" }, "dates": ["2026-05-29", "2026-05-25", "…"] }</pre>
+
+      <h2>4. 错误码</h2>
+      <table>
+        <tr><th>HTTP</th><th>含义</th></tr>
+        <tr><td><code>400</code></td><td>缺少/非法 <code>user</code> 或 <code>date</code></td></tr>
+        <tr><td><code>401</code></td><td>缺少/无效 API Key</td></tr>
+        <tr><td><code>403</code></td><td>Key 无权限（非管理员且无 query:daily）</td></tr>
+        <tr><td><code>404</code></td><td>目标用户不存在或未启用</td></tr>
+        <tr><td><code>429</code></td><td>限流（每 Key 每分钟 120 次，带 Retry-After）</td></tr>
+        <tr><td><code>500</code></td><td>服务端错误</td></tr>
+      </table>
+
+      <h2>5. 访问与安全模型</h2>
+      <ul>
+        <li><b>目标用户须为 JA 已登记用户</b>，其 access group 决定可见范围；未登记 → 404。新用户由管理员按邮箱登记并分配访问组。</li>
+        <li>访问组<b>不由调用方传入</b>，一律服务端按邮箱解析，无法越权。</li>
+        <li><b>不暴露管理员全量</b>：即使目标是管理员，也只返回其 group + default。</li>
+        <li>邮箱<b>大小写不敏感精确匹配</b>，不支持通配符（防用户枚举）。</li>
+      </ul>
+
+      <h2>6. 调用示例</h2>
+      <p class="muted">curl：</p>
+<pre id="curlEx">curl -s "https://insights.jefurryaxis.ai/ja/api/v1/daily?user=u@example.com&amp;date=2026-05-25&amp;lang=zh" \
+  -H "Authorization: Bearer ja_xxxxxxxx"</pre>
+      <p class="muted">Node.js：</p>
+<pre>const BASE="https://insights.jefurryaxis.ai/ja", KEY=process.env.JA_API_KEY;
+async function getDaily(user, date, lang="both"){
+  const u=`${BASE}/api/v1/daily?user=${encodeURIComponent(user)}&amp;date=${date}&amp;lang=${lang}`;
+  const r=await fetch(u,{headers:{Authorization:`Bearer ${KEY}`}});
+  if(!r.ok) throw new Error(`JA API ${r.status}`);
+  return r.json();
+}</pre>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  // Base path: this page may be mounted under a sub-path (e.g. /ja). Derive it
+  // from our own URL so all API calls hit the same node server.
+  var BASE = location.pathname.replace(/\/[^/]*$/, "");
+  var origin = location.origin + BASE;
+  var lastRaw = "", lastScoped = false;
+
+  // Reflect the real base into the docs.
+  try {
+    document.getElementById("docBase").textContent = origin;
+    document.getElementById("curlEx").textContent =
+      'curl -s "' + origin + '/api/v1/daily?user=u@example.com&date=2026-05-25&lang=zh" \\\n  -H "Authorization: Bearer ja_xxxxxxxx"';
+  } catch (e) {}
+
+  function api(path, opts) {
+    opts = opts || {};
+    var h = Object.assign({}, opts.headers || {});
+    var k = "";
+    try { k = localStorage.getItem("ja_api_key") || ""; } catch (e) {}
+    if (k) h["Authorization"] = "Bearer " + k;
+    opts.headers = h;
+    opts.credentials = "same-origin";
+    return fetch(BASE + path, opts);
+  }
+
+  window.showPane = function(which, el) {
+    document.getElementById("pane-gen").classList.toggle("hide", which !== "gen");
+    document.getElementById("pane-doc").classList.toggle("hide", which !== "doc");
+    var tabs = document.querySelectorAll(".tab");
+    for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove("active");
+    if (el) el.classList.add("active");
+  };
+
+  function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+
+  // On load: who am I? Enable/disable generation accordingly.
+  (async function(){
+    var b = document.getElementById("adminBanner"), btn = document.getElementById("genBtn");
+    try {
+      var r = await api("/api/me");
+      if (r.ok) {
+        var me = await r.json();
+        if (me.is_admin) {
+          b.className = "banner ok";
+          b.innerHTML = "已以管理员登录：<b>" + esc(me.name || me.email) + "</b> · 可生成 Key。";
+        } else {
+          b.className = "banner warn";
+          b.textContent = "当前账号（" + (me.email || "?") + "）不是管理员，仅可查看文档，无法生成 Key。";
+          btn.disabled = true;
+        }
+      } else {
+        b.className = "banner err";
+        b.innerHTML = "未登录或登录已失效，无法生成 Key。请先登录后台再打开本页（文档仍可查看）。";
+        btn.disabled = true;
+      }
+    } catch (e) {
+      b.className = "banner err"; b.textContent = "登录状态检测失败：" + e.message; btn.disabled = true;
+    }
+  })();
+
+  window.genKey = async function(){
+    var email = document.getElementById("kEmail").value.trim();
+    if (!email) { alert("请填写用户邮箱"); return; }
+    var scoped = document.getElementById("kQueryDaily").checked;
+    var body = {
+      email: email,
+      name: document.getElementById("kName").value.trim() || null,
+      label: document.getElementById("kLabel").value.trim() || "daily-api",
+      groups: document.getElementById("kGroups").value.split(",").map(function(s){return s.trim();}).filter(Boolean),
+      is_admin: document.getElementById("kAdmin").checked,
+      expires_at: document.getElementById("kExpiry").value || null,
+      scopes: scoped ? ["query:daily"] : []
+    };
+    var btn = document.getElementById("genBtn"), old = btn.textContent;
+    btn.disabled = true; btn.textContent = "生成中…";
+    try {
+      var r = await api("/api/keys", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
+      var j = await r.json().catch(function(){return {};});
+      if (r.status === 403) { alert("需要管理员权限才能生成 Key"); return; }
+      if (!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+      lastRaw = j.api_key || ""; lastScoped = scoped;
+      document.getElementById("revealKey").textContent = lastRaw;
+      var caps = []; if (body.is_admin) caps.push("管理员"); if (scoped) caps.push("query:daily"); if (!caps.length) caps.push("仅按访问组读取");
+      document.getElementById("revealMeta").textContent = "用户：" + email + " · 权限：" + caps.join(" / ") + (body.expires_at ? (" · 过期：" + body.expires_at) : " · 永不过期");
+      document.getElementById("reveal").classList.remove("hide");
+      // Show the test panel when a daily-query key was issued.
+      document.getElementById("testCard").classList.toggle("hide", !scoped);
+    } catch (e) {
+      alert("生成失败：" + e.message);
+    } finally { btn.disabled = false; btn.textContent = old; }
+  };
+
+  window.copyKey = function(){
+    var t = document.getElementById("revealKey").textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){
+      var b = event.target; var o = b.textContent; b.textContent = "✅ 已复制"; setTimeout(function(){ b.textContent = o; }, 1500);
+    }).catch(function(){ alert("复制失败，请手动选择复制"); });
+  };
+
+  window.testCall = async function(){
+    var user = document.getElementById("tUser").value.trim(), date = document.getElementById("tDate").value;
+    var out = document.getElementById("testOut");
+    if (!lastRaw) { alert("请先生成一个 query:daily Key"); return; }
+    if (!user || !date) { alert("请填写目标用户邮箱和日期"); return; }
+    out.classList.remove("hide"); out.textContent = "请求中…";
+    try {
+      var url = BASE + "/api/v1/daily?user=" + encodeURIComponent(user) + "&date=" + encodeURIComponent(date);
+      var r = await fetch(url, { headers: { Authorization: "Bearer " + lastRaw } });
+      var txt = await r.text();
+      var pretty = txt; try { pretty = JSON.stringify(JSON.parse(txt), null, 2); } catch (e) {}
+      out.textContent = "HTTP " + r.status + "\n\n" + pretty;
+    } catch (e) { out.textContent = "请求失败：" + e.message; }
+  };
+})();
+</script>
+</body>
+</html>
