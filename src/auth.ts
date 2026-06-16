@@ -80,13 +80,17 @@ export async function resolveTargetUser(email: string): Promise<UserContext | nu
     .ilike("email", e) // case-insensitive exact match (no wildcards)
     .maybeSingle();
   if (error || !data || !data.is_active) return null;
+  // Deliberately NON-escalating: the public read API only ever exposes a target
+  // user's group + 'default' insights, never the admin "see everything" bypass.
+  // Otherwise a query:daily service key could read ALL insights by naming an
+  // admin's email. isAdmin/seeAll are forced false for this scoped view.
   return {
     userId: data.id as string,
     email: data.email as string,
     name: (data.name as string | null) ?? null,
     accessGroups: (data.access_groups as string[] | null) ?? [],
-    isAdmin: Boolean(data.is_admin),
-    seeAll: Boolean(data.is_admin),
+    isAdmin: false,
+    seeAll: false,
     role: null,
     scopes: [],
     authVia: "apikey",
