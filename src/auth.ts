@@ -23,7 +23,7 @@ export async function resolveApiKey(raw: string): Promise<UserContext | null> {
 
   const { data, error } = await supabase
     .from("ja_api_keys")
-    .select("id, revoked, expires_at, user:ja_users(id, email, name, access_groups, is_admin, is_active)")
+    .select("id, revoked, expires_at, scopes, user:ja_users(id, email, name, access_groups, is_admin, is_active)")
     .eq("key_hash", key_hash)
     .maybeSingle();
 
@@ -60,6 +60,35 @@ export async function resolveApiKey(raw: string): Promise<UserContext | null> {
     isAdmin: user.is_admin,
     seeAll: user.is_admin, // API-key users: admin sees all; others see their groups + default
     role: null,
+    scopes: ((data as { scopes?: string[] | null }).scopes) ?? [],
+    authVia: "apikey",
+  };
+}
+
+/**
+ * Resolve a *target* user by email into a read-only UserContext for access
+ * scoping — used by the public daily-insights API to render "what THIS user can
+ * see". Looks up ja_users (the access-control registry); never trusts caller-
+ * supplied access groups. Returns null if the user is unknown or deactivated.
+ */
+export async function resolveTargetUser(email: string): Promise<UserContext | null> {
+  const e = (email || "").trim();
+  if (!e) return null;
+  const { data, error } = await supabase
+    .from("ja_users")
+    .select("id, email, name, access_groups, is_admin, is_active")
+    .ilike("email", e) // case-insensitive exact match (no wildcards)
+    .maybeSingle();
+  if (error || !data || !data.is_active) return null;
+  return {
+    userId: data.id as string,
+    email: data.email as string,
+    name: (data.name as string | null) ?? null,
+    accessGroups: (data.access_groups as string[] | null) ?? [],
+    isAdmin: Boolean(data.is_admin),
+    seeAll: Boolean(data.is_admin),
+    role: null,
+    scopes: [],
     authVia: "apikey",
   };
 }

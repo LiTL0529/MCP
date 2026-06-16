@@ -214,6 +214,20 @@ export async function getDailyCards(user: UserContext, date: string): Promise<Da
     .sort((a, b) => a.num.localeCompare(b.num, undefined, { numeric: true }));
 }
 
+// ── Public API daily view (structured, non-HTML) ───────────
+// Same access-controlled fetch as getDailyCards, but returns the structured
+// full insights (title/summary/insight/... as data, not pre-rendered HTML) so
+// external consumers can render them however they like. Honours `lang`.
+export async function getDailyInsights(user: UserContext, date: string, lang: Lang = "both") {
+  const { items } = await listInsights(user, { dateFrom: date, dateTo: date, limit: 200, lang });
+  const fulls = await Promise.all(items.map((i: any) => getInsight(user, i.id, lang)));
+  return fulls
+    .filter(Boolean)
+    .sort((a: any, b: any) =>
+      String(a.report_id ?? "").localeCompare(String(b.report_id ?? ""), undefined, { numeric: true }),
+    );
+}
+
 // ── Write path (ingestion) ─────────────────────────────────
 export async function createInsight(input: CreateInsightInput, createdBy?: string) {
   const access = input.access && input.access.length ? input.access : ["default"];

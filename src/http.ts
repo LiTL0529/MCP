@@ -9,7 +9,7 @@ import { clientRegistrationHandler } from "@modelcontextprotocol/sdk/server/auth
 import { revocationHandler } from "@modelcontextprotocol/sdk/server/auth/handlers/revoke.js";
 import { z } from "zod";
 import { config } from "./config.js";
-import { resolveApiKey, resolvePortalUser } from "./auth.js";
+import { resolveApiKey, resolvePortalUser, resolveTargetUser } from "./auth.js";
 import {
   jaOAuthProvider,
   resolveOAuthAccessToken,
@@ -19,7 +19,7 @@ import {
 } from "./oauth.js";
 import { queryToolCalls, recordSession } from "./audit.js";
 import { buildMcpServer } from "./mcp.js";
-import { createInsight, getDailyCards, getInsight, listInsights, searchInsights } from "./insights.js";
+import { createInsight, getDailyCards, getDailyInsights, getInsight, listInsights, searchInsights } from "./insights.js";
 import { createApiKey, deleteApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
@@ -102,6 +102,24 @@ async function requireIngestAuth(req: Request, res: Response, next: NextFunction
     return;
   }
   res.status(403).json({ error: "仅管理员可录入洞察" });
+}
+
+// API-key-ONLY auth for the public daily-insights API (server-to-server). The
+// key must be an admin key OR carry the `query:daily` scope. Portal-cookie
+// callers are intentionally NOT accepted here.
+async function requireDailyApi(req: Request, res: Response, next: NextFunction) {
+  const raw = bearer(req);
+  const user = raw ? await resolveApiKey(raw) : null;
+  if (!user) {
+    res.status(401).json({ error: "需要有效的 API Key（Authorization: Bearer ja_...）" });
+    return;
+  }
+  if (!user.isAdmin && !(user.scopes ?? []).includes("query:daily")) {
+    res.status(403).json({ error: "此 API Key 无权调用（需要 query:daily 权限或管理员 Key）" });
+    return;
+  }
+  req.user = user;
+  next();
 }
 
 // ── Ingest payload schema ──────────────────────────────────
@@ -421,6 +439,7 @@ export function buildApp() {
     label: z.string().nullish(),
     // Accept a date (YYYY-MM-DD) or full ISO timestamp; empty/absent = no expiry.
     expires_at: z.string().nullish(),
+    scopes: z.array(z.string()).optional(),
   });
 
   app.post("/api/keys", requireUser, async (req, res) => {
@@ -439,6 +458,7 @@ export function buildApp() {
         isAdmin: parsed.data.is_admin ?? false,
         label: parsed.data.label ?? null,
         expiresAt,
+        scopes: parsed.data.scopes ?? [],
       });
       // raw key is returned exactly once.
       res.status(201).json({ ok: true, api_key: result.raw, key: result.key, user: result.user });
@@ -823,6 +843,64 @@ export function buildApp() {
       const cats = Array.from(new Set(parsed.data.value.map((s) => s.trim()).filter(Boolean)));
       await setSetting("insight_categories", cats);
       res.json({ ok: true, categories: cats });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // ── Public daily-insights API (other projects, per-target-user access) ──
+  // Auth: API key (Bearer) with admin OR scope "query:daily". The `user` param
+  // names the END user whose access scope decides what's returned — resolved
+  // server-side from ja_users, never from caller-supplied groups.
+  //
+  //   GET /api/v1/daily/dates?user=<email>
+  //   GET /api/v1/daily?user=<email>&date=<YYYY-MM-DD>&lang=en|zh|both&format=insights|cards
+  app.get("/api/v1/daily/dates", requireDailyApi, async (req, res) => {
+    const email = str(req.query.user);
+    if (!email) {
+      res.status(400).json({ error: "缺少查询参数 user（目标用户邮箱）" });
+      return;
+    }
+    try {
+      const target = await resolveTargetUser(email);
+      if (!target) {
+        res.status(404).json({ error: `目标用户不存在或未启用：${email}` });
+        return;
+      }
+      const { items } = await listInsights(target, { limit: 1000, lang: "en" });
+      const dates = Array.from(new Set(items.map((i: any) => i.report_date))).sort().reverse();
+      res.json({ user: { email: target.email }, dates });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  app.get("/api/v1/daily", requireDailyApi, async (req, res) => {
+    const email = str(req.query.user);
+    const date = str(req.query.date);
+    if (!email) {
+      res.status(400).json({ error: "缺少查询参数 user（目标用户邮箱）" });
+      return;
+    }
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      res.status(400).json({ error: "缺少或非法的 date（YYYY-MM-DD）" });
+      return;
+    }
+    const lang = langOf(req.query.lang);
+    try {
+      const target = await resolveTargetUser(email);
+      if (!target) {
+        res.status(404).json({ error: `目标用户不存在或未启用：${email}` });
+        return;
+      }
+      const userInfo = { email: target.email, name: target.name, access_groups: target.accessGroups };
+      if (str(req.query.format) === "cards") {
+        const cards = await getDailyCards(target, date);
+        res.json({ date, user: userInfo, count: cards.length, cards });
+      } else {
+        const insights = await getDailyInsights(target, date, lang);
+        res.json({ date, user: userInfo, count: insights.length, insights });
+      }
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }

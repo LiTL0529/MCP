@@ -7,6 +7,7 @@ export interface UserContext {
   isAdmin: boolean;                 // may ingest insights + read the audit log
   seeAll: boolean;                  // may read every insight (employees: true; customers: false)
   role?: string | null;            // portal role (admin/super_admin/ae/am/transfer/customer)
+  scopes?: string[];               // per-key capabilities (api-key auth only), e.g. "query:daily"
   authVia: "apikey" | "portal" | "oauth";
 }
 

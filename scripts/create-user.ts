@@ -21,7 +21,7 @@ function flag(name: string): boolean {
 async function main() {
   const email = arg("email");
   if (!email) {
-    console.error("Usage: npm run create-key -- --email <email> [--name <name>] [--groups A,B] [--admin] [--label <label>]");
+    console.error("Usage: npm run create-key -- --email <email> [--name <name>] [--groups A,B] [--admin] [--label <label>] [--scopes query:daily]");
     process.exit(1);
   }
   const name = arg("name") ?? null;
@@ -31,6 +31,10 @@ async function main() {
     .filter(Boolean);
   const isAdmin = flag("admin");
   const label = arg("label") ?? "cli";
+  const scopes = (arg("scopes") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 
   // Upsert the user by email.
   const { data: user, error: userErr } = await supabase
@@ -59,6 +63,7 @@ async function main() {
     key_prefix: prefix,
     key_plain: raw, // stored so the admin backend can re-copy it (migration 0011)
     label,
+    scopes,
   });
   if (keyErr) {
     console.error("Failed to insert api key:", keyErr.message);
@@ -70,6 +75,7 @@ async function main() {
   console.log(`   name         : ${user.name ?? "(none)"}`);
   console.log(`   access_groups: ${(user.access_groups ?? []).join(", ") || "(none)"}`);
   console.log(`   is_admin     : ${user.is_admin}`);
+  console.log(`   scopes       : ${scopes.join(", ") || "(none)"}`);
   console.log("\n🔑 API key (shown once — copy it now):\n");
   console.log(`   ${raw}\n`);
   console.log("   Use it as:  Authorization: Bearer " + raw + "\n");

@@ -13,6 +13,7 @@ export interface CreateKeyInput {
   isAdmin?: boolean;
   label?: string | null;
   expiresAt?: string | null; // ISO timestamp, or null for no expiry
+  scopes?: string[];         // per-key capabilities, e.g. ["query:daily"]
 }
 
 /**
@@ -46,8 +47,9 @@ export async function createApiKey(input: CreateKeyInput) {
       key_plain: raw,
       label: input.label?.trim() || "admin-ui",
       expires_at: input.expiresAt ?? null,
+      scopes: (input.scopes ?? []).map((s) => s.trim()).filter(Boolean),
     })
-    .select("id, key_prefix, label, created_at, expires_at")
+    .select("id, key_prefix, label, created_at, expires_at, scopes")
     .single();
   if (keyErr || !key) throw new Error(`insert key failed: ${keyErr?.message}`);
 
@@ -59,7 +61,7 @@ export async function listApiKeys() {
   const { data, error } = await supabase
     .from("ja_api_keys")
     .select(
-      "id, key_prefix, key_plain, label, created_at, last_used_at, revoked, expires_at, user:ja_users(email, name, is_admin, access_groups, is_active)",
+      "id, key_prefix, key_plain, label, created_at, last_used_at, revoked, expires_at, scopes, user:ja_users(email, name, is_admin, access_groups, is_active)",
     )
     .order("created_at", { ascending: false });
   if (error) throw new Error(`listApiKeys failed: ${error.message}`);
@@ -77,6 +79,7 @@ export async function listApiKeys() {
       last_used_at: k.last_used_at,
       revoked: k.revoked,
       expires_at: k.expires_at,
+      scopes: k.scopes ?? [],
       status: k.revoked ? "revoked" : expired ? "expired" : "active",
       email: u?.email ?? null,
       name: u?.name ?? null,

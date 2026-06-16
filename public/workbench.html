@@ -985,6 +985,7 @@
 <div class="frm" style="margin:0"><label class="fl">标签</label><input type="text" class="fi" id="kLabel" placeholder="codex / 张三脚本" style="width:130px"></div>
 <div class="frm" style="margin:0"><label class="fl">过期日期（留空=永不）</label><input type="date" class="fi" id="kExpiry" style="width:150px"></div>
 <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--navy);padding-bottom:6px"><input type="checkbox" id="kAdmin">管理员</label>
+<label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--navy);padding-bottom:6px" title="勾选后，此 Key 可调用 /api/v1/daily 跨用户查询每日洞察（给其他项目用），但不能录入/管理"><input type="checkbox" id="kQueryDaily">每日洞察查询 API（query:daily）</label>
 <button class="btn btn-p btn-sm" onclick="keyCreate()">生成 Token</button>
 </div>
 <div id="kNewBox" style="display:none;padding:12px 14px;border-top:1px solid var(--border);background:#FFFBEB">
@@ -1027,7 +1028,7 @@
         var grp = (k.access_groups&&k.access_groups.length)? esc(k.access_groups.join(',')) : '<span style="color:var(--muted)">公开</span>';
         return '<tr>'+
           '<td><code style="font-size:11px">'+esc(k.key_prefix)+'…</code></td>'+
-          '<td style="font-size:11px"><div style="color:var(--navy);font-weight:600;word-break:break-all">'+esc(k.email||'')+'</div><div style="color:var(--muted)">'+esc(k.label||'')+'</div></td>'+
+          '<td style="font-size:11px"><div style="color:var(--navy);font-weight:600;word-break:break-all">'+esc(k.email||'')+'</div><div style="color:var(--muted)">'+esc(k.label||'')+(k.scopes&&k.scopes.length?' <span style="display:inline-block;background:#EDE9FE;color:#6D28D9;border-radius:4px;padding:0 5px;font-size:9px;font-weight:600">'+esc(k.scopes.join(','))+'</span>':'')+'</div></td>'+
           '<td>'+(k.is_admin?'✔':'')+'</td>'+
           '<td style="font-size:11px">'+grp+'</td>'+
           '<td style="font-size:11px;color:var(--muted)">'+fmtD(k.created_at)+'</td>'+
@@ -1045,7 +1046,8 @@
     var body={ email:email, name:document.getElementById('kName').value.trim()||null,
       groups:document.getElementById('kGroups').value.split(',').map(function(s){return s.trim()}).filter(Boolean),
       is_admin:document.getElementById('kAdmin').checked, label:document.getElementById('kLabel').value.trim()||null,
-      expires_at:document.getElementById('kExpiry').value||null };
+      expires_at:document.getElementById('kExpiry').value||null,
+      scopes:(document.getElementById('kQueryDaily')&&document.getElementById('kQueryDaily').checked)?['query:daily']:[] };
     try{
       var r=await window.JA.api('/api/keys',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
       var j=await r.json().catch(function(){return {};});
@@ -1056,6 +1058,7 @@
       document.getElementById('kNewBox').style.display='';
       ['kEmail','kName','kGroups','kLabel','kExpiry'].forEach(function(id){document.getElementById(id).value='';});
       document.getElementById('kAdmin').checked=false;
+      var _qd=document.getElementById('kQueryDaily');if(_qd)_qd.checked=false;
       if(window.toast)toast('Token 已生成');
       keysLoad();
     }catch(e){ if(window.toast)toast('生成失败：'+e.message); }
