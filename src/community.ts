@@ -9,6 +9,8 @@ import type { UserContext } from "./types.js";
 export interface PostListParams {
   limit?: number;
   offset?: number;
+  /** Restrict to the current user's own posts (我的发帖). */
+  mine?: boolean;
 }
 
 // Stable per-user identity for likes/favorites. userId is always present on an
@@ -61,12 +63,14 @@ function mapPostRow(row: any, liked: Set<string>, faved: Set<string>) {
 export async function listPosts(user: UserContext, p: PostListParams) {
   const limit = Math.min(Math.max(p.limit ?? 10, 1), 100);
   const offset = Math.max(p.offset ?? 0, 0);
-  const { data, count, error } = await supabase
+  let query = supabase
     .from("ja_community_posts")
     .select(POST_SELECT, { count: "exact" })
     .order("pinned", { ascending: false })
-    .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .order("created_at", { ascending: false });
+  // 我的发帖: only the caller's own posts (matched by their authenticated email).
+  if (p.mine) query = query.eq("author_email", user.email);
+  const { data, count, error } = await query.range(offset, offset + limit - 1);
   if (error) throw new Error(`listPosts failed: ${error.message}`);
   const rows = data ?? [];
   const { liked, faved } = await myReactions(user, rows.map((r: any) => r.id));
@@ -133,6 +137,36 @@ export async function createPost(
     .single();
   if (error) throw new Error(`createPost failed: ${error.message}`);
   return data;
+}
+
+/**
+ * Edit a post's title/body. Only the original author (matched by email/id) or an
+ * admin may edit; identity comes from the auth context, never the request body.
+ * Attachments are left unchanged.
+ */
+export async function updatePost(
+  user: UserContext,
+  id: string,
+  fields: { title: string; body: string },
+): Promise<{ ok: boolean; reason?: "not_found" | "forbidden" }> {
+  const { data: post, error: fErr } = await supabase
+    .from("ja_community_posts")
+    .select("id, author_email, author_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (fErr) throw new Error(`updatePost lookup failed: ${fErr.message}`);
+  if (!post) return { ok: false, reason: "not_found" };
+  const row = post as { author_email: string | null; author_id: string | null };
+  const isOwner =
+    (!!row.author_email && row.author_email === user.email) ||
+    (!!row.author_id && row.author_id === user.userId);
+  if (!isOwner && !user.isAdmin) return { ok: false, reason: "forbidden" };
+  const { error } = await supabase
+    .from("ja_community_posts")
+    .update({ title: fields.title, body: fields.body, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(`updatePost failed: ${error.message}`);
+  return { ok: true };
 }
 
 export async function getPost(user: UserContext, id: string) {

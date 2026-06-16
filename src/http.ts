@@ -23,7 +23,7 @@ import { createInsight, getDailyCards, getDailyInsights, getInsight, listInsight
 import { createApiKey, deleteApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
-import { addPostComment, createPost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike } from "./community.js";
+import { addPostComment, createPost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike, updatePost } from "./community.js";
 import { getUserState, setUserState, STATE_KEYS } from "./state.js";
 import { getInsightCategories, setSetting } from "./settings.js";
 import { uploadFile } from "./storage.js";
@@ -690,7 +690,8 @@ export function buildApp() {
   // ── 需求社区 (community: posts + comments) ───────────────
   app.get("/api/community/posts", requireUser, async (req, res) => {
     try {
-      res.json(await listPosts(req.user!, { limit: num(req.query.limit, 10), offset: num(req.query.offset, 0) }));
+      const mine = req.query.mine === "1" || req.query.mine === "true";
+      res.json(await listPosts(req.user!, { limit: num(req.query.limit, 10), offset: num(req.query.offset, 0), mine }));
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }
@@ -744,6 +745,29 @@ export function buildApp() {
         resolved.push({ name: up.name, url: up.url, type: up.type, size: up.size });
       }
       res.status(201).json({ ok: true, post: await createPost(req.user!, parsed.data.title, parsed.data.body, resolved) });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // 编辑自己的帖子（仅作者或管理员；标题/正文）
+  const postUpdateSchema = z.object({
+    title: z.string().min(1).max(200),
+    body: z.string().min(1).max(20000),
+  });
+  app.put("/api/community/posts/:id", requireUser, async (req, res) => {
+    const parsed = postUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "标题和内容不能为空" });
+      return;
+    }
+    try {
+      const r = await updatePost(req.user!, req.params.id, { title: parsed.data.title, body: parsed.data.body });
+      if (!r.ok) {
+        res.status(r.reason === "forbidden" ? 403 : 404).json({ error: r.reason === "forbidden" ? "只能编辑自己的帖子" : "帖子不存在" });
+        return;
+      }
+      res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }
