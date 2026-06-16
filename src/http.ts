@@ -23,7 +23,7 @@ import { createInsight, getDailyCards, getInsight, listInsights, searchInsights 
 import { createApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
-import { addPostComment, createPost, getPost, listFavorites, listPosts, toggleFavorite, toggleLike } from "./community.js";
+import { addPostComment, createPost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike } from "./community.js";
 import { uploadFile } from "./storage.js";
 import { parseBilingualMd } from "./markdown.js";
 import type { Lang, UserContext } from "./types.js";
@@ -620,6 +620,15 @@ export function buildApp() {
   app.get("/api/community/favorites", requireUser, async (req, res) => {
     try {
       res.json(await listFavorites(req.user!, { limit: num(req.query.limit, 10), offset: num(req.query.offset, 0) }));
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // 我点赞的帖子 (current user's liked posts, newest-liked first)
+  app.get("/api/community/likes", requireUser, async (req, res) => {
+    try {
+      res.json(await listLikes(req.user!, { limit: num(req.query.limit, 10), offset: num(req.query.offset, 0) }));
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }

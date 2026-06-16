@@ -74,30 +74,43 @@ export async function listPosts(user: UserContext, p: PostListParams) {
   return { total: count ?? 0, limit, offset, items };
 }
 
-/** Posts the current user has favorited, newest-favorited first (paginated). */
-export async function listFavorites(user: UserContext, p: PostListParams) {
+/**
+ * Posts the user reacted to (favorited or liked), newest-reaction first.
+ * `table` is the join table; the matching flag (faved/liked) is forced true for
+ * all returned rows since membership in that table implies it.
+ */
+async function listReacted(user: UserContext, table: string, p: PostListParams) {
   const limit = Math.min(Math.max(p.limit ?? 10, 1), 100);
   const offset = Math.max(p.offset ?? 0, 0);
   const uid = reactorId(user);
-  const { data: favRows, count, error } = await supabase
-    .from("ja_community_favorites")
+  const { data: rows, count, error } = await supabase
+    .from(table)
     .select("post_id", { count: "exact" })
     .eq("user_id", uid)
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
-  if (error) throw new Error(`listFavorites failed: ${error.message}`);
-  const ids = (favRows ?? []).map((r: any) => r.post_id);
+  if (error) throw new Error(`list ${table} failed: ${error.message}`);
+  const ids = (rows ?? []).map((r: any) => r.post_id);
   if (!ids.length) return { total: count ?? 0, limit, offset, items: [] };
   const { data: posts, error: pErr } = await supabase
     .from("ja_community_posts")
     .select(POST_SELECT)
     .in("id", ids);
-  if (pErr) throw new Error(`listFavorites posts failed: ${pErr.message}`);
-  const { liked } = await myReactions(user, ids);
-  const faved = new Set(ids); // by definition all favorited
+  if (pErr) throw new Error(`list ${table} posts failed: ${pErr.message}`);
+  const { liked, faved } = await myReactions(user, ids);
   const byId = new Map((posts ?? []).map((row: any) => [row.id, mapPostRow(row, liked, faved)]));
-  const items = ids.map((id: string) => byId.get(id)).filter(Boolean); // preserve favorite order
+  const items = ids.map((id: string) => byId.get(id)).filter(Boolean); // preserve reaction order
   return { total: count ?? 0, limit, offset, items };
+}
+
+/** Posts the current user has favorited, newest-favorited first (paginated). */
+export function listFavorites(user: UserContext, p: PostListParams) {
+  return listReacted(user, "ja_community_favorites", p);
+}
+
+/** Posts the current user has liked, newest-liked first (paginated). */
+export function listLikes(user: UserContext, p: PostListParams) {
+  return listReacted(user, "ja_community_likes", p);
 }
 
 export async function createPost(

@@ -324,6 +324,7 @@
 <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px">
 <button class="fb a" id="favTabDaily" onclick="favTab('daily',this)">📡 实时洞察</button>
 <button class="fb" id="favTabCv" onclick="favTab('cv',this)">🎬 创意洞察</button>
+<button class="fb" id="favTabLib" onclick="favTab('lib',this)">📅 月度洞察</button>
 </div>
 
 <!-- 实时洞察收藏 -->
@@ -361,6 +362,17 @@
 </div>
 <div class="ig" id="favCvGrid"><div class="di-empty">📌 暂无创意洞察收藏，在创意洞察中点击⭐收藏按钮即可添加</div></div>
 </div>
+
+<!-- 月度洞察收藏 -->
+<div id="favPaneLib" style="display:none">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+<div style="font-size:13px;color:var(--muted)" id="favLibCntTotal">0 条</div>
+<div style="display:flex;gap:6px;align-items:center">
+<input type="text" class="fi" style="width:140px;padding:4px 8px;font-size:11px" placeholder="搜索收藏..." id="favLibSearchInput" oninput="renderFavLib()">
+</div>
+</div>
+<div class="ig" id="favLibGrid"><div class="di-empty">📌 暂无月度洞察收藏，在月度洞察中点击 ☆ 收藏按钮即可添加</div></div>
+</div>
 </div>
 
 <!-- FEEDBACK -->
@@ -388,12 +400,38 @@
   #p-community .crbtn.big{padding:7px 16px;font-size:13px;gap:7px}
   #p-community .crbtn.pop{animation:crpop .3s cubic-bezier(.34,1.56,.64,1)}
   @keyframes crpop{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
-  @media (prefers-reduced-motion: reduce){#p-community .crbtn,#p-community .comm-card{transition:none}#p-community .crbtn.pop{animation:none}}
+  @media (prefers-reduced-motion: reduce){#p-community .crbtn,#p-community .comm-card,#p-community .xhs-card{transition:none}#p-community .crbtn.pop,#p-community .xhs-act.pop,#p-community .xhs-collect.pop{animation:none}}
+  /* 小红书瀑布流 */
+  #p-community .xhs-grid{column-count:2;column-gap:12px}
+  @media(min-width:1180px){#p-community .xhs-grid{column-count:3}}
+  #p-community .xhs-card{break-inside:avoid;-webkit-column-break-inside:avoid;display:block;background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:0 0 12px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+  #p-community .xhs-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  #p-community .xhs-cover{position:relative;line-height:0}
+  #p-community .xhs-cover-img{display:block;width:100%;height:auto}
+  #p-community .xhs-ph{display:flex;align-items:center;justify-content:center}
+  #p-community .xhs-ph .em{font-size:34px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
+  #p-community .xhs-pin{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;padding:2px 8px;border-radius:999px;line-height:1.6}
+  #p-community .xhs-collect{position:absolute;top:8px;right:8px;border:none;cursor:pointer;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:transform .15s ease}
+  #p-community .xhs-collect:hover{transform:scale(1.12)}
+  #p-community .xhs-collect.on-fav{color:var(--gold)}
+  #p-community .xhs-bd{padding:10px 12px}
+  #p-community .xhs-tt{font-size:13.5px;font-weight:600;color:var(--navy);line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #p-community .xhs-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  #p-community .xhs-user{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);min-width:0}
+  #p-community .xhs-ava{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;line-height:1}
+  #p-community .xhs-uname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #p-community .xhs-act{display:inline-flex;align-items:center;gap:4px;border:none;background:none;cursor:pointer;font-size:12px;color:var(--muted);padding:2px 4px;border-radius:8px;flex-shrink:0;transition:transform .15s ease}
+  #p-community .xhs-act:hover{transform:scale(1.1)}
+  #p-community .xhs-act.on-like{color:var(--red)}
+  #p-community .xhs-act b{font-weight:600}
+  #p-community .xhs-act.pop,#p-community .xhs-collect.pop{animation:crpop .3s cubic-bezier(.34,1.56,.64,1)}
+  #p-community .xhs-meta{display:flex;gap:10px;font-size:10px;color:var(--muted);margin-top:6px}
   </style>
   <div id="commList">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap">
-      <div style="display:flex;gap:6px">
-        <button id="commTabAll" class="btn btn-s btn-xs" onclick="commTab('all')">📋 全部帖子</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button id="commTabAll" class="btn btn-s btn-xs" onclick="commTab('all')">📋 全部</button>
+        <button id="commTabLiked" class="btn btn-s btn-xs" onclick="commTab('liked')">❤️ 我的点赞</button>
         <button id="commTabFav" class="btn btn-s btn-xs" onclick="commTab('fav')">⭐ 我的收藏</button>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
@@ -434,21 +472,30 @@
   window.commLoad=async function(o){
     if(typeof o==='number')off=o;
     var box=document.getElementById('commPosts');if(!box)return;
-    box.innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">加载中…</div>';
+    box.className='';box.innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">加载中…</div>';
     try{
-      var base=mode==='fav'?'/api/community/favorites':'/api/community/posts';
+      var base=mode==='fav'?'/api/community/favorites':mode==='liked'?'/api/community/likes':'/api/community/posts';
       var r=await window.JA.api(base+'?limit='+PAGE+'&offset='+off);
       if(!r.ok)throw new Error('HTTP '+r.status);
       var j=await r.json();total=j.total||0;var items=j.items||[];
-      document.getElementById('commCnt').textContent=(mode==='fav'?'收藏了 ':'共 ')+total+' 个帖子';
-      box.innerHTML=items.length?items.map(function(p){
-        commState[p.id]={liked:!!p.liked_by_me,like_count:p.like_count||0,faved:!!p.faved_by_me,fav_count:p.fav_count||0};
-        return '<div class="comm-card" onclick="commOpen(\''+p.id+'\')" style="cursor:pointer;background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px">'+
-          '<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px">'+(p.pinned?'📌 ':'')+esc(p.title)+'</div>'+
-          '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5;max-height:42px;overflow:hidden">'+esc(p.excerpt)+'</div>'+
-          '<div style="display:flex;align-items:center;gap:12px;font-size:11px;color:var(--muted);flex-wrap:wrap"><span>👤 '+who(p.author_email,p.author_name)+'</span><span>🕐 '+fmt(p.created_at)+'</span><span>💬 '+(p.comment_count||0)+'</span>'+(p.attachments&&p.attachments.length?'<span>📎 '+p.attachments.length+'</span>':'')+'<span style="flex:1 1 auto"></span>'+likeBtnHtml(p.id,'list')+favBtnHtml(p.id,'list')+'</div>'+
-        '</div>';
-      }).join(''):'<div style="text-align:center;color:var(--muted);padding:40px">'+(mode==='fav'?'还没有收藏的帖子，点帖子里的 ☆ 收藏感兴趣的内容':'还没有帖子，点「发帖」发布第一个吧')+'</div>';
+      document.getElementById('commCnt').textContent=(mode==='fav'?'收藏了 ':mode==='liked'?'点赞了 ':'共 ')+total+' 个帖子';
+      if(items.length){
+        box.className='xhs-grid';
+        box.innerHTML=items.map(function(p){
+          commState[p.id]={liked:!!p.liked_by_me,like_count:p.like_count||0,faved:!!p.faved_by_me,fav_count:p.fav_count||0};
+          return '<div class="xhs-card" onclick="commOpen(\''+p.id+'\')">'+
+            '<div class="xhs-cover">'+(p.pinned?'<span class="xhs-pin">📌 置顶</span>':'')+coverFor(p)+favBtnHtml(p.id,'xhs')+'</div>'+
+            '<div class="xhs-bd">'+
+              '<div class="xhs-tt">'+esc(p.title)+'</div>'+
+              '<div class="xhs-foot"><span class="xhs-user">'+avatarHtml(p.author_name,p.author_email)+'<span class="xhs-uname">'+who(p.author_email,p.author_name)+'</span></span>'+likeBtnHtml(p.id,'xhs')+'</div>'+
+              '<div class="xhs-meta"><span>🕐 '+fmt(p.created_at)+'</span><span>💬 '+(p.comment_count||0)+'</span>'+(p.attachments&&p.attachments.length?'<span>📎 '+p.attachments.length+'</span>':'')+'</div>'+
+            '</div>'+
+          '</div>';
+        }).join('');
+      }else{
+        box.className='';
+        box.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px">'+(mode==='fav'?'还没有收藏的帖子，点帖子封面右上角的 ☆ 收藏感兴趣的内容':mode==='liked'?'还没有点赞的帖子，点帖子上的 🤍 点赞':'还没有帖子，点「发帖」发布第一个吧')+'</div>';
+      }
       var pages=Math.max(1,Math.ceil(total/PAGE)),cur=Math.floor(off/PAGE)+1;
       document.getElementById('commPager').innerHTML=total>PAGE?'<button class="btn btn-s btn-xs" '+(off<=0?'disabled':'')+' onclick="commPage(-1)">‹ 上一页</button><span>第 '+cur+' / '+pages+' 页</span><button class="btn btn-s btn-xs" '+(off+PAGE>=total?'disabled':'')+' onclick="commPage(1)">下一页 ›</button>':'';
     }catch(e){box.innerHTML='<div style="text-align:center;color:var(--red);padding:24px">加载失败：'+esc(e.message)+'</div>';}
@@ -511,11 +558,13 @@
   };
   // ── 点赞 / 收藏 ────────────────────────────────────────────
   function rcount(id){return commState[id]||{liked:false,like_count:0,faved:false,fav_count:0}}
-  function likeBtnHtml(id,ctx){var s=rcount(id),big=ctx==='detail';return '<button id="lk-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.liked?' on-like':'')+'" onclick="commLike(event,\''+id+'\')" title="'+(s.liked?'取消点赞':'点赞')+'"><span>'+(s.liked?'❤️':'🤍')+'</span>'+(big?'<span>'+(s.liked?'已赞':'点赞')+'</span>':'')+'<b>'+(s.like_count||0)+'</b></button>'}
-  function favBtnHtml(id,ctx){var s=rcount(id),big=ctx==='detail';return '<button id="fv-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.faved?' on-fav':'')+'" onclick="commFav(event,\''+id+'\')" title="'+(s.faved?'取消收藏':'收藏')+'"><span>'+(s.faved?'⭐':'☆')+'</span>'+(big?'<span>'+(s.faved?'已收藏':'收藏')+'</span>':'')+'<b>'+(s.fav_count||0)+'</b></button>'}
-  function syncBtns(id){['list','detail'].forEach(function(ctx){var l=document.getElementById('lk-'+ctx+'-'+id);if(l)l.outerHTML=likeBtnHtml(id,ctx);var f=document.getElementById('fv-'+ctx+'-'+id);if(f)f.outerHTML=favBtnHtml(id,ctx)})}
-  function pulse(prefix,id){['list','detail'].forEach(function(ctx){var e=document.getElementById(prefix+'-'+ctx+'-'+id);if(e){e.classList.add('pop');setTimeout(function(){e.classList.remove('pop')},320)}})}
-  function setTabUI(){var a=document.getElementById('commTabAll'),f=document.getElementById('commTabFav');if(a){a.style.background=mode==='all'?'var(--navy)':'';a.style.color=mode==='all'?'#fff':'';}if(f){f.style.background=mode==='fav'?'var(--navy)':'';f.style.color=mode==='fav'?'#fff':'';}}
+  function avatarHtml(nm,em){var raw=(nm||(em||'').split('@')[0]||'匿名');var ch=(raw.trim().slice(0,1)||'·').toUpperCase();var cs=['#F87171','#FB923C','#FBBF24','#34D399','#60A5FA','#818CF8','#A78BFA','#F472B6'];var h=0,t=String(raw);for(var k=0;k<t.length;k++)h=(h*31+t.charCodeAt(k))>>>0;return '<span class="xhs-ava" style="background:'+cs[h%cs.length]+'">'+esc(ch)+'</span>'}
+  function coverFor(p){var img=(p.attachments||[]).filter(function(a){return /^image\//.test(a.type||'')})[0];if(img)return '<img class="xhs-cover-img" src="'+esc(img.url)+'" alt="" loading="lazy">';var grads=['linear-gradient(135deg,#667EEA,#764BA2)','linear-gradient(135deg,#F093FB,#F5576C)','linear-gradient(135deg,#4FACFE,#00F2FE)','linear-gradient(135deg,#43E97B,#38F9D7)','linear-gradient(135deg,#FA709A,#FEE140)','linear-gradient(135deg,#30CFD0,#330867)'];var h=0,t=String(p.id);for(var k=0;k<t.length;k++)h=(h*31+t.charCodeAt(k))>>>0;var g=grads[h%grads.length],ht=128+(h%5)*22;return '<div class="xhs-ph" style="height:'+ht+'px;background:'+g+'"><span class="em">'+((p.attachments&&p.attachments.length)?'📎':'📝')+'</span></div>'}
+  function likeBtnHtml(id,ctx){var s=rcount(id);if(ctx==='xhs')return '<button id="lk-xhs-'+id+'" class="xhs-act'+(s.liked?' on-like':'')+'" onclick="commLike(event,\''+id+'\')" title="'+(s.liked?'取消点赞':'点赞')+'"><span>'+(s.liked?'❤️':'🤍')+'</span><b>'+(s.like_count||0)+'</b></button>';var big=ctx==='detail';return '<button id="lk-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.liked?' on-like':'')+'" onclick="commLike(event,\''+id+'\')" title="'+(s.liked?'取消点赞':'点赞')+'"><span>'+(s.liked?'❤️':'🤍')+'</span>'+(big?'<span>'+(s.liked?'已赞':'点赞')+'</span>':'')+'<b>'+(s.like_count||0)+'</b></button>'}
+  function favBtnHtml(id,ctx){var s=rcount(id);if(ctx==='xhs')return '<button id="fv-xhs-'+id+'" class="xhs-collect'+(s.faved?' on-fav':'')+'" onclick="commFav(event,\''+id+'\')" title="'+(s.faved?'取消收藏':'收藏')+'">'+(s.faved?'⭐':'☆')+'</button>';var big=ctx==='detail';return '<button id="fv-'+ctx+'-'+id+'" class="crbtn'+(big?' big':'')+(s.faved?' on-fav':'')+'" onclick="commFav(event,\''+id+'\')" title="'+(s.faved?'取消收藏':'收藏')+'"><span>'+(s.faved?'⭐':'☆')+'</span>'+(big?'<span>'+(s.faved?'已收藏':'收藏')+'</span>':'')+'<b>'+(s.fav_count||0)+'</b></button>'}
+  function syncBtns(id){['xhs','detail'].forEach(function(ctx){var l=document.getElementById('lk-'+ctx+'-'+id);if(l)l.outerHTML=likeBtnHtml(id,ctx);var f=document.getElementById('fv-'+ctx+'-'+id);if(f)f.outerHTML=favBtnHtml(id,ctx)})}
+  function pulse(prefix,id){['xhs','detail'].forEach(function(ctx){var e=document.getElementById(prefix+'-'+ctx+'-'+id);if(e){e.classList.add('pop');setTimeout(function(){e.classList.remove('pop')},320)}})}
+  function setTabUI(){[['commTabAll','all'],['commTabLiked','liked'],['commTabFav','fav']].forEach(function(pp){var b=document.getElementById(pp[0]);if(b){var on=mode===pp[1];b.style.background=on?'var(--navy)':'';b.style.color=on?'#fff':'';}})}
   window.commTab=function(m){if(m===mode)return;mode=m;off=0;setTabUI();commLoad(0)};
   window.commLike=async function(ev,id){
     if(ev){if(ev.stopPropagation)ev.stopPropagation();if(ev.preventDefault)ev.preventDefault();}
@@ -527,6 +576,7 @@
       var j=await r.json().catch(function(){return{}});
       if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
       s.liked=!!j.liked;if(typeof j.like_count==='number')s.like_count=j.like_count;commState[id]=s;syncBtns(id);
+      if(!s.liked&&mode==='liked')commLoad(off);
     }catch(e){
       s.liked=!want;s.like_count=Math.max(0,(s.like_count||0)+(want?-1:1));commState[id]=s;syncBtns(id);
       if(window.toast)toast('操作失败：'+e.message);
@@ -980,7 +1030,7 @@
 
 <!-- DETAIL MODAL -->
 <div class="mo" id="mO" onclick="if(event.target===this)closeM()"><div class="ml"><div class="mi-w"><button class="mx" onclick="closeM()">✕</button><img class="mi" id="mImg" src=""></div><div class="mb"><div class="m-tgs" id="mTgs"></div><h2 class="m-tt" id="mTt"></h2>
-<div class="tp"><div class="tp-h"><div class="tp-t">📋 沟通指南</div><button class="tp-cb" id="cpB" onclick="copyTP()">📋 一键复制</button></div><div id="tpC"></div></div>
+<div class="tp"><div class="tp-h"><div class="tp-t">📋 沟通指南</div><div style="display:flex;gap:8px"><button class="tp-cb" id="mFavB" onclick="libFav(cI.id,event)">☆ 收藏</button><button class="tp-cb" id="cpB" onclick="copyTP()">📋 一键复制</button></div></div><div id="tpC"></div></div>
 <div class="ab"><button class="btn btn-p" onclick="dlI()">⬇️ 下载原图</button></div></div></div></div>
 
 <!-- FEEDBACK SUBMIT MODAL -->
@@ -1216,6 +1266,8 @@ var CV=[
 ];
 var cvCol=[];
 try{cvCol=JSON.parse(localStorage.getItem('jh_cvcol')||'[]')}catch(e){cvCol=[]}
+var libCol=[];
+try{libCol=JSON.parse(localStorage.getItem('jh_libcol')||'[]')}catch(e){libCol=[]}
 var cvYear=2026,cvMon=5,cvCatF='全部';
 var cvPage=0,_cvKey='',CV_PAGE_SIZE=5;
 var col=[],fbD={};
@@ -1230,7 +1282,7 @@ try{fbD=JSON.parse(localStorage.getItem('jh_fb')||'{}')}catch(e){fbD={}}
 col=JSON.parse(localStorage.getItem('jh_col')||'[]');
 col=col.map(function(x){if(x.did)return x;return{did:x.d||'',tp:x.tp||'interest',tm:x.t||Date.now()}});
 fbD=JSON.parse(localStorage.getItem('jh_fb')||'{}');
-cvCol=JSON.parse(localStorage.getItem('jh_cvcol')||'[]');
+cvCol=JSON.parse(localStorage.getItem('jh_cvcol')||'[]');try{libCol=JSON.parse(localStorage.getItem('jh_libcol')||'[]')}catch(e){libCol=[]}
 
 
 function lsSave(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -1283,7 +1335,7 @@ function toast(m){var t=document.getElementById('ts');t.textContent=m;t.classLis
 <script>
 // === js/library.js ===
 /* ========== INSIGHT CARDS ========== */
-function mk(i){return'<div class="ic-card" onclick="openD('+i.id+')"><img class="ic-img" src="'+i.img+'" alt="" onerror="this.style.background=\'linear-gradient(135deg,#E2E8F0,#CBD5E1)\'"><div class="ic-bd"><div class="ic-tgs"><span class="tg" style="background:var(--navy);color:#fff;font-size:9px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span></div><div class="ic-tt">'+i.tz+'</div><div class="ic-mt"><span>'+i.mon+'</span><span class="ic-dl" onclick="event.stopPropagation();toast(\'下载中\')">⬇️</span></div></div></div>'}
+function mk(i){return'<div class="ic-card" style="position:relative" onclick="openD('+i.id+')"><button onclick="event.stopPropagation();libFav('+i.id+',event)" title="收藏" style="position:absolute;top:8px;right:8px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(0,0,0,.18);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;transition:transform .15s ease;color:'+(isLibFav(i.id)?'var(--gold)':'#94A3B8')+'" onmouseover="this.style.transform=\'scale(1.12)\'" onmouseout="this.style.transform=\'\'">'+(isLibFav(i.id)?'⭐':'☆')+'</button><img class="ic-img" src="'+i.img+'" alt="" onerror="this.style.background=\'linear-gradient(135deg,#E2E8F0,#CBD5E1)\'"><div class="ic-bd"><div class="ic-tgs"><span class="tg" style="background:var(--navy);color:#fff;font-size:9px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span></div><div class="ic-tt">'+i.tz+'</div><div class="ic-mt"><span>'+i.mon+'</span><span class="ic-dl" onclick="event.stopPropagation();toast(\'下载中\')">⬇️</span></div></div></div>'}
 function rL(){document.getElementById('latG').innerHTML=D.slice().reverse().slice(0,4).map(mk).join('')}
 var libPage=0,_libKey='';var LIB_PAGE_SIZE=5;
 function rB(){
@@ -1311,7 +1363,7 @@ function libMonChange(sel){curMon=sel.value==='all'?'all':sel.options[sel.select
 function renderLibCat(){var src=curMon==='all'?D:D.filter(function(i){return i.mon===curMon});var catSet={};src.forEach(function(i){catSet[i.cat]=(catSet[i.cat]||0)+1});var cats=['全部'].concat(Object.keys(catSet));document.getElementById('libCatList').innerHTML=cats.map(function(c){return'<div class="lib-cat-item'+(c===cF?' a':'')+'" onclick="cF=\''+c+'\';rB();renderLibCat()">'+c+(c!=='全部'?'<span class="lib-cat-cnt">'+(catSet[c]||0)+'</span>':'')+'</div>'}).join('')}
 
 /* ========== DETAIL MODAL ========== */
-function openD(id){var i=D.find(function(x){return x.id===id});if(!i)return;cI=i;document.getElementById('mImg').src=i.img;document.getElementById('mTt').textContent=i.tz;document.getElementById('mTgs').innerHTML='<span class="tg" style="background:var(--navy);color:#fff;font-size:10px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span><span class="tg t-m">'+i.mon+'</span>';document.getElementById('tpC').innerHTML='<div class="tp-sec"><div class="tp-lbl">沟通要点</div><div class="tp-txt">'+i.tp.b+'</div></div><div class="tp-sec"><div class="tp-lbl" style="color:var(--green)">沟通话术</div><div class="tp-txt">'+(i.tp.c||'暂无')+'</div></div><div class="tp-sec"><div class="tp-lbl" style="color:var(--accent)">推荐产品</div><div class="tp-txt">'+(i.tp.d||'暂无')+'</div></div><div class="tp-sec"><div class="tp-lbl" style="color:var(--purple)">产品服务Link</div><div class="tp-txt">'+(i.tp.e?(i.tp.e.indexOf("http")===0?"<a href=\'"+i.tp.e+"\' target=\'_blank\' style=\'color:var(--accent)\'>"+i.tp.e+"</a>":i.tp.e):"暂无")+'</div></div>'+(i.src?'<div class="tp-sec" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><div class="tp-lbl" style="color:var(--orange)">📎 信源</div><div class="tp-txt" style="font-size:12px;color:var(--muted)">'+(i.src.indexOf('http')===0?'<a href="'+i.src+'" target="_blank" style="color:var(--accent)">'+i.src+'</a>':i.src)+'</div></div>':'');document.getElementById('mO').classList.add('open');document.body.style.overflow='hidden'}
+function openD(id){var i=D.find(function(x){return x.id===id});if(!i)return;cI=i;document.getElementById('mImg').src=i.img;document.getElementById('mTt').textContent=i.tz;document.getElementById('mTgs').innerHTML='<span class="tg" style="background:var(--navy);color:#fff;font-size:10px;font-weight:800">'+i.num+'</span><span class="tg '+i.cc+'">'+i.cat+'</span><span class="tg t-m">'+i.mon+'</span>';document.getElementById('tpC').innerHTML='<div class="tp-sec"><div class="tp-lbl">沟通要点</div><div class="tp-txt">'+i.tp.b+'</div></div><div class="tp-sec"><div class="tp-lbl" style="color:var(--green)">沟通话术</div><div class="tp-txt">'+(i.tp.c||'暂无')+'</div></div><div class="tp-sec"><div class="tp-lbl" style="color:var(--accent)">推荐产品</div><div class="tp-txt">'+(i.tp.d||'暂无')+'</div></div><div class="tp-sec"><div class="tp-lbl" style="color:var(--purple)">产品服务Link</div><div class="tp-txt">'+(i.tp.e?(i.tp.e.indexOf("http")===0?"<a href=\'"+i.tp.e+"\' target=\'_blank\' style=\'color:var(--accent)\'>"+i.tp.e+"</a>":i.tp.e):"暂无")+'</div></div>'+(i.src?'<div class="tp-sec" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><div class="tp-lbl" style="color:var(--orange)">📎 信源</div><div class="tp-txt" style="font-size:12px;color:var(--muted)">'+(i.src.indexOf('http')===0?'<a href="'+i.src+'" target="_blank" style="color:var(--accent)">'+i.src+'</a>':i.src)+'</div></div>':'');document.getElementById('mO').classList.add('open');document.body.style.overflow='hidden';updateLibModalBtn()}
 function closeM(){document.getElementById('mO').classList.remove('open');document.body.style.overflow=''}
 function copyTP(){if(!cI)return;navigator.clipboard.writeText('【'+cI.tz+'】\n\n【沟通要点】\n'+cI.tp.b+'\n\n【沟通话术】\n'+(cI.tp.c||'暂无')+'\n\n【推荐产品】\n'+(cI.tp.d||'暂无')+'\n\n【产品服务Link】\n'+(cI.tp.e||'暂无')+''+(cI.src?'\n\n【信源】\n'+cI.src:'')).then(function(){var b=document.getElementById('cpB');b.textContent='✅ 已复制';b.classList.add('cp');setTimeout(function(){b.textContent='📋 一键复制';b.classList.remove('cp')},1500);toast('已复制')})}
 function dlI(){if(!cI)return;var a=document.createElement('a');a.href=cI.img;a.download=cI.num+'_'+cI.tz+'.png';a.click();toast('下载中')}
@@ -2155,12 +2207,35 @@ function exportFav(){
 
 /* ========== 我的收藏：子tab切换 + 创意洞察收藏 ========== */
 function favTab(which,el){
-  document.getElementById('favTabDaily').classList.remove('a');
-  document.getElementById('favTabCv').classList.remove('a');
+  ['favTabDaily','favTabCv','favTabLib'].forEach(function(idd){var b=document.getElementById(idd);if(b)b.classList.remove('a')});
   if(el)el.classList.add('a');
   document.getElementById('favPaneDaily').style.display=which==='daily'?'block':'none';
   document.getElementById('favPaneCv').style.display=which==='cv'?'block':'none';
-  if(which==='daily')renderFav();else renderFavCv();
+  var _lib=document.getElementById('favPaneLib');if(_lib)_lib.style.display=which==='lib'?'block':'none';
+  if(which==='daily')renderFav();else if(which==='cv')renderFavCv();else if(which==='lib')renderFavLib();
+}
+function isLibFav(id){return libCol.some(function(x){return x.id===id})}
+function libFav(id,ev){if(ev){if(ev.stopPropagation)ev.stopPropagation();if(ev.preventDefault)ev.preventDefault();}
+  var i=D.find(function(x){return x.id===id});if(!i)return;
+  var idx=libCol.findIndex(function(x){return x.id===id});
+  if(idx>=0){libCol.splice(idx,1);if(window.toast)toast('已取消收藏')}
+  else{libCol.unshift({id:id,t:i.tz,cat:i.cat,mon:i.mon,img:i.img,tm:Date.now()});if(window.toast)toast('⭐ 已收藏 '+i.num)}
+  lsSave('jh_libcol',libCol);
+  if(typeof rB==='function')rB();
+  updateLibModalBtn();
+  var pane=document.getElementById('favPaneLib');if(pane&&pane.style.display!=='none')renderFavLib();
+}
+function updateLibModalBtn(){var b=document.getElementById('mFavB');if(!b||!cI)return;var on=isLibFav(cI.id);b.textContent=on?'⭐ 已收藏':'☆ 收藏';b.style.cssText=on?'border-color:var(--gold);background:#FEF3C7;color:#B45309':''}
+function renderFavLib(){
+  var grid=document.getElementById('favLibGrid');if(!grid)return;
+  var ids=libCol.map(function(x){return x.id});
+  var items=D.filter(function(d){return ids.indexOf(d.id)>=0});
+  items.sort(function(a,b){return ids.indexOf(a.id)-ids.indexOf(b.id)});
+  var q=((document.getElementById('favLibSearchInput')||{}).value||'').trim().toLowerCase();
+  if(q)items=items.filter(function(d){return(d.tz+' '+d.cat+' '+d.mon).toLowerCase().indexOf(q)>=0});
+  var cnt=document.getElementById('favLibCntTotal');if(cnt)cnt.textContent=items.length+' 条';
+  if(!items.length){grid.innerHTML='<div class="di-empty">'+(libCol.length?'📌 该筛选条件下暂无收藏':'📌 暂无月度洞察收藏，在月度洞察中点击 ☆ 收藏按钮即可添加')+'</div>';return}
+  grid.innerHTML=items.map(mk).join('');
 }
 var favCvYr=2026,favCvMo=0;
 function favCvYrNav(d){favCvYr+=d;renderFavCv()}
