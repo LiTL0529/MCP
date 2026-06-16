@@ -2379,11 +2379,13 @@ try {
   };
 
   function setIdentity(me){
-    var uname = document.querySelector('.sb-uname'); if(uname) uname.textContent = me.email;
+    // 显示企业微信注册的姓名；API-key 用户无姓名时回退到邮箱。
+    var dispName = (me.name && me.name.trim()) ? me.name.trim() : me.email;
+    var uname = document.querySelector('.sb-uname'); if(uname){ uname.textContent = dispName; uname.title = me.email; }
     var urole = document.querySelector('.sb-urole');
     if(urole) urole.textContent = (me.is_admin ? '管理员 · Admin' : '用户') + ' · ' + ((me.access_groups && me.access_groups.length) ? me.access_groups.join(',') : '公开');
-    var av = document.querySelector('.sb-avatar'); if(av) av.textContent = (me.email || '?').charAt(0).toUpperCase();
-    var tb = document.getElementById('tbUser'); if(tb) tb.textContent = me.email;
+    var av = document.querySelector('.sb-avatar'); if(av) av.textContent = (dispName || '?').charAt(0).toUpperCase();
+    var tb = document.getElementById('tbUser'); if(tb){ tb.textContent = dispName; tb.title = me.email; }
     // Non-admins don't see the 管理后台 nav item.
     try {
       var nis = document.querySelectorAll('.sb-nav .ni');
