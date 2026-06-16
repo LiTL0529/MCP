@@ -1285,7 +1285,8 @@ fbD=JSON.parse(localStorage.getItem('jh_fb')||'{}');
 cvCol=JSON.parse(localStorage.getItem('jh_cvcol')||'[]');try{libCol=JSON.parse(localStorage.getItem('jh_libcol')||'[]')}catch(e){libCol=[]}
 
 
-function lsSave(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var _stateKeyMap={jh_col:'col',jh_cvcol:'cvcol',jh_libcol:'libcol'},_stateTimers={};
+function lsSave(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}var sk=_stateKeyMap[k];if(sk&&window.JA&&window.JA.api){clearTimeout(_stateTimers[sk]);_stateTimers[sk]=setTimeout(function(){try{window.JA.api('/api/state/'+sk,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:v})}).catch(function(){})}catch(e){}},400);}}
 
 function catClr(c){return{'新加坡院校':'#3B82F6','中国教育':'#8B5CF6','东南亚竞争':'#F97316','SG本地':'#6366F1','印度市场':'#78716C','AI&科技':'#10B981','AEO/GEO':'#059669','品牌营销':'#D97706','小红书':'#EF4444','跨境金融':'#EC4899'}[c]||'#64748B'}
 
@@ -2399,6 +2400,7 @@ try {
     document.getElementById('mainContent').style.display = 'block';
     if(me) setIdentity(me);
     await JA.loadDates();
+    await JA.loadState();
     try { initApp(); } catch(e){ console.error('initApp', e); }
   }
 
@@ -2431,6 +2433,26 @@ try {
       diAvailableDates = (j && j.dates) || [];
       if(diAvailableDates.length && diAvailableDates.indexOf(curDate) < 0) curDate = diAvailableDates[0];
     } catch(e){ diAvailableDates = []; }
+  };
+
+  // Insight-mark collections (col/cvCol/libCol) sync server-side so they follow
+  // the user across devices. Server is source of truth; if the server has none
+  // yet but this device has local marks, migrate them up (one-time). Falls back
+  // to whatever localStorage already loaded if the call fails.
+  JA.loadState = async function(){
+    function setArr(name,arr){try{var cur=window[name];if(Array.isArray(cur)){cur.length=0;for(var i=0;i<(arr||[]).length;i++)cur.push(arr[i]);}else{window[name]=(arr||[]).slice();}}catch(e){}}
+    function merge(serverArr,lsKey,globalName,stateKey){
+      if(Array.isArray(serverArr)&&serverArr.length){setArr(globalName,serverArr);try{localStorage.setItem(lsKey,JSON.stringify(serverArr))}catch(e){}}
+      else{var local=[];try{local=JSON.parse(localStorage.getItem(lsKey)||'[]')}catch(e){local=[]}if(local&&local.length){setArr(globalName,local);try{JA.api('/api/state/'+stateKey,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:local})}).catch(function(){})}catch(e){}}}
+    }
+    try {
+      var r = await JA.api('/api/state?keys=col,cvcol,libcol');
+      if(!r.ok) return;
+      var j = await r.json();
+      merge(j.col,'jh_col','col','col');
+      merge(j.cvcol,'jh_cvcol','cvCol','cvcol');
+      merge(j.libcol,'jh_libcol','libCol','libcol');
+    } catch(e){}
   };
 
   // Date chips now come from the backend instead of localStorage keys.

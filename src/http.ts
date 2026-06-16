@@ -24,6 +24,7 @@ import { createApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
 import { addPostComment, createPost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike } from "./community.js";
+import { getUserState, setUserState, STATE_KEYS } from "./state.js";
 import { uploadFile } from "./storage.js";
 import { parseBilingualMd } from "./markdown.js";
 import type { Lang, UserContext } from "./types.js";
@@ -726,6 +727,36 @@ export function buildApp() {
         return;
       }
       res.status(201).json({ ok: true, comment: created });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // ── Per-user app state (insight marks: 收藏/已使用/促成销售) ──
+  app.get("/api/state", requireUser, async (req, res) => {
+    try {
+      const raw = String(req.query.keys ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+      const keys = raw.length ? raw : [...STATE_KEYS];
+      res.json(await getUserState(req.user!, keys));
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  const stateSchema = z.object({ value: z.unknown() });
+  app.put("/api/state/:key", requireUser, async (req, res) => {
+    const parsed = stateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "missing value" });
+      return;
+    }
+    const val = parsed.data.value;
+    if (Array.isArray(val) && val.length > 5000) {
+      res.status(400).json({ error: "too many items (max 5000)" });
+      return;
+    }
+    try {
+      res.json(await setUserState(req.user!, req.params.key, val));
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }
