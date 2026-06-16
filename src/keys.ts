@@ -97,3 +97,23 @@ export async function setKeyExpiry(id: string, expiresAt: string | null) {
   const { error } = await supabase.from("ja_api_keys").update({ expires_at: expiresAt }).eq("id", id);
   if (error) throw new Error(`setKeyExpiry failed: ${error.message}`);
 }
+
+/**
+ * Permanently remove a key from the list. Only allowed for inactive keys
+ * (revoked or expired) — an active key must be revoked first, so a live key is
+ * never silently destroyed. Returns a reason when refused/missing.
+ */
+export async function deleteApiKey(id: string): Promise<{ ok: boolean; reason?: "not_found" | "active" }> {
+  const { data, error } = await supabase
+    .from("ja_api_keys")
+    .select("revoked, expires_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`deleteApiKey lookup failed: ${error.message}`);
+  if (!data) return { ok: false, reason: "not_found" };
+  const expired = data.expires_at ? new Date(data.expires_at as string).getTime() < Date.now() : false;
+  if (!data.revoked && !expired) return { ok: false, reason: "active" };
+  const { error: delErr } = await supabase.from("ja_api_keys").delete().eq("id", id);
+  if (delErr) throw new Error(`deleteApiKey failed: ${delErr.message}`);
+  return { ok: true };
+}

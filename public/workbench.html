@@ -1022,7 +1022,8 @@
                : '<span style="color:#D97706;font-weight:600">● 已过期</span>';
         var copyBtn = k.key_plain ? '<button class="btn btn-s btn-xs" data-key="'+esc(k.key_plain)+'" onclick="keyCopyRow(this)">📋 复制</button>' : '<span style="font-size:10px;color:var(--muted)" title="此 key 在启用明文存储前创建，原文无法恢复，请重新生成">旧·不可复制</span>';
         var revBtn = k.status==='active'? ' <button class="btn btn-s btn-xs" onclick="keyRevoke(\''+k.id+'\')">吊销</button>' : '';
-        var act = copyBtn + revBtn;
+        var delBtn = k.status!=='active'? ' <button class="btn btn-s btn-xs" style="color:var(--red);border-color:#FECACA" onclick="keyDelete(\''+k.id+'\')">🗑 删除</button>' : '';
+        var act = copyBtn + revBtn + delBtn;
         var grp = (k.access_groups&&k.access_groups.length)? esc(k.access_groups.join(',')) : '<span style="color:var(--muted)">公开</span>';
         return '<tr>'+
           '<td><code style="font-size:11px">'+esc(k.key_prefix)+'…</code></td>'+
@@ -1066,6 +1067,15 @@
       if(!r.ok) throw new Error('HTTP '+r.status);
       if(window.toast)toast('已吊销'); keysLoad();
     }catch(e){ if(window.toast)toast('吊销失败：'+e.message); }
+  };
+  window.keyDelete=async function(id){
+    if(!confirm('确定彻底删除这个已吊销/已过期的 Token？将从列表中永久移除，无法恢复。'))return;
+    try{
+      var r=await window.JA.api('/api/keys/'+encodeURIComponent(id),{ method:'DELETE' });
+      var j=await r.json().catch(function(){return {};});
+      if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+      if(window.toast)toast('已删除'); keysLoad();
+    }catch(e){ if(window.toast)toast('删除失败：'+e.message); }
   };
 })();
 </script>

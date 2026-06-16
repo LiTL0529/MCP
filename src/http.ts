@@ -20,7 +20,7 @@ import {
 import { queryToolCalls, recordSession } from "./audit.js";
 import { buildMcpServer } from "./mcp.js";
 import { createInsight, getDailyCards, getInsight, listInsights, searchInsights } from "./insights.js";
-import { createApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
+import { createApiKey, deleteApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
 import { addPostComment, createPost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike } from "./community.js";
@@ -461,6 +461,25 @@ export function buildApp() {
     if (!requireAdmin(req, res)) return;
     try {
       await setKeyExpiry(req.params.id, normaliseExpiry(req.body?.expires_at));
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // Permanently delete an inactive (revoked/expired) key from the list.
+  app.delete("/api/keys/:id", requireUser, async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const r = await deleteApiKey(req.params.id);
+      if (!r.ok) {
+        if (r.reason === "active") {
+          res.status(409).json({ error: "仅可删除已吊销或已过期的 Token，请先吊销" });
+          return;
+        }
+        res.status(404).json({ error: "Token 不存在" });
+        return;
+      }
       res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
