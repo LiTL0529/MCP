@@ -19,7 +19,7 @@ import {
 } from "./oauth.js";
 import { queryToolCalls, recordSession } from "./audit.js";
 import { buildMcpServer } from "./mcp.js";
-import { createInsight, getDailyCards, getDailyInsights, getInsight, listInsights, searchInsights } from "./insights.js";
+import { createInsight, deleteInsight, getDailyCards, getDailyInsights, getInsight, listInsights, searchInsights } from "./insights.js";
 import { createApiKey, deleteApiKey, listApiKeys, revokeApiKey, setKeyExpiry } from "./keys.js";
 import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
@@ -612,6 +612,21 @@ export function buildApp() {
         lang: langOf(req.query.lang),
       });
       res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // 删除一条实时洞察 (admin only) — used by 归档管理.
+  app.delete("/api/insights/:id", requireUser, async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const ok = await deleteInsight(req.params.id);
+      if (!ok) {
+        res.status(404).json({ error: "洞察不存在" });
+        return;
+      }
+      res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }

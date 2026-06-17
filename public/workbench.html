@@ -386,6 +386,7 @@
 <div style="display:flex;gap:6px;align-items:center"><select class="fi" style="width:120px;padding:4px 8px;font-size:11px"><option>2026年4月</option><option>2026年3月</option></select><div id="fbStats"></div></div></div>
 <div style="font-size:11px;color:var(--muted);margin-bottom:14px">每条洞察必须反馈（已使用或未使用）</div>
 <div class="mf-list" id="fbList"></div>
+<div id="fbPager" style="display:flex;justify-content:center;align-items:center;gap:12px;margin:16px 0 4px;font-size:12px;color:var(--muted)"></div>
 </div>
 
 
@@ -969,13 +970,9 @@
 </div>
 <div class="adm-sub active" id="sub-arch-daily">
 <div class="e-tbl-wrap">
-<div class="e-tbl-head"><div class="e-tbl-title">实时洞察归档（按月）</div><select class="fi" style="width:100px;padding:4px 8px;font-size:11px"><option>2026年4月</option><option>2026年3月</option></select></div>
-<table class="e-tbl"><thead><tr><th>日期</th><th>文件名</th><th>洞察数</th><th>标注数</th><th>操作</th></tr></thead><tbody>
-<tr><td>2026-04-21</td><td>daily/2026-04-21.html</td><td>10</td><td>47</td><td><button class="btn btn-s btn-xs" onclick="archiveView('daily/2026-04-21.html')">查看</button> <button class="btn btn-s btn-xs" onclick="archiveReplace('2026-04-21')">替换</button></td></tr>
-<tr><td>2026-04-18</td><td>daily/2026-04-18.html</td><td>10</td><td>38</td><td><button class="btn btn-s btn-xs" onclick="archiveView('daily/2026-04-18.html')">查看</button> <button class="btn btn-s btn-xs" onclick="archiveReplace('2026-04-18')">替换</button></td></tr>
-<tr><td>2026-04-17</td><td>daily/2026-04-17.html</td><td>10</td><td>42</td><td><button class="btn btn-s btn-xs" onclick="archiveView('daily/2026-04-17.html')">查看</button> <button class="btn btn-s btn-xs" onclick="archiveReplace('2026-04-17')">替换</button></td></tr>
-</tbody></table>
-<div class="e-tbl-ft"><span>本月共 3 份 · 前端仅展示本周</span><span>总标注 127 次</span></div>
+<div class="e-tbl-head"><div class="e-tbl-title">实时洞察归档</div><button class="btn btn-s btn-sm" onclick="renderArchiveDaily()"><svg class="svgi" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10"/><path d="M20.5 15a9 9 0 0 1-14.9 3.4L1 14"/></svg>刷新</button></div>
+<table class="e-tbl"><thead><tr><th style="width:96px">日期</th><th style="width:56px">编号</th><th>标题</th><th style="width:110px">分类</th><th style="width:90px">状态</th><th style="width:120px">操作</th></tr></thead><tbody id="archDailyTbl"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">加载中…</td></tr></tbody></table>
+<div class="e-tbl-ft"><span id="archDailyFt">—</span><span style="font-size:11px;color:var(--muted)">编辑请在「内容管理 · 实时洞察上传」重新上传修正后的 .md（仅改动的字段会重新向量化）</span></div>
 </div>
 </div>
 <div class="adm-sub" id="sub-arch-ppt" style="display:none">
@@ -1445,7 +1442,7 @@ var libCol=[];
 try{libCol=JSON.parse(localStorage.getItem('jh_libcol')||'[]')}catch(e){libCol=[]}
 var cvYear=2026,cvMon=5,cvCatF='全部';
 var cvPage=0,_cvKey='',CV_PAGE_SIZE=8;
-var col=[],fbD={};
+var col=[],fbD={},fbPage=0;
 try{col=JSON.parse(localStorage.getItem('jh_col')||'[]')}catch(e){col=[]}
 /* migrate old col format {c,d,tp,t,cat} → new {did,tp,tm} */
 col=col.map(function(x){if(x.did)return x;return{did:x.d||'',tp:x.tp||'interest',tm:x.t||Date.now()}});
@@ -1480,7 +1477,7 @@ var _autoLoggedIn=false;
 
 /* ========== INIT (each function wrapped in try-catch) ========== */
 function initApp(){
-  var fns=[rL,rB,renderDA,renderFB,renderUT,renderCT,renderTags,renderChart,popClients,updateKPI,renderLibCat,function(){renderInbox('all')},renderArchivePPT,renderOverview,renderMyData,renderCVPage,renderArchiveCV,renderCVAdminDropdowns,function(){loadDaily(curDate)}];
+  var fns=[rL,rB,renderDA,renderFB,renderUT,renderCT,renderTags,renderChart,popClients,updateKPI,renderLibCat,function(){renderInbox('all')},renderArchiveDaily,renderArchivePPT,renderOverview,renderMyData,renderCVPage,renderArchiveCV,renderCVAdminDropdowns,function(){loadDaily(curDate)}];
   for(var i=0;i<fns.length;i++){try{fns[i]()}catch(e){console.error('initApp['+i+']',e)}}
 }
 
@@ -1940,6 +1937,22 @@ var pptEditIdx=null;var pendingEditImg=null;
 function previewEditImg(input){var f=input.files[0];if(!f)return;if(f.size>1024*1024){alert('图片不能超过 1MB（当前: '+(f.size/1024).toFixed(0)+'KB）');input.value='';return}var reader=new FileReader();reader.onload=function(e){document.getElementById('peImgPreview').src=e.target.result;pendingEditImg=e.target.result;document.getElementById('peImgStatus').textContent='已选择: '+f.name};reader.readAsDataURL(f)}
 function pptEdit(num){var i=D.find(function(x){return x.num===num});if(!i){toast('未找到 #'+num);return}pptEditIdx=D.indexOf(i);pendingEditImg=null;document.getElementById('peImgInput').value='';document.getElementById('peImgStatus').textContent='点击图片更换';document.getElementById('peImgPreview').src=i.img||'';document.getElementById('pptEditTitle').textContent='编辑洞察 #'+i.num;document.getElementById('peNum').value=i.num;document.getElementById('peTz').value=i.tz;document.getElementById('peCat').value=i.cat;document.getElementById('peMon').value=i.mon;document.getElementById('peSrc').value=i.src||'';document.getElementById('peTpB').value=i.tp.b;document.getElementById('peTpC').value=i.tp.c||'';document.getElementById('peTpD').value=i.tp.d||'';document.getElementById('peTpE').value=i.tp.e||'';document.getElementById('pptEditModal').classList.add('open')}
 function savePptEdit(){if(pptEditIdx===null)return;var i=D[pptEditIdx];if(pendingEditImg){i.img=pendingEditImg;pendingEditImg=null}i.tz=document.getElementById('peTz').value.trim()||i.tz;i.cat=document.getElementById('peCat').value;var ccMap={'中国教育':'t-edu','新加坡院校':'t-edu','小红书':'t-xhs','AEO/GEO':'t-ai','AI&科技':'t-ai','品牌营销':'t-brand','全球竞争':'t-m','SG本地':'t-p','印度市场':'t-m','跨境金融':'t-m'};i.cc=ccMap[i.cat]||'t-m';i.mon=document.getElementById('peMon').value.trim()||i.mon;i.src=document.getElementById('peSrc').value.trim();i.tp.b=document.getElementById('peTpB').value.trim()||i.tp.b;i.tp.c=document.getElementById('peTpC').value.trim();i.tp.d=document.getElementById('peTpD').value.trim();i.tp.e=document.getElementById('peTpE').value.trim();document.getElementById('pptEditModal').classList.remove('open');renderArchivePPT();rL();rB();toast('洞察 #'+i.num+' 已更新')}
+async function renderArchiveDaily(){
+  var tb=document.getElementById('archDailyTbl');if(!tb)return;
+  function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">加载中…</td></tr>';
+  try{
+    var r=await window.JA.api('/api/insights?limit=500&lang=both');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var j=await r.json();var items=j.items||[];
+    items.sort(function(a,b){return String(b.report_date||'').localeCompare(String(a.report_date||''))||String(a.report_id||'').localeCompare(String(b.report_id||''),undefined,{numeric:true})});
+    if(!items.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">暂无实时洞察</td></tr>';var ft0=document.getElementById('archDailyFt');if(ft0)ft0.textContent='共 0 条';return;}
+    tb.innerHTML=items.map(function(it){var title=(it.title&&(it.title.zh||it.title.en))||'';var stripEmoji=function(s){return String(s||'').replace(/[←-⇿⌀-➿⬀-⯿️\u{1F000}-\u{1FAFF}]/gu,'').trim()};return '<tr><td style="white-space:nowrap">'+e(it.report_date||'')+'</td><td style="font-weight:600">'+e(it.report_id||'')+'</td><td style="max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e(title)+'</td><td><span style="font-size:11px;color:#4E5969">'+e(it.category||'')+'</span></td><td><span style="font-size:11px;color:var(--muted)">'+e(stripEmoji(it.status))+'</span></td><td style="white-space:nowrap"><button class="btn btn-s btn-xs" onclick="archDailyView(\''+e(it.report_date)+'\')">查看</button> <button class="btn btn-s btn-xs" style="color:var(--red);border-color:#FECACA" onclick="archDailyDel(\''+it.id+'\',\''+e(it.report_id)+'\')">删除</button></td></tr>'}).join('');
+    var ft=document.getElementById('archDailyFt');if(ft)ft.textContent='共 '+items.length+' 条实时洞察';
+  }catch(err){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">加载失败：'+e(err.message)+'</td></tr>';}
+}
+window.archDailyView=function(date){var ni=document.querySelector('.sb-nav .ni');if(window.nav&&ni)nav('daily',ni);var dp=document.getElementById('dailyPick');if(dp&&date)dp.value=date;if(window.loadDaily&&date)loadDaily(date);};
+window.archDailyDel=async function(id,num){if(!confirm('确定删除实时洞察 #'+num+'？删除后不可恢复。'))return;try{var r=await window.JA.api('/api/insights/'+encodeURIComponent(id),{method:'DELETE'});var j=await r.json().catch(function(){return{}});if(!r.ok)throw new Error(j.error||('HTTP '+r.status));toast('已删除');renderArchiveDaily();if(window.JA&&JA.loadDates)JA.loadDates();}catch(e){toast('删除失败：'+e.message);}};
 function renderArchivePPT(){var mon=document.getElementById('archMonSel').value;var list=mon==='all'?D:D.filter(function(i){return i.mon===mon});document.getElementById('archPptTbl').innerHTML=list.map(function(i){return'<tr><td style="font-weight:700">'+i.num+'</td><td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+i.tz+'</td><td><span class="tg '+i.cc+'">'+i.cat+'</span></td><td><button class="btn btn-s btn-xs" onclick="pptEdit(\''+i.num+'\')">编辑</button> <button class="btn btn-xs" style="color:var(--accent);background:#EFF6FF" onclick="openD('+i.id+')">查看</button> <button class="btn btn-xs" style="color:var(--red);background:#FEE2E2" onclick="delPPT('+i.id+')">删除</button></td></tr>'}).join('');document.getElementById('archPptFt').textContent='共 '+list.length+' 条洞察'}
 function delPPT(id){var idx=D.findIndex(function(x){return x.id===id});if(idx<0)return;if(!confirm('确认删除洞察 #'+D[idx].num+'「'+D[idx].tz+'」？'))return;D.splice(idx,1);renderArchivePPT();rL();rB();renderLibCat();updateKPI();renderTraining();toast('洞察已删除')}
 
@@ -2541,7 +2554,9 @@ function exportFavCv(){
 <script>
 // === js/feedback.js ===
 /* ========== FEEDBACK ========== */
-function renderFB(){var list=document.getElementById('fbList');if(!list)return;if(!D.length){list.innerHTML='<div class="di-empty" style="padding:30px;text-align:center;color:var(--muted)">暂无月度洞察</div>';return;}list.innerHTML=D.map(function(i){var fb=fbD[i.id],st=fb?(fb.u?'done-used':'done-unused'):'pending',badge=fb?(fb.u?'已使用':'未使用'):'待反馈';return'<div class="mf-item"'+(!fb?' style="border-color:var(--gold)"':'')+'><div class="mf-num"'+(!fb?' style="background:var(--gold)"':'')+'>'+i.num+'</div><div class="mf-info"><div class="mf-title">'+i.tz+'</div><div class="mf-meta"><span class="tg '+i.cc+'" style="margin-right:4px">'+i.cat+'</span>'+(fb&&fb.u?' · 已用于客户':'')+'</div></div><div class="mf-status"><span class="mf-badge '+st+'">'+badge+'</span>'+(fb?'<button class="btn btn-s btn-sm" onclick="openFBDet('+i.id+')">详情</button>':'<button class="btn btn-p btn-sm" onclick="openFBSub('+i.id+')">提交</button>')+'</div></div>'}).join('');var done=D.filter(function(i){return fbD[i.id]}).length;var _s=document.getElementById('fbStats');if(_s)_s.innerHTML='<span style="padding:2px 8px;border-radius:4px;background:#D1FAE5;color:#047857;font-size:11px;font-weight:600">已 '+done+'</span><span style="padding:2px 8px;border-radius:4px;background:#FEF3C7;color:#B45309;font-size:11px;font-weight:600;margin-left:4px">待 '+(D.length-done)+'</span>'}
+var FB_PAGE_SIZE=10;
+function renderFB(){var list=document.getElementById('fbList');if(!list)return;if(!D.length){list.innerHTML='<div class="di-empty" style="padding:30px;text-align:center;color:var(--muted)">暂无月度洞察</div>';var _p0=document.getElementById('fbPager');if(_p0)_p0.innerHTML='';return;}var pages=Math.max(1,Math.ceil(D.length/FB_PAGE_SIZE));if(fbPage>=pages)fbPage=pages-1;if(fbPage<0)fbPage=0;var slice=D.slice(fbPage*FB_PAGE_SIZE,(fbPage+1)*FB_PAGE_SIZE);list.innerHTML=slice.map(function(i){var fb=fbD[i.id],st=fb?(fb.u?'done-used':'done-unused'):'pending',badge=fb?(fb.u?'已使用':'未使用'):'待反馈';return'<div class="mf-item"'+(!fb?' style="border-color:var(--gold)"':'')+'><div class="mf-num"'+(!fb?' style="background:var(--gold)"':'')+'>'+i.num+'</div><div class="mf-info"><div class="mf-title">'+i.tz+'</div><div class="mf-meta"><span class="tg '+i.cc+'" style="margin-right:4px">'+i.cat+'</span>'+(fb&&fb.u?' · 已用于客户':'')+'</div></div><div class="mf-status"><span class="mf-badge '+st+'">'+badge+'</span>'+(fb?'<button class="btn btn-s btn-sm" onclick="openFBDet('+i.id+')">详情</button>':'<button class="btn btn-p btn-sm" onclick="openFBSub('+i.id+')">提交</button>')+'</div></div>'}).join('');var done=D.filter(function(i){return fbD[i.id]}).length;var _s=document.getElementById('fbStats');if(_s)_s.innerHTML='<span style="padding:2px 8px;border-radius:4px;background:#D1FAE5;color:#047857;font-size:11px;font-weight:600">已 '+done+'</span><span style="padding:2px 8px;border-radius:4px;background:#FEF3C7;color:#B45309;font-size:11px;font-weight:600;margin-left:4px">待 '+(D.length-done)+'</span>';var _p=document.getElementById('fbPager');if(_p)_p.innerHTML=pages>1?('<button class="btn btn-s btn-xs" '+(fbPage<=0?'disabled':'')+' onclick="fbGo(-1)">‹ 上一页</button><span>第 '+(fbPage+1)+' / '+pages+' 页 · 共 '+D.length+' 条</span><button class="btn btn-s btn-xs" '+(fbPage>=pages-1?'disabled':'')+' onclick="fbGo(1)">下一页 ›</button>'):''}
+function fbGo(d){fbPage+=d;renderFB();var p=document.getElementById('p-feedback');if(p)p.scrollIntoView({behavior:'smooth',block:'start'})}
 function openFBSub(id){var i=D.find(function(x){return x.id===id});if(!i)return;document.getElementById('fbSubmitSub').textContent='洞察 #'+i.num+' · '+i.tz;document.getElementById('fbSubmitM').dataset.iid=id;document.getElementById('usedSection').style.display='none';document.getElementById('unusedSection').style.display='none';document.getElementById('fbClientOther').style.display='none';document.querySelectorAll('#fbSubmitM .r-opt').forEach(function(e){e.classList.remove('sel')});document.querySelectorAll('#fbSubmitM .sc-opt').forEach(function(e){e.classList.remove('sel')});document.querySelectorAll('#fbSubmitM .ft-tag').forEach(function(e){e.classList.remove('sel')});document.querySelectorAll('#fbSubmitM textarea').forEach(function(e){e.value=''});document.querySelectorAll('#fbSubmitM input[type=text]').forEach(function(e){e.value=''});var cs=document.getElementById('fbClientSel');cs.innerHTML='<option value="">请选择客户</option>';CLIENTS.forEach(function(cl){var o=document.createElement('option');o.value=cl;o.textContent=cl;cs.appendChild(o)});var o2=document.createElement('option');o2.value='other';o2.textContent='其他…';cs.appendChild(o2);document.getElementById('fbSubmitM').classList.add('open')}
 function toggleUse(el,v){sr(el);document.getElementById('usedSection').style.display=v==='yes'?'block':'none';document.getElementById('unusedSection').style.display=v==='no'?'block':'none'}
 function sr(el){el.parentElement.querySelectorAll('.r-opt').forEach(function(e){e.classList.remove('sel')});el.classList.add('sel')}

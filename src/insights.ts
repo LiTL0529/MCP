@@ -250,16 +250,47 @@ export async function createInsight(input: CreateInsightInput, createdBy?: strin
   // matchable in the same space as the title/summary/attributes vectors.
   const { images, imageEmbInput } = await processImages(input.images ?? []);
 
-  // Embed the non-empty fields (incl. the combined image description) in one call.
-  const fields = [
-    { key: "title", text: fieldInputs.title },
-    { key: "summary", text: fieldInputs.summary },
-    { key: "attributes", text: fieldInputs.attributes },
-    { key: "image", text: imageEmbInput },
-  ].filter((f) => f.text.trim().length > 0);
-  const vectors = await embedMany(fields.map((f) => f.text));
-  const vecByKey: Record<string, number[]> = {};
-  fields.forEach((f, i) => (vecByKey[f.key] = vectors[i]));
+  // Re-vectorize ONLY the embedding fields whose input actually changed. This is
+  // an upsert (onConflict report_date,report_id), so on an edit / re-upload we
+  // fetch the existing row and reuse its stored vector for any field whose
+  // embed-input matches — unchanged title/summary/attributes/image never burn an
+  // embedding call. (Comment区: title_emb_input / summary_emb_input / ... are the
+  // exact strings that were embedded last time.)
+  const { data: prev } = await supabase
+    .from("ja_insights")
+    .select(
+      "title_embedding, summary_embedding, attributes_embedding, image_embedding, " +
+        "title_emb_input, summary_emb_input, attributes_emb_input, image_emb_input",
+    )
+    .eq("report_date", input.report_date)
+    .eq("report_id", input.report_id)
+    .maybeSingle();
+  const desired: Record<string, string> = {
+    title: fieldInputs.title,
+    summary: fieldInputs.summary,
+    attributes: fieldInputs.attributes,
+    image: imageEmbInput,
+  };
+  const prevRow = (prev ?? null) as unknown as Record<string, unknown> | null;
+  const vecByKey: Record<string, number[] | null> = {};
+  const toEmbed: string[] = [];
+  for (const key of ["title", "summary", "attributes", "image"]) {
+    if (!desired[key] || !desired[key].trim()) {
+      vecByKey[key] = null;
+      continue;
+    }
+    const prevInput = prevRow ? (prevRow[`${key}_emb_input`] as string | null) : null;
+    const prevVec = prevRow ? (prevRow[`${key}_embedding`] as number[] | null) : null;
+    if (prevVec && prevInput === desired[key]) {
+      vecByKey[key] = prevVec; // unchanged → reuse the stored vector (no re-embed)
+    } else {
+      toEmbed.push(key);
+    }
+  }
+  if (toEmbed.length) {
+    const vectors = await embedMany(toEmbed.map((k) => desired[k]));
+    toEmbed.forEach((k, i) => (vecByKey[k] = vectors[i]));
+  }
 
   const row = {
     report_id: input.report_id,
@@ -304,6 +335,18 @@ export async function createInsight(input: CreateInsightInput, createdBy?: strin
 
   if (error) throw new Error(`insert insight failed: ${error.message}`);
   return data;
+}
+
+/** Delete a 实时洞察 by id (admin-gated in the HTTP layer). */
+export async function deleteInsight(id: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("ja_insights")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+  if (error) throw new Error(`deleteInsight failed: ${error.message}`);
+  return !!data;
 }
 
 // Upload + describe each image, returning the stored `images` rows and the
