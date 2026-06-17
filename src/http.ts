@@ -25,6 +25,7 @@ import { createCreative, getCreative, listCreative } from "./creative.js";
 import { getOverviewStats } from "./stats.js";
 import { addPostComment, createPost, deletePost, getPost, listFavorites, listLikes, listPosts, toggleFavorite, toggleLike, updatePost } from "./community.js";
 import { createSuggestion, listSuggestions, setSuggestionStatus } from "./suggestions.js";
+import { listMyFeedback, upsertFeedback } from "./feedback.js";
 import { getUserState, setUserState, STATE_KEYS } from "./state.js";
 import { getInsightCategories, setSetting } from "./settings.js";
 import { uploadFile } from "./storage.js";
@@ -899,6 +900,46 @@ export function buildApp() {
         return;
       }
       res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+
+  // ── 月度洞察「我的反馈」 (per-user feedback on each monthly insight) ──
+  app.get("/api/feedback/mine", requireUser, async (req, res) => {
+    try {
+      res.json(await listMyFeedback(req.user!));
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
+    }
+  });
+  const feedbackSchema = z.object({
+    used: z.boolean().optional(),
+    ways: z.array(z.string()).optional(),
+    client_name: z.string().max(200).nullish(),
+    reaction: z.string().max(80).nullish(),
+    client_feedback: z.string().max(5000).nullish(),
+    tags: z.array(z.string()).optional(),
+    follow_up: z.boolean().optional(),
+    note: z.string().max(5000).nullish(),
+    reason: z.string().max(2000).nullish(),
+    suggest: z.string().max(5000).nullish(),
+    insight_title: z.string().max(500).nullish(),
+    insight_category: z.string().max(120).nullish(),
+  });
+  app.put("/api/feedback/:ref", requireUser, async (req, res) => {
+    const ref = String(req.params.ref || "").slice(0, 100);
+    if (!ref) {
+      res.status(400).json({ error: "缺少洞察标识" });
+      return;
+    }
+    const parsed = feedbackSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "参数有误" });
+      return;
+    }
+    try {
+      res.json({ ok: true, feedback: await upsertFeedback(req.user!, ref, parsed.data) });
     } catch (e) {
       res.status(500).json({ error: (e as Error).message });
     }
