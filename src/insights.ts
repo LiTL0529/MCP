@@ -259,7 +259,7 @@ export async function createInsight(input: CreateInsightInput, createdBy?: strin
   const { data: prev } = await supabase
     .from("ja_insights")
     .select(
-      "title_embedding, summary_embedding, attributes_embedding, image_embedding, " +
+      "embedded_at, title_embedding, summary_embedding, attributes_embedding, image_embedding, " +
         "title_emb_input, summary_emb_input, attributes_emb_input, image_emb_input",
     )
     .eq("report_date", input.report_date)
@@ -323,7 +323,11 @@ export async function createInsight(input: CreateInsightInput, createdBy?: strin
     summary_emb_input: fieldInputs.summary || null,
     attributes_emb_input: fieldInputs.attributes || null,
     image_emb_input: imageEmbInput || null,
-    embedded_at: new Date().toISOString(),
+    // Only advance embedded_at when something was actually (re)vectorized; an
+    // edit that didn't touch any embedding field keeps the old timestamp.
+    embedded_at: toEmbed.length
+      ? new Date().toISOString()
+      : ((prevRow?.embedded_at as string | undefined) ?? new Date().toISOString()),
     created_by: createdBy ?? null,
   };
 
